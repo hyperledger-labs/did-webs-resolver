@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+    dkr:
+        container_name: dkr
+        hostname: dkr
+        build:
+            context: .
+            dockerfile: ./images/dkr.dockerfile
+        image: gleif/dkr:latest
+        tty: true
+
+    did-webs-service:
+        container_name: did-webs-service
+        hostname: did-webs-service
+        build:
+            context: .
+            dockerfile: ./images/did-webs-service.dockerfile
+        depends_on:
+            - dkr
+        image: gleif/did-webs-service:latest
+        ports:
+            - 7676:7676
+
+    did-webs-resolver-service:
+        container_name: did-webs-resolver-service
+        hostname: did-webs-resolver-service
+        build:
+            context: .
+            dockerfile: ./images/did-webs-resolver-service.dockerfile
+        depends_on:
+            - dkr
+        image: gleif/did-webs-resolver-service:latest
+        ports:
+            - 7677:7677
+
+    did-keri-resolver-service:
+        container_name: did-keri-resolver-service
+        hostname: did-keri-resolver-service
+        build:
+            context: .
+            dockerfile: ./images/did-keri-resolver-service.dockerfile
+        depends_on:
+            - dkr
+        image: gleif/did-keri-resolver-service:latest
+        ports:
+            - 7678:7678
