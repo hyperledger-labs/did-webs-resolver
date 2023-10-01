@@ -30,7 +30,19 @@ function intro() {
 }
 
 function genDidWebs() {
-    dkr did webs generate --name searcher --did did:webs:127.0.0.1:7676:EK5bvqO2RP8MRTJnE_PHzAsESDj2dHU5avT5I8tuuIzK --oobi http://127.0.0.1:5644/oobi/EK5bvqO2RP8MRTJnE_PHzAsESDj2dHU5avT5I8tuuIzK/witness
+    if [ "${prompt}" == "y" ]; then
+        read -p "Generate did:webs (y/n)? [n]: " runGenDid
+    fi
+    runGenDidWebs=${runGenDid:-"y"}
+    if [ "${runGenDidWebs}" == "n" ]; then
+        echo "Skipping generate did:webs did document"
+    else
+        echo "Generating did:webs DID Document"
+        # if [ "${prompt}" == "y" ]; then
+        #     read -p "Name the identity [searcher]: " runGenDid
+        # fi
+        dkr did webs generate --name searcher --did did:webs:127.0.0.1:7676:EK5bvqO2RP8MRTJnE_PHzAsESDj2dHU5avT5I8tuuIzK --oobi http://127.0.0.1:5644/oobi/EK5bvqO2RP8MRTJnE_PHzAsESDj2dHU5avT5I8tuuIzK/witness
+    fi
 }
 
 function getKeripyDir() {
@@ -46,6 +58,20 @@ function getKeripyDir() {
     fi
     # Use the value of the environment variable
     echo "$KERIPY_DIR"
+}
+
+function installPythonUpdates() {
+    name=$1
+    if [ "${prompt}" == "y" ]; then
+        read -p "Install $name?, [n]: " installInput
+    fi
+    install=${installInput:-"n"}
+    if [ "${install}" == "n" ]; then
+        echo "Skipping install of $name"
+    else
+        echo "Installing python module updates..."
+        python -m pip install -e .
+    fi
 }
 
 function loadKeriData() {
@@ -170,10 +196,9 @@ do
 
     # echo ""
 
-    if [ "${prompt}" == "y" ]; then
-        read -p "Your servers still running, hit enter to tear down: " teardown
-    fi
-    
+    # if [ "${prompt}" == "y" ]; then
+    # fi
+    read -p "Your servers still running, hit enter to tear down: " teardown
     echo "Tearing down any leftover processes"
     # #tear down the signify client
     # kill "$signifyPid" >/dev/null 2>&1
@@ -181,8 +206,8 @@ do
     # kill $keriaPid >/dev/null 2>&1
     # # tear down the delegator
     # kill "$delPid" >/dev/null 2>&1
-    # # tear down the vLEI server
-    # kill $vleiPid >/dev/null 2>&1
+    # tear down the vLEI server
+    kill $kloadPid >/dev/null 2>&1
     # tear down the witness network
     kill $witPid >/dev/null 2>&1
 

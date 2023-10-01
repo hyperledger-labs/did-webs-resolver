@@ -61,6 +61,12 @@ class Generator(doing.DoDoer):
 
         while self.hby.db.roobi.get(keys=(self.oobi,)) is None:
             _ = yield tock
+            
+        oobiHab = self.hby.habs[aid]
+        msgs = oobiHab.replyToOobi(aid=aid, role="controller", eids=None)
+        f = open(f"{aid}-keri.cesr", "w")
+        f.write(msgs.decode("utf-8"))
+
 
         diddoc = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi)
         kever = self.hby.kevers[aid]
@@ -103,8 +109,8 @@ class Generator(doing.DoDoer):
             state=kever.state()._asdict(),
             kel=kel
         )
-        data = json.dumps(result, indent=2)
+        didData = json.dumps(result, indent=2)
 
-        print(data)
+        print(didData)
         self.remove(self.toRemove)
         return True
