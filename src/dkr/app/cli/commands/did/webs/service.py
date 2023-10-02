@@ -71,9 +71,11 @@ def launch(args):
                             clear=False)
 
     if aeid is None:
+        print(f"Creating new habery {name} {base} {bran} {cf}")
         hby = habbing.Habery(name=name, base=base, bran=bran, cf=cf)
     else:
-        hby = existing.setupHby(name=name, base=base, bran=bran)
+        print(f"Loading existing habery {name} {base} {bran} {cf}")
+        hby = existing.setupHby(name=name, base=base, bran=bran, cf=cf)
 
     hbyDoer = habbing.HaberyDoer(habery=hby)  # setup doer
     obl = oobiing.Oobiery(hby=hby)

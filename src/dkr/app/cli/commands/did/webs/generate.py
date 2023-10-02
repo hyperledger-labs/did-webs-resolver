@@ -5,6 +5,7 @@ dkr.app.cli.commands module
 """
 import argparse
 import json
+import os
 
 from hio.base import doing
 from keri.core import coring, eventing
@@ -14,6 +15,7 @@ from keri.db import basing, dbing
 from keri.help import helping
 
 from dkr.core import didding
+from dkr.core import webbing
 
 parser = argparse.ArgumentParser(description='Generate a did:webs DID document and KEL/TEL file')
 parser.set_defaults(handler=lambda args: handler(args),
@@ -64,9 +66,17 @@ class Generator(doing.DoDoer):
             
         oobiHab = self.hby.habs[aid]
         msgs = oobiHab.replyToOobi(aid=aid, role="controller", eids=None)
-        f = open(f"{aid}-keri.cesr", "w")
-        f.write(msgs.decode("utf-8"))
+        
+        # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
+        dir_path = f"keri-cesr/{aid}"
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
 
+        # File path
+        file_path = os.path.join(dir_path, f"{webbing.KERI_CESR}")
+        
+        f = open(file_path, "w")
+        f.write(msgs.decode("utf-8"))
 
         diddoc = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi)
         kever = self.hby.kevers[aid]

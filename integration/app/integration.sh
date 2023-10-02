@@ -105,6 +105,7 @@ function loadKeriData() {
         fi
     fi
     cd "${ORIG_CUR_DIR}" || exit
+    echo ""
 }
 
 function runKeri() {
@@ -135,6 +136,25 @@ function runKeri() {
         echo "Skipping witness network"
     fi
     echo ""
+}
+
+function serveDidAndKeriEvents() {
+    if [ "${prompt}" == "y" ]; then
+        read -p "Serve dids and keri events (y/n)? [n]: " serveKeriEvents
+    fi
+    serveDidsAndKeriEvents=${serveKeriEvents:-"y"}
+    if [ "${serveDidsAndKeriEvents}" == "n" ]; then
+        echo "Skipping serving did:webs did document and keri events"
+    else
+        echo "Serving did:webs DID Document and Keri Events"
+        # if [ "${prompt}" == "y" ]; then
+        #     read -p "Name the identity [searcher]: " runGenDid
+        # fi
+        dkr did webs service --config-dir=./scripts --config-file=dkr.json &
+        servePid=$!
+        sleep 5
+        echo "Serving dids and keri events"
+    fi
 }
 
 function updateFromGit() {
@@ -180,13 +200,11 @@ do
 
     genDidWebs
 
-    # runKeria
+    sleep 3
 
-    # sleep 3
+    serveDidAndKeriEvents
 
-    # runSignifyIntegrationTests
-
-    # sleep 3
+    sleep 3
 
     # runIssueEcr
 
@@ -204,8 +222,8 @@ do
     # kill "$signifyPid" >/dev/null 2>&1
     # # tear down the keria cloud agent
     # kill $keriaPid >/dev/null 2>&1
-    # # tear down the delegator
-    # kill "$delPid" >/dev/null 2>&1
+    # tear down the delegator
+    kill "$servePid" >/dev/null 2>&1
     # tear down the vLEI server
     kill $kloadPid >/dev/null 2>&1
     # tear down the witness network

@@ -4,5 +4,11 @@
     "gleif/root": "EDP1vHcw_wc4M__Fj53-cJaBnZZASd-aMTaSyWEQ-PC2",
     "gleif/external": "EINmHd5g7iV-UldkkkKyBIH052bIyxZNBn9pq-zNrYoS",
     "gleif/internal": "EFcrtYzHx11TElxDmEDx355zm7nJhbmdcIluw7UMbUIL"
-  }
+  },
+  "keri.cesr.dir": "./keri-cesr",
+  "iurls": [
+    "http://127.0.0.1:5642/oobi/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha/controller",
+    "http://127.0.0.1:5643/oobi/BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM/controller",
+    "http://127.0.0.1:5644/oobi/BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX/controller"
+  ]  
 }
