@@ -41,7 +41,7 @@ function genDidWebs() {
         # if [ "${prompt}" == "y" ]; then
         #     read -p "Name the identity [searcher]: " runGenDid
         # fi
-        dkr did webs generate --name searcher --did did:webs:127.0.0.1:7676:EK5bvqO2RP8MRTJnE_PHzAsESDj2dHU5avT5I8tuuIzK --oobi http://127.0.0.1:5644/oobi/EK5bvqO2RP8MRTJnE_PHzAsESDj2dHU5avT5I8tuuIzK/witness
+        dkr did webs generate --name=wan --did=did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha --oobi http://127.0.0.1:5642/oobi/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha/controller
     fi
 }
 

@@ -86,7 +86,7 @@ class Generator(doing.DoDoer):
             kel.append(event)
 
         key = dbing.snKey(pre=pre, sn=0)
-        # load any partially witnesses events for this prefix
+        # load any partially witnessed events for this prefix
         for ekey, edig in self.hby.db.getPweItemsNextIter(key=key):
             pre, sn = dbing.splitKeySN(ekey)  # get pre and sn from escrow item
             try:
