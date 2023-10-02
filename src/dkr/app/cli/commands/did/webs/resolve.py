@@ -13,6 +13,7 @@ from keri.db import basing
 from keri.help import helping
 
 from dkr.core import didding
+from dkr.core import webbing
 
 parser = argparse.ArgumentParser(description='Resolve a did:webs DID')
 parser.set_defaults(handler=lambda args: handler(args),
@@ -51,15 +52,16 @@ class Resolver(doing.DoDoer):
         self.tock = tock
         _ = (yield self.tock)
 
-        aid, oobi = didding.parseDIDWebs(self.did)
-        obr = basing.OobiRecord(date=helping.nowIso8601())
-        obr.cid = aid
-        self.hby.db.oobis.pin(keys=(oobi,), val=obr)
+        domain, path, aid = didding.parseDIDWebs(self.did)
+        
+        # File path
+        file_path = f"./keri_cesr/{aid}/{webbing.KERI_CESR}"
+        # Read the file in binary mode and convert to bytearray
+        with open(file_path, 'rb') as file:
+            msgs = bytearray(file.read())
+            self.hby.psr.parse(ims=msgs)
 
-        while self.hby.db.roobi.get(keys=(oobi,)) is None:
-            _ = yield tock
-
-        result = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=oobi)
+        result = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None)
         data = json.dumps(result, indent=2)
 
         print(data)

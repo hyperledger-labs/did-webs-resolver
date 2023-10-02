@@ -108,6 +108,22 @@ function loadKeriData() {
     echo ""
 }
 
+function resolveDIDAndKeriEvents() {
+    if [ "${prompt}" == "y" ]; then
+        read -p "Resolve did:webs and keri events (y/n)? [n]: " resolveKeriEvents
+    fi
+    resolveDidsAndKeriEvents=${resolveKeriEvents:-"n"}
+    if [ "${resolveDidsAndKeriEvents}" == "n" ]; then
+        echo "Skipping resolving did:webs DID Document and Keri Events"
+    else
+        echo "Resolving did:webs DID Document and Keri Events"
+        # if [ "${prompt}" == "y" ]; then
+        #     read -p "Name the identity [searcher]: " runGenDid
+        # fi
+        dkr did webs resolve --did did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha
+    fi
+}
+
 function runKeri() {
     cd ${ORIG_CUR_DIR} || exit
     witPid=-1
@@ -206,9 +222,9 @@ do
 
     sleep 3
 
-    # runIssueEcr
+    resolveDIDAndKeriEvents
 
-    # sleep 3
+    sleep 3
 
     # runMultisig
 

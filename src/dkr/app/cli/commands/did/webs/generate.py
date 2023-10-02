@@ -68,7 +68,7 @@ class Generator(doing.DoDoer):
         msgs = oobiHab.replyToOobi(aid=aid, role="controller", eids=None)
         
         # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
-        dir_path = f"keri-cesr/{aid}"
+        dir_path = f"{webbing.KERI_CESR}/{aid}"
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
 

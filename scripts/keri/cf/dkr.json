@@ -5,7 +5,7 @@
     "gleif/external": "EINmHd5g7iV-UldkkkKyBIH052bIyxZNBn9pq-zNrYoS",
     "gleif/internal": "EFcrtYzHx11TElxDmEDx355zm7nJhbmdcIluw7UMbUIL"
   },
-  "keri.cesr.dir": "./keri-cesr",
+  "keri.cesr.dir": "./keri_cesr",
   "iurls": [
     "http://127.0.0.1:5642/oobi/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha/controller",
     "http://127.0.0.1:5643/oobi/BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM/controller",
