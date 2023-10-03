@@ -68,17 +68,27 @@ class Generator(doing.DoDoer):
         msgs = oobiHab.replyToOobi(aid=aid, role="controller", eids=None)
         
         # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
-        dir_path = f"{webbing.KERI_CESR}/{aid}"
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
+        kc_dir_path = f"{webbing.KC_DEFAULT_DIR}/{aid}"
+        if not os.path.exists(kc_dir_path):
+            os.makedirs(kc_dir_path)
 
         # File path
-        file_path = os.path.join(dir_path, f"{webbing.KERI_CESR}")
-        
-        f = open(file_path, "w")
-        f.write(msgs.decode("utf-8"))
+        kc_file_path = os.path.join(kc_dir_path, f"{webbing.KERI_CESR}")
+        kcf = open(kc_file_path, "w")
+        kcf.write(msgs.decode("utf-8"))
 
+        #generate did doc
         diddoc = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi)
+        
+        # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
+        dd_dir_path = f"{webbing.DD_DEFAULT_DIR}/{aid}"
+        if not os.path.exists(dd_dir_path):
+            os.makedirs(dd_dir_path)
+        
+        dd_file_path = os.path.join(dd_dir_path, f"{webbing.DID_JSON}")
+        ddf = open(dd_file_path, "w")
+        json.dump(diddoc, ddf)
+        
         kever = self.hby.kevers[aid]
 
         # construct the KEL

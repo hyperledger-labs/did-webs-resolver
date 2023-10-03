@@ -55,7 +55,17 @@ class Resolver(doing.DoDoer):
 
         domain, path, aid = didding.parseDIDWebs(self.did)
 
-        self.loadKeriCesr(self.hby, domain, path, aid)
+        base_url = f"http://{domain}:{path}/{aid}"
+
+        # Load the did doc
+        dd_url = f"{base_url}/{webbing.DID_JSON}"
+        print(f"Loading DID Doc from {dd_url}")
+        did_doc = self.loadUrl(dd_url)
+
+        # Load the KERI CESR
+        kc_url = f"{base_url}/{webbing.KERI_CESR}"
+        print(f"Loading KERI CESR from {kc_url}")
+        self.hby.psr.parse(ims=bytearray(self.loadUrl(kc_url)))
 
         result = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None)
         data = json.dumps(result, indent=2)
@@ -64,18 +74,17 @@ class Resolver(doing.DoDoer):
         self.remove(self.toRemove)
         return True
 
-    def loadKeriCesr(self, hby, domain, path, aid):
-        # File path
-        # file_path = f"./keri_cesr/{aid}/{webbing.KERI_CESR}"
-        # Read the file in binary mode and convert to bytearray
-        msgs = bytearray()
-        # with open(file_path, 'rb') as file:
-        #     msgs = bytearray(file.read())
-
-        response = requests.get(f"http://{domain}:{path}/{aid}/{webbing.KERI_CESR}")
+    def loadUrl(self, url):
+        response = requests.get(f"{url}")
         # Ensure the request was successful
         response.raise_for_status()
         # Convert the content to a bytearray
-        msgs = bytearray(response.content)
-
-        hby.psr.parse(ims=msgs)
+        return response.content
+    
+    def loadFile(self, ):
+        # File path
+        file_path = f"./keri_cesr/{aid}/{webbing.KERI_CESR}"
+        # Read the file in binary mode
+        with open(file_path, 'rb') as file:
+            msgs = file.read()
+            return msgs
