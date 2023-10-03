@@ -82,7 +82,8 @@ setup(
                         'mnemonic>=0.20',
                         'PrettyTable>=3.5.0',
                         'http_sfv>=0.9.8',
-                        'cryptography>=39.0.2'
+                        'cryptography>=39.0.2',
+                        'py-multibase>=1.0.3'
     ],
     extras_require={
     },
