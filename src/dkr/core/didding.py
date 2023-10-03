@@ -6,9 +6,11 @@ dkr.core.didding module
 
 import json
 import re
+import numpy as np
+
+from base64 import urlsafe_b64encode
 
 from keri.help import helping
-from multibase import encode as mbencode
 
 from keri.app import oobiing
 from keri.core import coring
@@ -56,14 +58,48 @@ def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):
             return data.encode("utf-8")
 
     kever = hby.kevers[aid]
-    keys = [mbencode('base58btc', verfer.raw) for verfer in kever.verfers]
     vms = []
-    for idx, key in enumerate(keys):
+    for idx, verfer in enumerate(kever.verfers):
+        kid = verfer.qb64
+        x = urlsafe_b64encode(verfer.raw).rstrip(b'=').decode('utf-8')
         vms.append(dict(
-            id=f"{did}#key-{idx}",
-            type="Ed25519VerificationKey2020",
+            id=f"#{verfer.qb64}",
+            type="JsonWebKey",
             controller=did,
-            publicKeyMultibase=key.decode("utf-8")
+            publicKeyJwk=dict(
+                kid=f"{kid}",
+                kty="OKP",
+                crv="Ed25519",
+                x=f"{x}"
+            )
+        ))
+
+    if isinstance(kever.tholder.thold, int):
+        if kever.tholder.thold > 1:
+            conditions = [vm.get("id") for vm in vms]
+            vms.append(dict(
+                id=f"#{aid}",
+                type="ConditionalProof2022",
+                controller=did,
+                threshold=kever.tholder.thold,
+                conditionThreshold=conditions
+            ))
+    elif isinstance(kever.tholder.thold, list):
+        lcd = int(np.lcm.reduce([fr.denominator for fr in kever.tholder.thold[0]]))
+        threshold = float(lcd/2)
+        numerators = [int(fr.numerator * lcd / fr.denominator) for fr in kever.tholder.thold[0]]
+        conditions = []
+        for idx, verfer in enumerate(kever.verfers):
+            conditions.append(dict(
+                condition=vms[idx]['id'],
+                weight=numerators[idx]
+            ))
+        vms.append(dict(
+            id=f"#{aid}",
+            type="ConditionalProof2022",
+            controller=did,
+            threshold=threshold,
+            conditionWeightedThreshold=conditions
         ))
 
     x = [(keys[1], loc.url) for keys, loc in
