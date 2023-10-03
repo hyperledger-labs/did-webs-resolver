@@ -60,20 +60,24 @@ class Resolver(doing.DoDoer):
         # Load the did doc
         dd_url = f"{base_url}/{webbing.DID_JSON}"
         print(f"Loading DID Doc from {dd_url}")
-        did_doc = self.loadUrl(dd_url)
+        dd_actual = json.loads(self.loadUrl(dd_url).decode("utf-8"))
 
         # Load the KERI CESR
         kc_url = f"{base_url}/{webbing.KERI_CESR}"
         print(f"Loading KERI CESR from {kc_url}")
         self.hby.psr.parse(ims=bytearray(self.loadUrl(kc_url)))
 
-        result = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None)
-        data = json.dumps(result, indent=2)
-
-        print(data)
+        dd_expected = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None)
+        
+        verified = self.verifyDidDocs(dd_expected, dd_actual)
+        
         self.remove(self.toRemove)
-        return True
-
+        
+        if verified:
+            return dd_actual
+        else:
+            return None
+        
     def loadUrl(self, url):
         response = requests.get(f"{url}")
         # Ensure the request was successful
@@ -81,10 +85,74 @@ class Resolver(doing.DoDoer):
         # Convert the content to a bytearray
         return response.content
     
-    def loadFile(self, ):
+    def loadFile(self, aid):
         # File path
         file_path = f"./keri_cesr/{aid}/{webbing.KERI_CESR}"
         # Read the file in binary mode
         with open(file_path, 'rb') as file:
             msgs = file.read()
             return msgs
+        
+    def verifyDidDocs(self, expected, actual):
+        if expected != actual:
+            print("DID Doc does not verify")
+            compare_dicts(expected, actual)
+            return False
+        else:
+            print("DID Doc verified")
+            return True
+        
+def compare_dicts(expected, actual, path=""):
+    print("Comparing dictionaries:\nexpected:\n{expected} \nand\n \nactual:\n{actual}")
+    
+    """Recursively compare two dictionaries and print differences."""
+    for k in expected.keys():
+        # Construct current path
+        current_path = f"{path}.{k}" if path else k
+        print(f"Comparing key {current_path}")
+
+        # Key not present in the actual dictionary
+        if k not in actual:
+            print(f"Key {current_path} not found in the actual dictionary")
+            continue
+
+        # If value in expected is a dictionary but not in actual
+        if isinstance(expected[k], dict) and not isinstance(actual[k], dict):
+            print(f"{current_path} is a dictionary in expected, but not in actual")
+            continue
+
+        # If value in actual is a dictionary but not in expected
+        if isinstance(actual[k], dict) and not isinstance(expected[k], dict):
+            print(f"{current_path} is a dictionary in actual, but not in expected")
+            continue
+
+        # If value is another dictionary, recurse
+        if isinstance(expected[k], dict) and isinstance(actual[k], dict):
+            compare_dicts(expected[k], actual[k], current_path)
+        # Compare non-dict values
+        elif expected[k] != actual[k]:
+            print(f"Different values for key {current_path}: {expected[k]} (expected) vs. {actual[k]} (actual)")
+
+    # Check for keys in actual that are not present in expected
+    for k in actual.keys():
+        current_path = f"{path}.{k}" if path else k
+        if k not in expected:
+            print(f"Key {current_path} not found in the expected dictionary")
+
+# # Test with the provided dictionaries
+# expected_dict = {
+#     'id': 'did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha',
+#     'verificationMethod': [{'id': 'did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha#key-0', 'type': 'Ed25519VerificationKey2020', 'controller': 'did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha', 'publicKeyMultibase': 'z2fD7Rmbbggzwa4SNpYKWi6csiiUcVeyUTgGzDtMrqC7b'}]
+# }
+
+# actual_dict = {
+#     "id": "did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
+#     "verificationMethod": [{
+#         "id": "did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha#key-0",
+#         "type": "Ed25519VerificationKey2020",
+#         "controller": "did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
+#         "publicKeyMultibase": "z2fD7Rmbbggzwa4SNpYKWi6csiiUcVeyUTgGzDtMrqC7b"
+#     }]
+# }
+
+# compare_dicts(expected_dict, actual_dict)

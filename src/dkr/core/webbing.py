@@ -170,7 +170,7 @@ class DidJsonResourceEnd():
         # Open the file in read mode
         with open(f"{self.lookup[req.path]}", "r", encoding="utf-8") as f:
             content = json.load(f)
-        print("Got did.json content {content}")
+        print(f"Got did.json content {content}")
 
         rep.status = falcon.HTTP_200
         rep.content_type = ending.Mimes.json
