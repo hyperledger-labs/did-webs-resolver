@@ -5,6 +5,7 @@ dkr.app.cli.commands module
 """
 import argparse
 import json
+import requests
 
 from hio.base import doing
 from keri.app import habbing, oobiing
@@ -53,13 +54,8 @@ class Resolver(doing.DoDoer):
         _ = (yield self.tock)
 
         domain, path, aid = didding.parseDIDWebs(self.did)
-        
-        # File path
-        file_path = f"./keri_cesr/{aid}/{webbing.KERI_CESR}"
-        # Read the file in binary mode and convert to bytearray
-        with open(file_path, 'rb') as file:
-            msgs = bytearray(file.read())
-            self.hby.psr.parse(ims=msgs)
+
+        self.loadKeriCesr(self.hby, domain, path, aid)
 
         result = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None)
         data = json.dumps(result, indent=2)
@@ -67,3 +63,19 @@ class Resolver(doing.DoDoer):
         print(data)
         self.remove(self.toRemove)
         return True
+
+    def loadKeriCesr(self, hby, domain, path, aid):
+        # File path
+        # file_path = f"./keri_cesr/{aid}/{webbing.KERI_CESR}"
+        # Read the file in binary mode and convert to bytearray
+        msgs = bytearray()
+        # with open(file_path, 'rb') as file:
+        #     msgs = bytearray(file.read())
+
+        response = requests.get(f"http://{domain}:{path}/{aid}/{webbing.KERI_CESR}")
+        # Ensure the request was successful
+        response.raise_for_status()
+        # Convert the content to a bytearray
+        msgs = bytearray(response.content)
+
+        hby.psr.parse(ims=msgs)
