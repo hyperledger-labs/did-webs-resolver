@@ -31,11 +31,11 @@ parser.add_argument("--metadata", "-m", help="Whether to include metadata (True)
 
 
 def handler(args):
-    res = Resolver(name=args.name, base=args.base, bran=args.bran, did=args.did, oobi=args.oobi, metadata=args.metadata)
+    res = KeriResolver(name=args.name, base=args.base, bran=args.bran, did=args.did, oobi=args.oobi, metadata=args.metadata)
     return [res]
 
 
-class Resolver(doing.DoDoer):
+class KeriResolver(doing.DoDoer):
 
     def __init__(self, name, base, bran, did, oobi, metadata):
 
@@ -48,7 +48,7 @@ class Resolver(doing.DoDoer):
 
         self.toRemove = [hbyDoer] + obl.doers
         doers = list(self.toRemove) + [doing.doify(self.resolve)]
-        super(Resolver, self).__init__(doers=doers)
+        super(KeriResolver, self).__init__(doers=doers)
 
     def resolve(self, tymth, tock=0.0, **opts):
         self.wind(tymth)
@@ -66,11 +66,11 @@ class Resolver(doing.DoDoer):
         while self.hby.db.roobi.get(keys=(self.oobi,)) is None:
             _ = yield tock
 
-        result = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi, metadata=self.metadata)
-        data = json.dumps(result, indent=2)
+        dd = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi, metadata=self.metadata)
+        data = json.dumps(dd, indent=2)
 
         print(data)
         self.remove(self.toRemove)
-        return True
+        return dd
 
 

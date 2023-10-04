@@ -32,11 +32,11 @@ parser.add_argument("--metadata", "-m", help="Whether to include metadata (True)
 
 
 def handler(args):
-    res = Resolver(name=args.name, base=args.base, bran=args.bran, did=args.did)
+    res = WebsResolver(name=args.name, base=args.base, bran=args.bran, did=args.did)
     return [res]
 
 
-class Resolver(doing.DoDoer):
+class WebsResolver(doing.DoDoer):
 
     def __init__(self, name, base, bran, did, metadata):
 
@@ -48,7 +48,7 @@ class Resolver(doing.DoDoer):
 
         self.toRemove = [hbyDoer] + obl.doers
         doers = list(self.toRemove) + [doing.doify(self.resolve)]
-        super(Resolver, self).__init__(doers=doers)
+        super(WebsResolver, self).__init__(doers=doers)
 
     def resolve(self, tymth, tock=0.0, **opts):
         self.wind(tymth)
