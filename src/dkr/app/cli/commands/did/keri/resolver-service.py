@@ -71,7 +71,7 @@ def launch(args, expire=0.0):
     obl = oobiing.Oobiery(hby=hby)
 
     doers = obl.doers + [hbyDoer]
-    doers += resolving.setup(hby, httpPort=httpPort)
+    doers += resolving.setup(hby, args, httpPort=httpPort)
 
     print(f"Launched did:keri resolver as an HTTP web service on {httpPort}")
     return doers
