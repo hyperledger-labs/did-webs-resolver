@@ -83,7 +83,7 @@ setup(
                         'PrettyTable>=3.5.0',
                         'http_sfv>=0.9.8',
                         'cryptography>=39.0.2',
-                        'py-multibase>=1.0.3'
+                        'numpy>=1.26.0'
     ],
     extras_require={
     },
