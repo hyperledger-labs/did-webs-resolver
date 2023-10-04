@@ -72,6 +72,7 @@ setup(
                         'cbor2>=5.4.3',
                         'multidict>=6.0.2',
                         'ordered-set>=4.1.0',
+                        'keri @ git+https://git@github.com/WebOfTrust/keripy.git',
                         'hio>=0.6.9',
                         'multicommand>=1.0.0',
                         'jsonschema>=4.17.0',
@@ -83,6 +84,7 @@ setup(
                         'PrettyTable>=3.5.0',
                         'http_sfv>=0.9.8',
                         'cryptography>=39.0.2',
+                        'requests>=2.28',
                         'numpy>=1.26.0'
     ],
     extras_require={

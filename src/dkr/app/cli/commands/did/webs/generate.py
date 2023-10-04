@@ -5,6 +5,7 @@ dkr.app.cli.commands module
 """
 import argparse
 import json
+import os
 
 from hio.base import doing
 from keri.core import coring, eventing
@@ -14,6 +15,7 @@ from keri.db import basing, dbing
 from keri.help import helping
 
 from dkr.core import didding
+from dkr.core import webbing
 
 parser = argparse.ArgumentParser(description='Generate a did:webs DID document and KEL/TEL file')
 parser.set_defaults(handler=lambda args: handler(args),
@@ -61,8 +63,32 @@ class Generator(doing.DoDoer):
 
         while self.hby.db.roobi.get(keys=(self.oobi,)) is None:
             _ = yield tock
+            
+        oobiHab = self.hby.habs[aid]
+        msgs = oobiHab.replyToOobi(aid=aid, role="controller", eids=None)
+        
+        # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
+        kc_dir_path = f"{webbing.KC_DEFAULT_DIR}/{aid}"
+        if not os.path.exists(kc_dir_path):
+            os.makedirs(kc_dir_path)
 
+        # File path
+        kc_file_path = os.path.join(kc_dir_path, f"{webbing.KERI_CESR}")
+        kcf = open(kc_file_path, "w")
+        kcf.write(msgs.decode("utf-8"))
+
+        #generate did doc
         diddoc = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi)
+        
+        # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
+        dd_dir_path = f"{webbing.DD_DEFAULT_DIR}/{aid}"
+        if not os.path.exists(dd_dir_path):
+            os.makedirs(dd_dir_path)
+        
+        dd_file_path = os.path.join(dd_dir_path, f"{webbing.DID_JSON}")
+        ddf = open(dd_file_path, "w")
+        json.dump(diddoc, ddf)
+        
         kever = self.hby.kevers[aid]
 
         # construct the KEL
@@ -80,7 +106,7 @@ class Generator(doing.DoDoer):
             kel.append(event)
 
         key = dbing.snKey(pre=pre, sn=0)
-        # load any partially witnesses events for this prefix
+        # load any partially witnessed events for this prefix
         for ekey, edig in self.hby.db.getPweItemsNextIter(key=key):
             pre, sn = dbing.splitKeySN(ekey)  # get pre and sn from escrow item
             try:
@@ -103,8 +129,8 @@ class Generator(doing.DoDoer):
             state=kever.state()._asdict(),
             kel=kel
         )
-        data = json.dumps(result, indent=2)
+        didData = json.dumps(result, indent=2)
 
-        print(data)
+        print(didData)
         self.remove(self.toRemove)
         return True
