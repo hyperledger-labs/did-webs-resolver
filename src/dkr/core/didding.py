@@ -83,7 +83,8 @@ def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):
         retrieved=helping.nowIso8601()
     )
     didDocumentMetadata = dict(
-        witnesses=witnesses
+        witnesses=witnesses,
+        versionId=f"{kever.sner.num}"
     )
     diddoc = dict(
         id=did,
