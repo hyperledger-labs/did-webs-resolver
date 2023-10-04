@@ -16,7 +16,7 @@ parser.set_defaults(handler=lambda args: launch(args),
 parser.add_argument('-p', '--http',
                     action='store',
                     default=7677,
-                    help="Port on which to listen for did:webs resolution requests.  Defaults to 967")
+                    help="Port on which to listen for did:webs resolution requests.  Defaults to 7677")
 parser.add_argument('-n', '--name',
                     action='store',
                     default="dkr",
@@ -71,7 +71,7 @@ def launch(args, expire=0.0):
     obl = oobiing.Oobiery(hby=hby)
 
     doers = obl.doers + [hbyDoer]
-    doers += resolving.setup(hby, httpPort=httpPort)
+    doers += resolving.setup(hby, args, httpPort=httpPort)
 
     print(f"Launched did:webs resolver as an HTTP web service on {httpPort}")
     return doers
