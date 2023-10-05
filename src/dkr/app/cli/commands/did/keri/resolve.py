@@ -56,6 +56,9 @@ class Resolver(doing.DoDoer):
         _ = (yield self.tock)
 
         aid = didding.parseDIDKeri(self.did)
+        print(f"From arguments got aid: {aid}")
+        print(f"From arguments got oobi: {self.oobi}")
+
         obr = basing.OobiRecord(date=helping.nowIso8601())
         obr.cid = aid
         self.hby.db.oobis.pin(keys=(self.oobi,), val=obr)
