@@ -56,15 +56,15 @@ class ResolveResource(doing.DoDoer):
 
     """
 
-    def __init__(self, hby, args):
+    def __init__(self, hbyDoer, obl):
         """ Create Endpoints for discovery and resolution of OOBIs
 
         Parameters:
             hby (Habery): identifier database environment
 
         """
-        self.hby = hby
-        self.args = args
+        self.hbyDoer = hbyDoer
+        self.obl = obl
 
         super(ResolveResource, self).__init__(doers=[])
         print(f"Init resolver endpoint")
@@ -84,11 +84,11 @@ class ResolveResource(doing.DoDoer):
             oobi = None
 
         if did.startswith('did:webs:'):
-            res = WebsResolver(name=self.args.name, base=self.args.base, bran=self.args.bran, did=did, oobi=oobi, metadata=False)
+            res = WebsResolver(hbyDoer=self.hbyDoer, obl=self.obl, did=did, oobi=oobi, metadata=False)
             tymth = None # ???
             data = res.resolve(tymth)
         elif did.startswith('did:keri'):
-            res = KeriResolver(name=self.args.name, base=self.args.base, bran=self.args.bran, did=did, oobi=oobi, metadata=False)
+            res = KeriResolver(hbyDoer=self.hbyDoer, obl=self.obl, did=did, oobi=oobi, metadata=False)
             tymth = None # ???
             data = res.resolve(tymth)
         else:
