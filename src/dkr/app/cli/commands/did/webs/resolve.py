@@ -55,7 +55,7 @@ class Resolver(doing.DoDoer):
 
         domain, path, aid = didding.parseDIDWebs(self.did)
 
-        base_url = f"http://{domain}:{path}/{aid}"
+        base_url = f"http://{domain}/{path}/{aid}"
 
         # Load the did doc
         dd_url = f"{base_url}/{webbing.DID_JSON}"
