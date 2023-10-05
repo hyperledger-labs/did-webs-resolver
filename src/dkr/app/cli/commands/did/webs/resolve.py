@@ -34,14 +34,15 @@ def handler(args):
     hby = existing.setupHby(name=args.name, base=args.base, bran=args.bran)
     hbyDoer = habbing.HaberyDoer(habery=hby)  # setup doer
     obl = oobiing.Oobiery(hby=hby)
-    res = WebsResolver(hbyDoer=hbyDoer, obl=obl, did=args.did)
+    res = WebsResolver(hby=hby, hbyDoer=hbyDoer, obl=obl, did=args.did)
     return [res]
 
 
 class WebsResolver(doing.DoDoer):
 
-    def __init__(self, hbyDoer, obl, did):
+    def __init__(self, hby, hbyDoer, obl, did):
 
+        self.hby = hby
         self.did = did
 
         self.toRemove = [hbyDoer] + obl.doers

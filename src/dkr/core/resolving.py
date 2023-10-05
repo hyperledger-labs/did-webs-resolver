@@ -16,7 +16,7 @@ from dkr.app.cli.commands.did.webs.resolve import WebsResolver
 from dkr.core import didding
 
 
-def setup(hby, args, *, httpPort):
+def setup(hby, hbyDoer, obl, *, httpPort):
     """ Setup serving package and endpoints
 
     Parameters:
@@ -34,16 +34,16 @@ def setup(hby, args, *, httpPort):
     server = http.Server(port=httpPort, app=app)
     httpServerDoer = http.ServerDoer(server=server)
 
-    loadEnds(app, hby=hby, args=args)
+    loadEnds(app, hby=hby, hbyDoer=hbyDoer, obl=obl)
 
     doers = [httpServerDoer]
 
     return doers
 
 
-def loadEnds(app, *, hby, args, prefix=""):
+def loadEnds(app, *, hby, hbyDoer, obl, prefix=""):
     print(f"Loading resolving endpoints")
-    resolveEnd = ResolveResource(hby=hby, args=args)
+    resolveEnd = ResolveResource(hby=hby, hbyDoer=hbyDoer, obl=obl)
     result = app.add_route('/1.0/identifiers/{did}', resolveEnd)
     print(f"Loaded resolving endpoints: {app}")
 
@@ -56,13 +56,14 @@ class ResolveResource(doing.DoDoer):
 
     """
 
-    def __init__(self, hbyDoer, obl):
+    def __init__(self, hby, hbyDoer, obl):
         """ Create Endpoints for discovery and resolution of OOBIs
 
         Parameters:
             hby (Habery): identifier database environment
 
         """
+        self.hby = hby
         self.hbyDoer = hbyDoer
         self.obl = obl
 
@@ -84,11 +85,11 @@ class ResolveResource(doing.DoDoer):
             oobi = None
 
         if did.startswith('did:webs:'):
-            res = WebsResolver(hbyDoer=self.hbyDoer, obl=self.obl, did=did, oobi=oobi, metadata=False)
+            res = WebsResolver(hby=self.hby, hbyDoer=self.hbyDoer, obl=self.obl, did=did)
             tymth = None # ???
             data = res.resolve(tymth)
         elif did.startswith('did:keri'):
-            res = KeriResolver(hbyDoer=self.hbyDoer, obl=self.obl, did=did, oobi=oobi, metadata=False)
+            res = KeriResolver(hby=self.hby, hbyDoer=self.hbyDoer, obl=self.obl, did=did, oobi=oobi, metadata=False)
             tymth = None # ???
             data = res.resolve(tymth)
         else:

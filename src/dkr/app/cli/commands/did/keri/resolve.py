@@ -34,14 +34,15 @@ def handler(args):
     hby = existing.setupHby(name=args.name, base=args.base, bran=args.bran)
     hbyDoer = habbing.HaberyDoer(habery=hby)  # setup doer
     obl = oobiing.Oobiery(hby=hby)
-    res = KeriResolver(hbyDoer=hbyDoer, obl=obl, did=args.did, oobi=args.oobi, metadata=args.metadata)
+    res = KeriResolver(hby=hby, hbyDoer=hbyDoer, obl=obl, did=args.did, oobi=args.oobi, metadata=args.metadata)
     return [res]
 
 
 class KeriResolver(doing.DoDoer):
 
-    def __init__(self, hbyDoer, obl, did, oobi, metadata):
+    def __init__(self, hby, hbyDoer, obl, did, oobi, metadata):
 
+        self.hby = hby
         self.did = did
         self.oobi = oobi
         self.metadata = metadata
