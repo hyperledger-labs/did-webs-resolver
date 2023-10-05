@@ -9,8 +9,6 @@ from keri.app import keeping, habbing, directing, configing, oobiing
 from keri.app.cli.common import existing
 
 from dkr.core import resolving
-from dkr.app.cli.commands.did.keri.resolve import KeriResolver
-from dkr.app.cli.commands.did.webs.resolve import WebsResolver
 
 parser = argparse.ArgumentParser(description='Expose did:keri resolver as an HTTP web service')
 parser.set_defaults(handler=lambda args: launch(args),
