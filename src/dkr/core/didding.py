@@ -136,3 +136,15 @@ def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):
         return resolutionResult
     else:
         return diddoc
+
+def toDidWeb(diddoc):
+    diddoc['id'] = diddoc['id'].replace('did:webs', 'did:web')
+    for verificationMethod in diddoc['verificationMethod']:
+        verificationMethod['controller'] = verificationMethod['controller'].replace('did:webs', 'did:web')
+    return diddoc
+
+def fromDidWeb(diddoc):
+    diddoc['id'] = diddoc['id'].replace('did:web', 'did:webs')
+    for verificationMethod in diddoc['verificationMethod']:
+        verificationMethod['controller'] = verificationMethod['controller'].replace('did:web', 'did:webs')
+    return diddoc
