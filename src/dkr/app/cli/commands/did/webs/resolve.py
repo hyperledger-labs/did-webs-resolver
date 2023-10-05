@@ -28,6 +28,7 @@ parser.add_argument('--base', '-b', help='additional optional prefix to file loc
 parser.add_argument('--passcode', help='22 character encryption passcode for keystore (is not saved)',
                     dest="bran", default=None)  # passcode => bran
 parser.add_argument("--did", "-d", help="DID to resolve", required=True)
+parser.add_argument("--metadata", "-m", help="Whether to include metadata (True), or only return the DID document (False)", type=bool, required=False, default=None)
 
 
 def handler(args):
@@ -37,12 +38,13 @@ def handler(args):
 
 class Resolver(doing.DoDoer):
 
-    def __init__(self, name, base, bran, did):
+    def __init__(self, name, base, bran, did, metadata):
 
         self.hby = existing.setupHby(name=name, base=base, bran=bran)
         hbyDoer = habbing.HaberyDoer(habery=self.hby)  # setup doer
         obl = oobiing.Oobiery(hby=self.hby)
         self.did = did
+        self.metadata = metadata
 
         self.toRemove = [hbyDoer] + obl.doers
         doers = list(self.toRemove) + [doing.doify(self.resolve)]
@@ -67,7 +69,7 @@ class Resolver(doing.DoDoer):
         print(f"Loading KERI CESR from {kc_url}")
         self.hby.psr.parse(ims=bytearray(self.loadUrl(kc_url)))
 
-        dd_expected = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None)
+        dd_expected = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, metadata=self.metadata)
         
         verified = self.verifyDidDocs(dd_expected, dd_actual)
         
