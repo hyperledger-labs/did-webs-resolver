@@ -9,6 +9,8 @@ from keri.app import keeping, habbing, directing, configing, oobiing
 from keri.app.cli.common import existing
 
 from dkr.core import resolving
+from dkr.app.cli.commands.did.keri.resolve import KeriResolver
+from dkr.app.cli.commands.did.webs.resolve import WebsResolver
 
 parser = argparse.ArgumentParser(description='Expose did:keri resolver as an HTTP web service')
 parser.set_defaults(handler=lambda args: launch(args),
@@ -71,7 +73,7 @@ def launch(args, expire=0.0):
     obl = oobiing.Oobiery(hby=hby)
 
     doers = obl.doers + [hbyDoer]
-    doers += resolving.setup(hby, args, httpPort=httpPort)
+    doers += resolving.setup(hby, hbyDoer, obl, httpPort=httpPort)
 
     print(f"Launched did:keri resolver as an HTTP web service on {httpPort}")
     return doers

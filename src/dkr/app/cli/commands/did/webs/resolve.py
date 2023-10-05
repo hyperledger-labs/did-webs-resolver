@@ -32,17 +32,18 @@ parser.add_argument("--metadata", "-m", help="Whether to include metadata (True)
 
 
 def handler(args):
-    res = WebsResolver(name=args.name, base=args.base, bran=args.bran, did=args.did)
+    hby = existing.setupHby(name=args.name, base=args.base, bran=args.bran)
+    hbyDoer = habbing.HaberyDoer(habery=hby)  # setup doer
+    obl = oobiing.Oobiery(hby=hby)
+    res = WebsResolver(hby=hby, hbyDoer=hbyDoer, obl=obl, did=args.did)
     return [res]
 
 
 class WebsResolver(doing.DoDoer):
 
-    def __init__(self, name, base, bran, did, metadata):
+    def __init__(self, hby, hbyDoer, obl, did):
 
-        self.hby = existing.setupHby(name=name, base=base, bran=bran)
-        hbyDoer = habbing.HaberyDoer(habery=self.hby)  # setup doer
-        obl = oobiing.Oobiery(hby=self.hby)
+        self.hby = hby
         self.did = did
         self.metadata = metadata
 
