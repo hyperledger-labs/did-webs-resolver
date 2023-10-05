@@ -31,17 +31,18 @@ parser.add_argument("--metadata", "-m", help="Whether to include metadata (True)
 
 
 def handler(args):
-    res = KeriResolver(name=args.name, base=args.base, bran=args.bran, did=args.did, oobi=args.oobi, metadata=args.metadata)
+    hby = existing.setupHby(name=args.name, base=args.base, bran=args.bran)
+    hbyDoer = habbing.HaberyDoer(habery=hby)  # setup doer
+    obl = oobiing.Oobiery(hby=hby)
+    res = KeriResolver(hby=hby, hbyDoer=hbyDoer, obl=obl, did=args.did, oobi=args.oobi, metadata=args.metadata)
     return [res]
 
 
 class KeriResolver(doing.DoDoer):
 
-    def __init__(self, name, base, bran, did, oobi, metadata):
+    def __init__(self, hby, hbyDoer, obl, did, oobi, metadata):
 
-        self.hby = existing.setupHby(name=name, base=base, bran=bran)
-        hbyDoer = habbing.HaberyDoer(habery=self.hby)  # setup doer
-        obl = oobiing.Oobiery(hby=self.hby)
+        self.hby = hby
         self.did = did
         self.oobi = oobi
         self.metadata = metadata
