@@ -87,7 +87,7 @@ class Generator(doing.DoDoer):
         
         dd_file_path = os.path.join(dd_dir_path, f"{webbing.DID_JSON}")
         ddf = open(dd_file_path, "w")
-        json.dump(diddoc, ddf)
+        json.dump(didding.toDidWeb(diddoc), ddf)
         
         kever = self.hby.kevers[aid]
 
