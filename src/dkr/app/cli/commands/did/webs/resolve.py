@@ -62,7 +62,7 @@ class Resolver(doing.DoDoer):
         # Load the did doc
         dd_url = f"{base_url}/{webbing.DID_JSON}"
         print(f"Loading DID Doc from {dd_url}")
-        dd_actual = json.loads(self.loadUrl(dd_url).decode("utf-8"))
+        dd_actual = didding.fromDidWeb(json.loads(self.loadUrl(dd_url).decode("utf-8")))
 
         # Load the KERI CESR
         kc_url = f"{base_url}/{webbing.KERI_CESR}"
