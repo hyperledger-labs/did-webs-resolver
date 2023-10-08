@@ -6,6 +6,7 @@ dkr.app.cli.commands module
 import argparse
 import json
 import requests
+import sys
 
 from hio.base import doing
 from keri.app import habbing, oobiing
@@ -35,13 +36,13 @@ def handler(args):
     hby = existing.setupHby(name=args.name, base=args.base, bran=args.bran)
     hbyDoer = habbing.HaberyDoer(habery=hby)  # setup doer
     obl = oobiing.Oobiery(hby=hby)
-    res = WebsResolver(hby=hby, hbyDoer=hbyDoer, obl=obl, did=args.did)
+    res = WebsResolver(hby=hby, hbyDoer=hbyDoer, obl=obl, did=args.did, metadata=args.metadata)
     return [res]
 
 
 class WebsResolver(doing.DoDoer):
 
-    def __init__(self, hby, hbyDoer, obl, did):
+    def __init__(self, hby, hbyDoer, obl, did, metadata):
 
         self.hby = hby
         self.did = did
@@ -62,21 +63,23 @@ class WebsResolver(doing.DoDoer):
 
         # Load the did doc
         dd_url = f"{base_url}/{webbing.DID_JSON}"
-        print(f"Loading DID Doc from {dd_url}")
+        print(f"Loading DID Doc from {dd_url}", file=sys.stderr)
         dd_actual = didding.fromDidWeb(json.loads(self.loadUrl(dd_url).decode("utf-8")))
 
         # Load the KERI CESR
         kc_url = f"{base_url}/{webbing.KERI_CESR}"
-        print(f"Loading KERI CESR from {kc_url}")
+        print(f"Loading KERI CESR from {kc_url}", file=sys.stderr)
         self.hby.psr.parse(ims=bytearray(self.loadUrl(kc_url)))
 
-        dd_expected = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, metadata=self.metadata)
+        dd_expected = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, metadata=True)
         
-        verified = self.verifyDidDocs(dd_expected, dd_actual)
-        
+        verified = self.verifyDidDocs(dd_expected['didDocument'], dd_actual)
+
         self.remove(self.toRemove)
         
         if verified:
+            data = json.dumps(dd_expected, indent=2)
+            print(data)
             return dd_actual
         else:
             return None
@@ -98,11 +101,11 @@ class WebsResolver(doing.DoDoer):
         
     def verifyDidDocs(self, expected, actual):
         if expected != actual:
-            print("DID Doc does not verify")
+            print("DID Doc does not verify", file=sys.stderr)
             compare_dicts(expected, actual)
             return False
         else:
-            print("DID Doc verified")
+            print("DID Doc verified", file=sys.stderr)
             return True
         
 def compare_dicts(expected, actual, path=""):

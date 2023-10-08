@@ -4,6 +4,7 @@ dkr.core.serving module
 
 """
 import json
+import os
 
 import falcon
 from hio.base import doing
@@ -84,14 +85,22 @@ class ResolveResource(doing.DoDoer):
         else:
             oobi = None
 
+        metadata = False
+
         if did.startswith('did:webs:'):
-            res = WebsResolver(hby=self.hby, hbyDoer=self.hbyDoer, obl=self.obl, did=did)
-            tymth = None # ???
-            data = res.resolve(tymth)
+            #res = WebsResolver(hby=self.hby, hbyDoer=self.hbyDoer, obl=self.obl, did=did)
+            #tymth = None # ???
+            #data = res.resolve(tymth)
+            cmd = f"dkr did webs resolve --name dkr --did {did} --metadata {metadata}"
+            stream = os.popen(cmd)
+            data = stream.read()
         elif did.startswith('did:keri'):
-            res = KeriResolver(hby=self.hby, hbyDoer=self.hbyDoer, obl=self.obl, did=did, oobi=oobi, metadata=False)
-            tymth = None # ???
-            data = res.resolve(tymth)
+            #res = KeriResolver(hby=self.hby, hbyDoer=self.hbyDoer, obl=self.obl, did=did, oobi=oobi, metadata=False)
+            #tymth = None # ???
+            #data = res.resolve(tymth)
+            cmd = f"dkr did keri resolve --name dkr --did {did} --oobi {oobi} --metadata {metadata}"
+            stream = os.popen(cmd)
+            data = stream.read()
         else:
             rep.status = falcon.HTTP_400
             rep.text = "invalid 'did'"

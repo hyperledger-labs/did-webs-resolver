@@ -5,6 +5,7 @@ dkr.app.cli.commands module
 """
 import argparse
 import json
+import sys
 
 from hio.base import doing
 from keri.app import habbing, oobiing
@@ -57,8 +58,8 @@ class KeriResolver(doing.DoDoer):
         _ = (yield self.tock)
 
         aid = didding.parseDIDKeri(self.did)
-        print(f"From arguments got aid: {aid}")
-        print(f"From arguments got oobi: {self.oobi}")
+        print(f"From arguments got aid: {aid}", file=sys.stderr)
+        print(f"From arguments got oobi: {self.oobi}", file=sys.stderr)
 
         obr = basing.OobiRecord(date=helping.nowIso8601())
         obr.cid = aid
