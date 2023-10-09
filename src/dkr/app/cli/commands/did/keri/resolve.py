@@ -68,11 +68,13 @@ class KeriResolver(doing.DoDoer):
         while self.hby.db.roobi.get(keys=(self.oobi,)) is None:
             _ = yield tock
 
-        dd = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi, metadata=self.metadata)
-        data = json.dumps(dd, indent=2)
+        didresult = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi, metadata=True)
+        dd = didresult['didDocument']
+        result = didresult if self.metadata else dd
+        data = json.dumps(result, indent=2)
 
         print(data)
         self.remove(self.toRemove)
-        return dd
+        return result
 
 

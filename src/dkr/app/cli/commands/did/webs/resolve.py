@@ -71,19 +71,28 @@ class WebsResolver(doing.DoDoer):
         print(f"Loading KERI CESR from {kc_url}", file=sys.stderr)
         self.hby.psr.parse(ims=bytearray(self.loadUrl(kc_url)))
 
-        dd_expected = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, metadata=True)
-        
-        verified = self.verifyDidDocs(dd_expected['didDocument'], dd_actual)
+        didresult = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, metadata=True)
+        didresult['didDocumentMetadata']['didDocUrl'] = dd_url
+        didresult['didDocumentMetadata']['keriCesrUrl'] = kc_url
+
+        dd_expected = didresult['didDocument']
+
+        verified = self.verifyDidDocs(dd_expected, dd_actual)
 
         self.remove(self.toRemove)
         
         if verified:
-            data = json.dumps(dd_expected, indent=2)
-            print(data)
-            return dd_actual
+            result = didresult if self.metadata else dd_expected
         else:
-            return None
-        
+            didresult['didDocument'] = None
+            didresult['didResolutionMetadata']['error'] = 'notVerified'
+            didresult['didResolutionMetadata']['errorMessage'] = 'The DID document could not be verified against the KERI event stream'
+            result = didresult
+
+        data = json.dumps(result, indent=2)
+        print(data)
+        return result
+
     def loadUrl(self, url):
         response = requests.get(f"{url}")
         # Ensure the request was successful
