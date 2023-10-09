@@ -109,27 +109,27 @@ class WebsResolver(doing.DoDoer):
             return True
         
 def compare_dicts(expected, actual, path=""):
-    print("Comparing dictionaries:\nexpected:\n{expected} \nand\n \nactual:\n{actual}")
+    print("Comparing dictionaries:\nexpected:\n{expected} \nand\n \nactual:\n{actual}", file=sys.stderr)
     
     """Recursively compare two dictionaries and print differences."""
     for k in expected.keys():
         # Construct current path
         current_path = f"{path}.{k}" if path else k
-        print(f"Comparing key {current_path}")
+        print(f"Comparing key {current_path}", file=sys.stderr)
 
         # Key not present in the actual dictionary
         if k not in actual:
-            print(f"Key {current_path} not found in the actual dictionary")
+            print(f"Key {current_path} not found in the actual dictionary", file=sys.stderr)
             continue
 
         # If value in expected is a dictionary but not in actual
         if isinstance(expected[k], dict) and not isinstance(actual[k], dict):
-            print(f"{current_path} is a dictionary in expected, but not in actual")
+            print(f"{current_path} is a dictionary in expected, but not in actual", file=sys.stderr)
             continue
 
         # If value in actual is a dictionary but not in expected
         if isinstance(actual[k], dict) and not isinstance(expected[k], dict):
-            print(f"{current_path} is a dictionary in actual, but not in expected")
+            print(f"{current_path} is a dictionary in actual, but not in expected", file=sys.stderr)
             continue
 
         # If value is another dictionary, recurse
@@ -137,13 +137,13 @@ def compare_dicts(expected, actual, path=""):
             compare_dicts(expected[k], actual[k], current_path)
         # Compare non-dict values
         elif expected[k] != actual[k]:
-            print(f"Different values for key {current_path}: {expected[k]} (expected) vs. {actual[k]} (actual)")
+            print(f"Different values for key {current_path}: {expected[k]} (expected) vs. {actual[k]} (actual)", file=sys.stderr)
 
     # Check for keys in actual that are not present in expected
     for k in actual.keys():
         current_path = f"{path}.{k}" if path else k
         if k not in expected:
-            print(f"Key {current_path} not found in the expected dictionary")
+            print(f"Key {current_path} not found in the expected dictionary", file=sys.stderr)
 
 # # Test with the provided dictionaries
 # expected_dict = {
