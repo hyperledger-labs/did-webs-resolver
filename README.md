@@ -66,16 +66,16 @@ dkr did webs generate --name dkr --did did:webs:danubetech.com:example:EPaP4GgZs
 
 ```
                               ---------------------------------
-      did.json, did.keri     |                                 |
+      did.json, keri.cesr    |                                 |
     --------------------->   |  ANY WEB SERVER  /123/did.json  |
-   |                         |                  /123/did.keri  |
+   |                         |                  /123/keri.cesr |
    |    UPLOAD                ---------------------------------
    |
    |      
          did:webs:dom:123     ---------------------------------            ---------------------
    O    ----------------->   |                                 |          |                     |
   -|-   <-----------------   |  dkr did webs generate          |  <---->  |  KERI WATCHER POOL  |
-  / \   did.json, did.keri   |                                 |          |                     |
+  / \   did.json, keri.cesr  |                                 |          |                     |
                               ---------------------------------            ---------------------
 ```
 
@@ -97,11 +97,11 @@ dkr did webs service --name dkr --port 7676
                                             HTTPS
                              HTTP GET       ^   |  200 OK
                              /123/did.json  |   |  did.json
-                             /123/did.keri  |   v  did.keri
+                             /123/keri.cesr |   v  keri.cesr
 
          did:webs:dom:123     ---------------------------------
    O    ----------------->   |                                 |
-  -|-   <-----------------   |  ANY DID:WEBS RESOLVER          |  <-----  (verify did.json/.keri)
+  -|-   <-----------------   |  ANY DID:WEBS RESOLVER          |  <-----  (verify did.json/keri.cesr)
   / \    diddoc, metadata    |                                 |
                               ---------------------------------
 ```
@@ -142,11 +142,11 @@ dkr did webs resolve --name dkr --did did:webs:danubetech.com:example:EPaP4GgZsB
                                             HTTPS
                              HTTP GET       ^   |  200 OK
                              /123/did.json  |   |  did.json
-                             /123/did.keri  |   v  did.keri
+                             /123/keri.cesr |   v  keri.cesr
 
          did:webs:dom:123     ---------------------------------
    O    ----------------->   |                                 |
-  -|-   <-----------------   |  dkr did webs resolve           |  <-----  (verify did.json/.keri)
+  -|-   <-----------------   |  dkr did webs resolve           |  <-----  (verify did.json/keri.cesr)
   / \    diddoc, metadata    |                                 |
                               ---------------------------------
 ```
@@ -155,16 +155,16 @@ dkr did webs resolve --name dkr --did did:webs:danubetech.com:example:EPaP4GgZsB
                               ---------------------------------
                              |                                 |
                              |  ANY WEB SERVER  /123/did.json  |
-                             |                  /123/did.keri  |
+                             |                  /123/keri.cesr |
                               ---------------------------------
                                             HTTPS
                              HTTP GET       ^   |  200 OK
                              /123/did.json  |   |  did.json
-                             /123/did.keri  |   v  did.keri
+                             /123/keri.cesr |   v  keri.cesr
 
          did:webs:dom:123     ---------------------------------
    O    ----------------->   |                                 |
-  -|-   <-----------------   |  dkr did webs resolve           |  <-----  (verify did.json/.keri)
+  -|-   <-----------------   |  dkr did webs resolve           |  <-----  (verify did.json/keri.cesr)
   / \    diddoc, metadata    |                                 |
                               ---------------------------------
 ```
@@ -173,7 +173,7 @@ dkr did webs resolve --name dkr --did did:webs:danubetech.com:example:EPaP4GgZsB
                               ---------------------------------
                              |                                 |
                              |  ANY WEB SERVER  /123/did.json  |
-                             |                  /123/did.keri  |
+                             |                  /123/keri.cesr |
                               ---------------------------------
                                             HTTPS
                              HTTP GET       ^   |  200 OK
@@ -205,11 +205,11 @@ dkr did keri resolve --name dkr --port 7677
                                             HTTPS
                              HTTP GET       ^   |  200 OK
                              /123/did.json  |   |  did.json
-                             /123/did.keri  |   v  did.keri
+                             /123/keri.cesr |   v  keri.cesr
 
                               ---------------------------------
                              |                                 |
-                             |  dkr did webs resolver-service  |  <-----  (verify did.json/.keri)
+                             |  dkr did webs resolver-service  |  <-----  (verify did.json/keri.cesr)
                              |                                 |
                               ---------------------------------
                                             HTTPS
@@ -226,16 +226,16 @@ dkr did keri resolve --name dkr --port 7677
                               ---------------------------------
                              |                                 |
                              |  ANY WEB SERVER  /123/did.json  |
-                             |                  /123/did.keri  |
+                             |                  /123/keri.cesr |
                               ---------------------------------
                                             HTTPS
                              HTTP GET       ^   |  200 OK
                              /123/did.json  |   |  did.json
-                             /123/did.keri  |   v  did.keri
+                             /123/keri.cesr |   v  keri.cesr
 
                               ---------------------------------
                              |                                 |
-                             |  dkr did webs resolver-service  |  <-----  (verify did.json/.keri)
+                             |  dkr did webs resolver-service  |  <-----  (verify did.json/keri.cesr)
                              |                                 |
                               ---------------------------------
                                             HTTPS
