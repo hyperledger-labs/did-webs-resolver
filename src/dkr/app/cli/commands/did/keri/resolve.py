@@ -5,6 +5,7 @@ dkr.app.cli.commands module
 """
 import argparse
 import json
+import sys
 
 from hio.base import doing
 from keri.app import habbing, oobiing
@@ -31,24 +32,25 @@ parser.add_argument("--metadata", "-m", help="Whether to include metadata (True)
 
 
 def handler(args):
-    res = Resolver(name=args.name, base=args.base, bran=args.bran, did=args.did, oobi=args.oobi, metadata=args.metadata)
+    hby = existing.setupHby(name=args.name, base=args.base, bran=args.bran)
+    hbyDoer = habbing.HaberyDoer(habery=hby)  # setup doer
+    obl = oobiing.Oobiery(hby=hby)
+    res = KeriResolver(hby=hby, hbyDoer=hbyDoer, obl=obl, did=args.did, oobi=args.oobi, metadata=args.metadata)
     return [res]
 
 
-class Resolver(doing.DoDoer):
+class KeriResolver(doing.DoDoer):
 
-    def __init__(self, name, base, bran, did, oobi, metadata):
+    def __init__(self, hby, hbyDoer, obl, did, oobi, metadata):
 
-        self.hby = existing.setupHby(name=name, base=base, bran=bran)
-        hbyDoer = habbing.HaberyDoer(habery=self.hby)  # setup doer
-        obl = oobiing.Oobiery(hby=self.hby)
+        self.hby = hby
         self.did = did
         self.oobi = oobi
         self.metadata = metadata
 
         self.toRemove = [hbyDoer] + obl.doers
         doers = list(self.toRemove) + [doing.doify(self.resolve)]
-        super(Resolver, self).__init__(doers=doers)
+        super(KeriResolver, self).__init__(doers=doers)
 
     def resolve(self, tymth, tock=0.0, **opts):
         self.wind(tymth)
@@ -56,8 +58,8 @@ class Resolver(doing.DoDoer):
         _ = (yield self.tock)
 
         aid = didding.parseDIDKeri(self.did)
-        print(f"From arguments got aid: {aid}")
-        print(f"From arguments got oobi: {self.oobi}")
+        print(f"From arguments got aid: {aid}", file=sys.stderr)
+        print(f"From arguments got oobi: {self.oobi}", file=sys.stderr)
 
         obr = basing.OobiRecord(date=helping.nowIso8601())
         obr.cid = aid
@@ -66,11 +68,13 @@ class Resolver(doing.DoDoer):
         while self.hby.db.roobi.get(keys=(self.oobi,)) is None:
             _ = yield tock
 
-        result = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi, metadata=self.metadata)
+        didresult = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi, metadata=True)
+        dd = didresult['didDocument']
+        result = didresult if self.metadata else dd
         data = json.dumps(result, indent=2)
 
         print(data)
         self.remove(self.toRemove)
-        return True
+        return result
 
 
