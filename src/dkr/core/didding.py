@@ -15,13 +15,13 @@ from keri.help import helping
 from keri.app import oobiing
 from keri.core import coring
 
-DID_KERI_RE = re.compile('\\Adid:keri:(?P<aid>[^:]+)\\Z', re.IGNORECASE)
-DID_WEBS_RE = re.compile('\\Adid:webs:(?P<domain>[^:]+):((?P<path>.+):)?(?P<aid>[^:]+)\\Z', re.IGNORECASE)
-
+DID_KERI_RE = re.compile(r'\Adid:keri:(?P<aid>[^:]+)\Z', re.IGNORECASE)
+# DID_WEBS_RE = re.compile(r'\Adid:webs:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?:(?P<path>.+?):(?P<aid>[^:]+)\Z', re.IGNORECASE)
+DID_WEBS_RE = re.compile(r'\Adid:webs:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?(?::(?P<path>.+?))?(?::(?P<aid>[^:]+))\Z', re.IGNORECASE)
 def parseDIDKeri(did):
     match = DID_KERI_RE.match(did)
     if match is None:
-        raise ValueError(f"{did} is not a valid did:webs DID")
+        raise ValueError(f"{did} is not a valid did:keri DID")
 
     aid = match.group("aid")
 
@@ -37,16 +37,14 @@ def parseDIDWebs(did):
     if match is None:
         raise ValueError(f"{did} is not a valid did:webs DID")
 
-    domain = match.group("domain")
-    path = match.group("path")
-    aid = match.group("aid")
+    domain, port, path, aid = match.group("domain", "port", "path", "aid")
 
     try:
         _ = coring.Prefixer(qb64=aid)
     except Exception as e:
         raise ValueError(f"{aid} is an invalid AID")
 
-    return domain, path, aid
+    return domain, port, path, aid
 
 
 def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):

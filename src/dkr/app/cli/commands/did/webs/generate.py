@@ -56,7 +56,7 @@ class Generator(doing.DoDoer):
         self.tock = tock
         _ = (yield self.tock)
 
-        domain, path, aid = didding.parseDIDWebs(self.did)
+        domain, port, path, aid = didding.parseDIDWebs(self.did)
         obr = basing.OobiRecord(date=helping.nowIso8601())
         obr.cid = aid
         self.hby.db.oobis.pin(keys=(self.oobi,), val=obr)
