@@ -15,9 +15,9 @@ from keri.help import helping
 from keri.app import oobiing
 from keri.core import coring
 
-DID_KERI_RE = re.compile('\\Adid:keri:(?P<aid>[^:]+)\\Z', re.IGNORECASE)
-DID_WEBS_RE = re.compile('\\Adid:webs:(?P<domain>[^:]+)(:(?P<port>\d+))?(:(?P<path>.+))?(:(?P<aid>[^:]+)+)\\Z', re.IGNORECASE)
-
+DID_KERI_RE = re.compile(r'\Adid:keri:(?P<aid>[^:]+)\Z', re.IGNORECASE)
+# DID_WEBS_RE = re.compile(r'\Adid:webs:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?:(?P<path>.+?):(?P<aid>[^:]+)\Z', re.IGNORECASE)
+DID_WEBS_RE = re.compile(r'\Adid:webs:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?(?::(?P<path>.+?))?(?::(?P<aid>[^:]+))\Z', re.IGNORECASE)
 def parseDIDKeri(did):
     match = DID_KERI_RE.match(did)
     if match is None:

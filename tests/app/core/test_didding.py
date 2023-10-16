@@ -42,31 +42,48 @@ def test_parse_webs_did():
             
       did = "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
       domain, port, path, aid = didding.parseDIDWebs(did)
-      assert("127.0.0.1",domain)
-      assert(None,port)
-      assert(None,path)
-      assert(aid,"BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha")
+      assert "127.0.0.1" == domain
+      assert None == port
+      assert None == path
+      assert aid == "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
       
-      did_port = "did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
+      # port url should be url encoded with %3a according to the spec
+      did_port_bad = "did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
+      domain, port, path, aid = didding.parseDIDWebs(did_port_bad)
+      assert "127.0.0.1"  == domain
+      assert None == port
+      assert "7676" == path
+      assert aid == "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
+      
+      did_port = "did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
       domain, port, path, aid = didding.parseDIDWebs(did_port)
-      assert("127.0.0.1",domain)
-      assert("7676",port)
-      assert(None,path)
-      assert(aid,"BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha")
+      assert "127.0.0.1"  == domain
+      assert "7676" == port
+      assert None == path
+      assert aid == "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
       
-      did_port_path = "did:webs:127.0.0.1:7676:my:path:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
+      # port should be url encoded with %3a according to the spec
+      did_port_path_bad = "did:webs:127.0.0.1:7676:my:path:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
+      domain, port, path, aid = didding.parseDIDWebs(did_port_path_bad)
+      assert "127.0.0.1" == domain
+      assert None == port
+      assert "7676:my:path" == path
+      assert aid == "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
+      
+      # port is properly url encoded with %3a according to the spec
+      did_port_path = "did:webs:127.0.0.1%3a7676:my:path:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
       domain, port, path, aid = didding.parseDIDWebs(did_port_path)
-      assert("127.0.0.1",domain)
-      assert("7676",port)
-      assert("/my/path",path)
-      assert(aid,"BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha")
+      assert "127.0.0.1" == domain
+      assert "7676" == port
+      assert "my:path" == path
+      assert aid == "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
       
       did_path = "did:webs:127.0.0.1:my:path:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
       domain, port, path, aid = didding.parseDIDWebs(did_path)
-      assert("127.0.0.1",domain)
-      assert(None,port)
-      assert("/my/path",path)
-      assert(aid,"BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha")
+      assert "127.0.0.1" == domain
+      assert None == port
+      assert "my:path" == path
+      assert aid,"BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
 
 
 # def test_generate_did_doc():

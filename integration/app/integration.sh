@@ -41,7 +41,7 @@ function genDidWebs() {
         # if [ "${prompt}" == "y" ]; then
         #     read -p "Name the identity [searcher]: " runGenDid
         # fi
-        dkr did webs generate --name=wan --did=did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha --oobi http://127.0.0.1:5642/oobi/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha/controller
+        dkr did webs generate --name=wan --did=did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha --oobi http://127.0.0.1:5642/oobi/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha/controller
     fi
 }
 
@@ -120,7 +120,7 @@ function resolveDIDAndKeriEvents() {
         # if [ "${prompt}" == "y" ]; then
         #     read -p "Name the identity [searcher]: " runGenDid
         # fi
-        dkr did webs resolve --name wan --did did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha
+        dkr did webs resolve --name wan --did did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha
     fi
 }
 
