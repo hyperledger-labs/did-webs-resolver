@@ -9,7 +9,7 @@ from dkr.core import didding
 import keri
 from hio.core import http
 from keri.app import habbing, oobiing, notifying
-from keri.core import coring, parsing
+from keri.core import coring, eventing, parsing
 from keri.db import basing
 from keri.end import ending
 from keri.help import helping
@@ -84,53 +84,117 @@ def test_parse_webs_did():
       assert None == port
       assert "my:path" == path
       assert aid,"BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
+      
+      
+def test_gen_did_doc():
+    with habbing.openHby(name="test", temp=True) as hby, \
+            habbing.openHby(name="wes", salt=coring.Salter(raw=b'wess-the-witness').qb64, temp=True) as wesHby, \
+            habbing.openHab(name="agent", temp=True) as (agentHby, agentHab):
 
+            print()
 
-# def test_generate_did_doc():
+            wesHab = wesHby.makeHab(name='wes', isith="1", icount=1, transferable=False)
+            assert not wesHab.kever.prefixer.transferable
+            # create non-local kevery for Wes to process nonlocal msgs
+            wesKvy = eventing.Kevery(db=wesHab.db, lax=False, local=False)
 
-#     # Valid did:keri DID
-#     pre = "EBNaNu-M9P5cgrnfl2Fvymy4E_jvxxyjb70PRtiANlJy"
-#     oobi = f"http://127.0.0.1:7723/oobi/{pre}"
-#     did = f"did:webs:example.com:{pre}/path/to/file"
-#     domain, aid, path = didding.parseDIDWebs(did)
+            wits = [wesHab.pre]
+            hab = hby.makeHab(name='cam', isith="1", icount=1, toad=1, wits=wits, )
+            assert hab.kever.prefixer.transferable
+            assert len(hab.iserder.werfers) == len(wits)
+            for werfer in hab.iserder.werfers:
+                  assert werfer.qb64 in wits
+                  assert hab.kever.wits == wits
+                  assert hab.kever.toader.num == 1
+                  assert hab.kever.sn == 0
 
-#     with habbing.openHby(name="oobi") as hby:
-#         hab = hby.makeHab(name="oobi")
-#         msgs = bytearray()
-#         msgs.extend(hab.makeEndRole(eid=hab.pre,
-#                                     role=kering.Roles.controller,
-#                                     stamp=help.nowIso8601()))
+            kvy = eventing.Kevery(db=hab.db, lax=False, local=False)
+            icpMsg = hab.makeOwnInception()
+            rctMsgs = []  # list of receipts from each witness
+            parsing.Parser().parse(ims=bytearray(icpMsg), kvy=wesKvy)
+            assert wesKvy.kevers[hab.pre].sn == 0  # accepted event
+            assert len(wesKvy.cues) == 1  # queued receipt cue
+            rctMsg = wesHab.processCues(wesKvy.cues)  # process cue returns rct msg
+            assert len(rctMsg) == 626
+            rctMsgs.append(rctMsg)
 
-#         msgs.extend(hab.makeLocScheme(url='http://127.0.0.1:5555',
-#                                       scheme=kering.Schemes.http,
-#                                       stamp=help.nowIso8601()))
-#         hab.psr.parse(ims=msgs)
+            for msg in rctMsgs:  # process rct msgs from all witnesses
+                  parsing.Parser().parse(ims=bytearray(msg), kvy=kvy)
+                  assert wesHab.pre in kvy.kevers
 
-#         oobiery = keri.app.oobiing.Oobiery(hby=hby)
+            agentIcpMsg = agentHab.makeOwnInception()
+            parsing.Parser().parse(ims=bytearray(agentIcpMsg), kvy=kvy)
+            assert agentHab.pre in kvy.kevers
 
-#         # Insert some that will fail
-#         url = 'http://127.0.0.1:5644/oobi/EADqo6tHmYTuQ3Lope4mZF_4hBoGJl93cBHRekr_iD_A/witness' \
-#               '/BAyRFMideczFZoapylLIyCjSdhtqVb31wZkRKvPfNqkw?name=jim'
-#         obr = basing.OobiRecord(date=helping.nowIso8601())
-#         hby.db.oobis.pin(keys=(url,), val=obr)
-#         url = 'http://127.0.0.1:5644/oobi/EBRzmSCFmG2a5U2OqZF-yUobeSYkW-a3FsN82eZXMxY0'
-#         obr = basing.OobiRecord(date=helping.nowIso8601())
-#         hby.db.oobis.pin(keys=(url,), val=obr)
-#         url = 'http://127.0.0.1:5644/oobi?name=Blind'
-#         obr = basing.OobiRecord(date=helping.nowIso8601())
-#         hby.db.oobis.pin(keys=(url,), val=obr)
+            msgs = bytearray()
+            msgs.extend(wesHab.makeEndRole(eid=wesHab.pre,
+                                          role=kering.Roles.controller,
+                                          stamp=helping.nowIso8601()))
 
-#         # Configure the MOOBI rpy URL and the controller URL
-#         curl = f'http://127.0.0.1:5644/oobi/{hab.pre}/controller'
-#         murl = f'http://127.0.0.1:5644/.well-known/keri/oobi/{hab.pre}?name=Root'
-#         obr = basing.OobiRecord(date=helping.nowIso8601())
-#         hby.db.oobis.pin(keys=(murl,), val=obr)
+            msgs.extend(wesHab.makeLocScheme(url='http://127.0.0.1:8888',
+                                          scheme=kering.Schemes.http,
+                                          stamp=helping.nowIso8601()))
+            wesHab.psr.parse(ims=bytearray(msgs))
 
-#         # app = falcon.App()  # falcon.App instances are callable WSGI apps
-#         # ending.loadEnds(app, hby=hby)
-#         # moobi = MOOBIEnd(hab=hab, url=curl)
-#         # app.add_route(f"/.well-known/keri/oobi/{hab.pre}", moobi)
+            # Set up
+            msgs.extend(hab.makeEndRole(eid=hab.pre,
+                                    role=kering.Roles.controller,
+                                    stamp=helping.nowIso8601()))
 
-#     didDoc = didding.generateDIDDoc(hby, did, aid, oobi=oobi, metadata=None)
-    
-#     assert didDoc is not None
+            msgs.extend(hab.makeLocScheme(url='http://127.0.0.1:7777',
+                                          scheme=kering.Schemes.http,
+                                          stamp=helping.nowIso8601()))
+            hab.psr.parse(ims=msgs)
+
+            msgs = bytearray()
+            msgs.extend(agentHab.makeEndRole(eid=agentHab.pre,
+                                          role=kering.Roles.controller,
+                                          stamp=helping.nowIso8601()))
+
+            msgs.extend(agentHab.makeLocScheme(url='http://127.0.0.1:6666',
+                                                scheme=kering.Schemes.http,
+                                                stamp=helping.nowIso8601()))
+
+            msgs.extend(hab.makeEndRole(eid=agentHab.pre,
+                                    role=kering.Roles.agent,
+                                    stamp=helping.nowIso8601()))
+
+            msgs.extend(hab.makeEndRole(eid=agentHab.pre,
+                                    role=kering.Roles.mailbox,
+                                    stamp=helping.nowIso8601()))
+
+            agentHab.psr.parse(ims=bytearray(msgs))
+            hab.psr.parse(ims=bytearray(msgs))
+
+            ends = hab.endsFor(hab.pre)
+            assert ends == {
+            'agent': {
+                  'EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ': {'http': 'http://127.0.0.1:6666'}},
+            'controller': {
+                  'EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre': {'http': 'http://127.0.0.1:7777'}},
+            'mailbox': {
+                  'EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ': {'http': 'http://127.0.0.1:6666'}},
+            'witness': {
+                  'BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr': {'http': 'http://127.0.0.1:8888'}}
+            }
+            
+            did = "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
+            didDoc = didding.generateDIDDoc(hab, did, hab.pre, oobi=None, metadata=False)
+            assert didDoc['id'] == 'did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha'
+            
+            assert didDoc['verificationMethod'] == [{
+                        'id': '#DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp', 
+                        'type': 'JsonWebKey', 
+                        'controller': 'did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha', 
+                        'publicKeyJwk': {'kid': 'DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp', 
+                                         'kty': 'OKP', 
+                                         'crv': 'Ed25519', 
+                                         'x': 'JBtEHHnzNtE-zxH1xeX4wxs9rEfUQ8d1ancgJJ1BLKk'
+                                         }
+                  }]
+            
+            assert len(didDoc['service']) == 4
+            assert didDoc['service'][0] == {'id': '#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/agent', 'type': 'agent', 'serviceEndpoint': {'http':'http://127.0.0.1:6666'}}
+            assert didDoc['service'][1] == {'id': '#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller', 'type': 'controller', 'serviceEndpoint': {'http': 'http://127.0.0.1:7777'}}
+            assert didDoc['service'][2] == {'id': '#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox', 'type': 'mailbox', 'serviceEndpoint': {'http':'http://127.0.0.1:6666'}}
+            assert didDoc['service'][3] == {'id': '#BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr/witness', 'type': 'witness', 'serviceEndpoint': {'http':'http://127.0.0.1:8888'}}
