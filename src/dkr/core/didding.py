@@ -113,19 +113,20 @@ def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):
                 url=loc.url
             ))
             
-    ends = hby.endsFor(aid)
     sEnds=[]
-    for role in ends:
-        eDict = ends[role]
-        for eid in eDict:
-            sDict = dict()
-            for proto in eDict[eid]:
-                sDict[proto]=f"{eDict[eid][proto]}"
-            sEnds.append(dict(
-                    id=f"#{eid}/{role}",
-                    type=role,
-                    serviceEndpoint=sDict
-                ))
+    if hasattr(hby, 'endsFor'):
+        ends = hby.endsFor(aid)
+        for role in ends:
+            eDict = ends[role]
+            for eid in eDict:
+                sDict = dict()
+                for proto in eDict[eid]:
+                    sDict[proto]=f"{eDict[eid][proto]}"
+                sEnds.append(dict(
+                        id=f"#{eid}/{role}",
+                        type=role,
+                        serviceEndpoint=sDict
+                    ))
             
     didResolutionMetadata = dict(
         contentType="application/did+json",
