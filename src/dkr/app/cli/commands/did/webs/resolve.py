@@ -59,7 +59,9 @@ class WebsResolver(doing.DoDoer):
 
         domain, port, path, aid = didding.parseDIDWebs(self.did)
 
-        base_url = f"http://{domain}{(f':{port}' if port is not None else '')}{(f'/{path.replace(':', '/')}' if path is not None else '')}/{aid}"
+        opt_port = (f':{port}' if port is not None else '')
+        opt_path = (f"/{path.replace(':', '/')}" if path is not None else '')
+        base_url = f"http://{domain}{opt_port}{opt_path}/{aid}"
 
         # Load the did doc
         dd_url = f"{base_url}/{webbing.DID_JSON}"

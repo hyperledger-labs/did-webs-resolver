@@ -12,12 +12,12 @@ from base64 import urlsafe_b64encode
 
 from keri.help import helping
 
-from keri.app import oobiing
+from keri.app import oobiing, habbing
 from keri.core import coring
 
 DID_KERI_RE = re.compile(r'\Adid:keri:(?P<aid>[^:]+)\Z', re.IGNORECASE)
-# DID_WEBS_RE = re.compile(r'\Adid:webs:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?:(?P<path>.+?):(?P<aid>[^:]+)\Z', re.IGNORECASE)
 DID_WEBS_RE = re.compile(r'\Adid:webs:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?(?::(?P<path>.+?))?(?::(?P<aid>[^:]+))\Z', re.IGNORECASE)
+
 def parseDIDKeri(did):
     match = DID_KERI_RE.match(did)
     if match is None:
@@ -106,12 +106,28 @@ def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):
     witnesses = []
     for idx, eid in enumerate(kever.wits):
         keys = (eid,)
-        for (aid, scheme), loc in hby.db.locs.getItemIter(keys):
+        for (tid, scheme), loc in hby.db.locs.getItemIter(keys):
             witnesses.append(dict(
                 idx=idx,
                 scheme=scheme,
                 url=loc.url
             ))
+            
+    sEnds=[]
+    if hasattr(hby, 'endsFor'):
+        ends = hby.endsFor(aid)
+        for role in ends:
+            eDict = ends[role]
+            for eid in eDict:
+                sDict = dict()
+                for proto in eDict[eid]:
+                    sDict[proto]=f"{eDict[eid][proto]}"
+                sEnds.append(dict(
+                        id=f"#{eid}/{role}",
+                        type=role,
+                        serviceEndpoint=sDict
+                    ))
+            
     didResolutionMetadata = dict(
         contentType="application/did+json",
         retrieved=helping.nowIso8601()
@@ -122,7 +138,8 @@ def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):
     )
     diddoc = dict(
         id=did,
-        verificationMethod=vms
+        verificationMethod=vms,
+        service=sEnds
     )
 
     if metadata is True:
