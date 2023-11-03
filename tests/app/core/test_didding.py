@@ -7,6 +7,7 @@ import pytest
 from dkr.core import didding
 
 import keri
+import re
 from hio.core import http
 from keri.app import habbing, oobiing, notifying
 from keri.core import coring, eventing, parsing
@@ -87,7 +88,7 @@ def test_parse_webs_did():
       
       
 def test_gen_did_doc():
-    with habbing.openHby(name="test", temp=True) as hby, \
+      with habbing.openHby(name="test", temp=True) as hby, \
             habbing.openHby(name="wes", salt=coring.Salter(raw=b'wess-the-witness').qb64, temp=True) as wesHby, \
             habbing.openHab(name="agent", temp=True) as (agentHby, agentHab):
 
@@ -99,6 +100,7 @@ def test_gen_did_doc():
             wesKvy = eventing.Kevery(db=wesHab.db, lax=False, local=False)
 
             wits = [wesHab.pre]
+            
             hab = hby.makeHab(name='cam', isith="1", icount=1, toad=1, wits=wits, )
             assert hab.kever.prefixer.transferable
             assert len(hab.iserder.werfers) == len(wits)
@@ -179,6 +181,7 @@ def test_gen_did_doc():
             }
             
             did = "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
+            
             didDoc = didding.generateDIDDoc(hab, did, hab.pre, oobi=None, metadata=False)
             assert didDoc['id'] == 'did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha'
             
@@ -187,10 +190,10 @@ def test_gen_did_doc():
                         'type': 'JsonWebKey', 
                         'controller': 'did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha', 
                         'publicKeyJwk': {'kid': 'DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp', 
-                                         'kty': 'OKP', 
-                                         'crv': 'Ed25519', 
-                                         'x': 'JBtEHHnzNtE-zxH1xeX4wxs9rEfUQ8d1ancgJJ1BLKk'
-                                         }
+                                          'kty': 'OKP', 
+                                          'crv': 'Ed25519', 
+                                          'x': 'JBtEHHnzNtE-zxH1xeX4wxs9rEfUQ8d1ancgJJ1BLKk'
+                                          }
                   }]
             
             assert len(didDoc['service']) == 4
@@ -198,3 +201,25 @@ def test_gen_did_doc():
             assert didDoc['service'][1] == {'id': '#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller', 'type': 'controller', 'serviceEndpoint': {'http': 'http://127.0.0.1:7777'}}
             assert didDoc['service'][2] == {'id': '#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox', 'type': 'mailbox', 'serviceEndpoint': {'http':'http://127.0.0.1:6666'}}
             assert didDoc['service'][3] == {'id': '#BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr/witness', 'type': 'witness', 'serviceEndpoint': {'http':'http://127.0.0.1:8888'}}
+            
+            didDoc = didding.generateDIDDoc(hab, did, hab.pre, oobi=None, metadata=True)
+            assert didDoc['didDocument']['id'] == 'did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha'
+            
+            assert didDoc['didDocument']['verificationMethod'] == [{
+                        'id': '#DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp', 
+                        'type': 'JsonWebKey', 
+                        'controller': 'did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha', 
+                        'publicKeyJwk': {'kid': 'DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp', 
+                                          'kty': 'OKP', 
+                                          'crv': 'Ed25519', 
+                                          'x': 'JBtEHHnzNtE-zxH1xeX4wxs9rEfUQ8d1ancgJJ1BLKk'
+                                          }
+                  }]
+            
+            assert len(didDoc['didDocument']['service']) == 4
+            assert didDoc['didDocument']['service'][0] == {'id': '#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/agent', 'type': 'agent', 'serviceEndpoint': {'http':'http://127.0.0.1:6666'}}
+            assert didDoc['didDocument']['service'][1] == {'id': '#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller', 'type': 'controller', 'serviceEndpoint': {'http': 'http://127.0.0.1:7777'}}
+            assert didDoc['didDocument']['service'][2] == {'id': '#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox', 'type': 'mailbox', 'serviceEndpoint': {'http':'http://127.0.0.1:6666'}}
+            assert didDoc['didDocument']['service'][3] == {'id': '#BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr/witness', 'type': 'witness', 'serviceEndpoint': {'http':'http://127.0.0.1:8888'}}
+            
+            assert re.match(didding.DID_TIME_PATTERN, didDoc['didResolutionMetadata']['retrieved']) != None

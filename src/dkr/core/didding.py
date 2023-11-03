@@ -4,6 +4,7 @@ dkr.core.didding module
 
 """
 
+from datetime import datetime
 import json
 import re
 import numpy as np
@@ -17,6 +18,8 @@ from keri.core import coring
 
 DID_KERI_RE = re.compile(r'\Adid:keri:(?P<aid>[^:]+)\Z', re.IGNORECASE)
 DID_WEBS_RE = re.compile(r'\Adid:webs:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?(?::(?P<path>.+?))?(?::(?P<aid>[^:]+))\Z', re.IGNORECASE)
+DID_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+DID_TIME_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 
 def parseDIDKeri(did):
     match = DID_KERI_RE.match(did)
@@ -130,7 +133,7 @@ def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):
             
     didResolutionMetadata = dict(
         contentType="application/did+json",
-        retrieved=helping.nowIso8601()
+        retrieved=datetime.utcnow().strftime(DID_TIME_FORMAT)
     )
     didDocumentMetadata = dict(
         witnesses=witnesses,
