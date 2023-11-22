@@ -11,15 +11,18 @@ import numpy as np
 
 from base64 import urlsafe_b64encode
 
-from keri.help import helping
-
+from keri import kering
 from keri.app import oobiing, habbing
-from keri.core import coring
+from keri.app.cli.common import terming
+from keri.core import coring,scheming
+from keri.help import helping
+from keri.vdr import credentialing
 
 DID_KERI_RE = re.compile(r'\Adid:keri:(?P<aid>[^:]+)\Z', re.IGNORECASE)
 DID_WEBS_RE = re.compile(r'\Adid:webs:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?(?::(?P<path>.+?))?(?::(?P<aid>[^:]+))\Z', re.IGNORECASE)
 DID_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DID_TIME_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
+DES_ALIASES_SCHEMA="EN6Oh5XSD5_q2Hgu-aqpdfbVepdpYpFlgz6zvJL5b_r5"
 
 def parseDIDKeri(did):
     match = DID_KERI_RE.match(did)
@@ -130,6 +133,38 @@ def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):
                         type=role,
                         serviceEndpoint=sDict
                     ))
+                
+    da_ids = []
+    # similar to kli vc list --name "$alias" --alias "$alias" --issued --said --schema "${d_alias_schema}")
+    rgy = credentialing.Regery(hby=hby, name=hby.name)
+    scads = rgy.reger.schms.get(keys=DES_ALIASES_SCHEMA)
+    saids = rgy.reger.issus.get(keys=aid)
+    saids = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
+    print(f"Current issued attestations for {hby.name} ({aid}):\n")
+    creds = rgy.reger.cloneCreds(saids, hby.db)
+    for idx, cred in enumerate(creds):
+        sad = cred['sad']
+        status = cred["status"]
+        schema = sad['s']
+        scraw = hby.mbx.verifier.resolver.resolve(schema)
+        if not scraw:
+            raise kering.ConfigurationError("Credential schema {} not found".format(schema))
+
+        schemer = scheming.Schemer(raw=scraw)
+        print(f"Credential #{idx+1}: {sad['d']}")
+        print(f"    Type: {schemer.sed['title']}")
+        if status['et'] == 'iss' or status['et'] == 'bis':
+            print(f"    Status: Issued {terming.Colors.OKGREEN}{terming.Symbols.CHECKMARK}{terming.Colors.ENDC}")
+        elif status['et'] == 'rev' or status['et'] == 'brv':
+            print(f"    Status: Revoked {terming.Colors.FAIL}{terming.Symbols.FAILED}{terming.Colors.ENDC}")
+        else:
+            print(f"    Status: Unknown")
+        print(f"    Issued by {sad['i']}")
+        print(f"    Issued on {status['dt']}")
+
+    dws_pre = "did:webs"
+    eq_ids = [s for s in da_ids if s.startswith(dws_pre)]
+    print(f"Equivalent DIDs: {eq_ids}")
             
     didResolutionMetadata = dict(
         contentType="application/did+json",
@@ -137,7 +172,8 @@ def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):
     )
     didDocumentMetadata = dict(
         witnesses=witnesses,
-        versionId=f"{kever.sner.num}"
+        versionId=f"{kever.sner.num}",
+        equivalentId=eq_ids,
     )
     diddoc = dict(
         id=did,
