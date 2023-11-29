@@ -53,7 +53,7 @@ def parseDIDWebs(did):
     return domain, port, path, aid
 
 
-def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):
+def generateDIDDoc(hby, did, aid, reger=None, oobi=None, metadata=None):
     if oobi is not None:
         obr = hby.db.roobi.get(keys=(oobi,))
         if obr is None or obr.state == oobiing.Result.failed:
@@ -136,35 +136,40 @@ def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):
                 
     da_ids = []
     # similar to kli vc list --name "$alias" --alias "$alias" --issued --said --schema "${d_alias_schema}")
-    rgy = credentialing.Regery(hby=hby, name=hby.name)
-    scads = rgy.reger.schms.get(keys=DES_ALIASES_SCHEMA)
-    saids = rgy.reger.issus.get(keys=aid)
-    saids = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
-    print(f"Current issued attestations for {hby.name} ({aid}):\n")
-    creds = rgy.reger.cloneCreds(saids, hby.db)
-    for idx, cred in enumerate(creds):
-        sad = cred['sad']
-        status = cred["status"]
-        schema = sad['s']
-        scraw = hby.mbx.verifier.resolver.resolve(schema)
-        if not scraw:
-            raise kering.ConfigurationError("Credential schema {} not found".format(schema))
 
-        schemer = scheming.Schemer(raw=scraw)
-        print(f"Credential #{idx+1}: {sad['d']}")
-        print(f"    Type: {schemer.sed['title']}")
-        if status['et'] == 'iss' or status['et'] == 'bis':
-            print(f"    Status: Issued {terming.Colors.OKGREEN}{terming.Symbols.CHECKMARK}{terming.Colors.ENDC}")
-        elif status['et'] == 'rev' or status['et'] == 'brv':
-            print(f"    Status: Revoked {terming.Colors.FAIL}{terming.Symbols.FAILED}{terming.Colors.ENDC}")
-        else:
-            print(f"    Status: Unknown")
-        print(f"    Issued by {sad['i']}")
-        print(f"    Issued on {status['dt']}")
+    if reger is not None:
+        saiders = reger.schms.get(keys=DES_ALIASES_SCHEMA.encode("utf-8"))
 
-    dws_pre = "did:webs"
-    eq_ids = [s for s in da_ids if s.startswith(dws_pre)]
-    print(f"Equivalent DIDs: {eq_ids}")
+        creds = []
+        for saider in saiders:
+            creder, prefixer, seqner, saider = reger.cloneCred(said=saider.qb64)
+            creds.append((creder, prefixer, seqner, saider))
+            print(f"Current issued attestations for {hby.name} ({aid}):\n")
+
+            for creder, prefixer, seqner, saider in creds:
+                sad = creder.crd
+                da_ids = sad['a']['ids']
+                # scraw = hby.mbx.verifier.resolver.resolve(schema)
+                # if not scraw:
+                #     raise kering.ConfigurationError("Credential schema {} not found".format(schema))
+
+                # schemer = scheming.Schemer(raw=scraw)
+                # print(f"Credential #{idx+1}: {sad['d']}")
+                # print(f"    Type: {schemer.sed['title']}")
+                # if status['et'] == 'iss' or status['et'] == 'bis':
+                #     print(f"    Status: Issued {terming.Colors.OKGREEN}{terming.Symbols.CHECKMARK}{terming.Colors.ENDC}")
+                # elif status['et'] == 'rev' or status['et'] == 'brv':
+                #     print(f"    Status: Revoked {terming.Colors.FAIL}{terming.Symbols.FAILED}{terming.Colors.ENDC}")
+                # else:
+                #     print(f"    Status: Unknown")
+                # print(f"    Issued by {sad['i']}")
+                # print(f"    Issued on {status['dt']}")
+
+        dws_pre = "did:webs"
+        eq_ids = [s for s in da_ids if s.startswith(dws_pre)]
+        print(f"Equivalent DIDs: {eq_ids}")
+        
+        aka_ids = [s for s in da_ids if not s.startswith(dws_pre)]
             
     didResolutionMetadata = dict(
         contentType="application/did+json",
@@ -178,7 +183,8 @@ def generateDIDDoc(hby, did, aid, oobi=None, metadata=None):
     diddoc = dict(
         id=did,
         verificationMethod=vms,
-        service=sEnds
+        service=sEnds,
+        alsoKnownAs=aka_ids
     )
 
     if metadata is True:
