@@ -30,22 +30,26 @@ parser.add_argument('--passcode', help='22 character encryption passcode for key
                     dest="bran", default=None)  # passcode => bran
 parser.add_argument("--did", "-d", help="DID to generate (did:webs method)", required=True)
 parser.add_argument("--oobi", "-o", help="OOBI to use for resolving the AID", required=False)
-
+parser.add_argument('-da', '--da_reg',
+                    required=False,
+                    default=None,
+                    help="Name of regery to find designated aliases attestation. Default is None.")
 
 def handler(args):
-    gen = Generator(name=args.name, base=args.base, bran=args.bran, did=args.did, oobi=args.oobi)
+    gen = Generator(name=args.name, base=args.base, bran=args.bran, did=args.did, oobi=args.oobi, da_reg=args.da_reg)
     return [gen]
 
 
 class Generator(doing.DoDoer):
 
-    def __init__(self, name, base, bran, did, oobi):
+    def __init__(self, name, base, bran, did, oobi, da_reg):
 
         self.hby = existing.setupHby(name=name, base=base, bran=bran)
         hbyDoer = habbing.HaberyDoer(habery=self.hby)  # setup doer
         obl = oobiing.Oobiery(hby=self.hby)
         self.did = did
         self.oobi = oobi
+        self.da_reg = da_reg
 
         self.toRemove = [hbyDoer] + obl.doers
         doers = list(self.toRemove) + [doing.doify(self.generate)]
@@ -78,7 +82,7 @@ class Generator(doing.DoDoer):
         kcf.write(msgs.decode("utf-8"))
 
         #generate did doc
-        diddoc = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi)
+        diddoc = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi, reg_name=self.da_reg)
         
         # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
         dd_dir_path = f"{webbing.DD_DEFAULT_DIR}/{aid}"

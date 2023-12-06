@@ -16,7 +16,7 @@ from keri.app import oobiing, habbing
 from keri.app.cli.common import terming
 from keri.core import coring,scheming
 from keri.help import helping
-from keri.vdr import credentialing
+from keri.vdr import credentialing, verifying
 
 DID_KERI_RE = re.compile(r'\Adid:keri:(?P<aid>[^:]+)\Z', re.IGNORECASE)
 DID_WEBS_RE = re.compile(r'\Adid:webs:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?(?::(?P<path>.+?))?(?::(?P<aid>[^:]+))\Z', re.IGNORECASE)
@@ -53,15 +53,17 @@ def parseDIDWebs(did):
     return domain, port, path, aid
 
 
-def generateDIDDoc(hab, did, aid, crdntler=None, oobi=None, metadata=None):
+def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=None, reg_name=None):
+    hab = hby.habByPre(aid)
+    
     if oobi is not None:
-        obr = hab.db.roobi.get(keys=(oobi,))
+        obr = hby.db.roobi.get(keys=(oobi,))
         if obr is None or obr.state == oobiing.Result.failed:
             msg = dict(msg=f"OOBI resolution for did {did} failed.")
             data = json.dumps(msg)
             return data.encode("utf-8")
 
-    kever = hab.kevers[aid]
+    kever = hby.kevers[aid]
     vms = []
     for idx, verfer in enumerate(kever.verfers):
         kid = verfer.qb64
@@ -107,12 +109,12 @@ def generateDIDDoc(hab, did, aid, crdntler=None, oobi=None, metadata=None):
         ))
 
     x = [(keys[1], loc.url) for keys, loc in
-         hab.db.locs.getItemIter(keys=(aid,)) if loc.url]
+         hby.db.locs.getItemIter(keys=(aid,)) if loc.url]
 
     witnesses = []
     for idx, eid in enumerate(kever.wits):
         keys = (eid,)
-        for (tid, scheme), loc in hab.db.locs.getItemIter(keys):
+        for (tid, scheme), loc in hby.db.locs.getItemIter(keys):
             witnesses.append(dict(
                 idx=idx,
                 scheme=scheme,
@@ -120,7 +122,7 @@ def generateDIDDoc(hab, did, aid, crdntler=None, oobi=None, metadata=None):
             ))
             
     sEnds=[]
-    if hasattr(hab, 'endsFor'):
+    if hab and hasattr(hab, 'endsFor'):
         ends = hab.endsFor(aid)
         for role in ends:
             eDict = ends[role]
@@ -134,41 +136,17 @@ def generateDIDDoc(hab, did, aid, crdntler=None, oobi=None, metadata=None):
                         serviceEndpoint=sDict
                     ))
                 
-    da_ids = []
     # similar to kli vc list --name "$alias" --alias "$alias" --issued --said --schema "${d_alias_schema}")
-
     eq_ids = []
     aka_ids = []
-    if crdntler is not None:
-        saiders = crdntler.rgy.reger.schms.get(keys=DES_ALIASES_SCHEMA.encode("utf-8"))
-
-        creds = []
-        # for saider in saiders:
-        creds = crdntler.rgy.reger.cloneCreds(saiders, hab.db)
-
-        for idx, cred in enumerate(creds):
-            sad = cred['sad']
-            status = cred["status"]
-            schema = sad['s']
-            scraw = crdntler.verifier.resolver.resolve(schema)
-            schemer = scheming.Schemer(raw=scraw)
-            print(f"Credential #{idx+1}: {sad['d']}")
-            print(f"    Type: {schemer.sed['title']}")
-            if status['et'] == 'iss' or status['et'] == 'bis':
-                print(f"    Status: Issued {terming.Colors.OKGREEN}{terming.Symbols.CHECKMARK}{terming.Colors.ENDC}")
-                da_ids = sad['a']['ids']
-            elif status['et'] == 'rev' or status['et'] == 'brv':
-                print(f"    Status: Revoked {terming.Colors.FAIL}{terming.Symbols.FAILED}{terming.Colors.ENDC}")
-            else:
-                print(f"    Status: Unknown")
-            print(f"    Issued by {sad['i']}")
-            print(f"    Issued on {status['dt']}")
-
+    da_ids = desAliases(hby, aid, reg_name=reg_name)
+    if da_ids:
         dws_pre = "did:webs"
         eq_ids = [s for s in da_ids if s.startswith(dws_pre)]
         print(f"Equivalent DIDs: {eq_ids}")
         
         aka_ids = [s for s in da_ids if not s.startswith(dws_pre)]
+        print(f"Also Known As DIDs: {aka_ids}")
             
     didResolutionMetadata = dict(
         contentType="application/did+json",
@@ -207,3 +185,41 @@ def fromDidWeb(diddoc):
     for verificationMethod in diddoc['verificationMethod']:
         verificationMethod['controller'] = verificationMethod['controller'].replace('did:web', 'did:webs')
     return diddoc
+
+def desAliases(hby: habbing.Habery, aid: str, reg_name: str=None):
+    """
+    Returns the credentialer for the des-aliases schema, or None if it doesn't exist.
+    """
+    if reg_name is None:
+        reg_name = hby.habByPre(aid).name
+    rgy = credentialing.Regery(hby=hby, name=reg_name)
+    vry = verifying.Verifier(hby=hby, reger=rgy.reger)
+    
+    saids = rgy.reger.issus.get(keys=aid)
+    scads = rgy.reger.schms.get(keys=DES_ALIASES_SCHEMA.encode("utf-8"))
+    # self-attested, there is no issuee, and schmea is designated aliases
+    saiders = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
+
+    da_ids = []
+    # for saider in saiders:
+    creds = rgy.reger.cloneCreds(saiders, hby.db)
+
+    for idx, cred in enumerate(creds):
+        sad = cred['sad']
+        status = cred["status"]
+        schema = sad['s']
+        scraw = vry.resolver.resolve(schema)
+        schemer = scheming.Schemer(raw=scraw)
+        print(f"Credential #{idx+1}: {sad['d']}")
+        print(f"    Type: {schemer.sed['title']}")
+        if status['et'] == 'iss' or status['et'] == 'bis':
+            print(f"    Status: Issued {terming.Colors.OKGREEN}{terming.Symbols.CHECKMARK}{terming.Colors.ENDC}")
+            da_ids = sad['a']['ids']
+        elif status['et'] == 'rev' or status['et'] == 'brv':
+            print(f"    Status: Revoked {terming.Colors.FAIL}{terming.Symbols.FAILED}{terming.Colors.ENDC}")
+        else:
+            print(f"    Status: Unknown")
+        print(f"    Issued by {sad['i']}")
+        print(f"    Issued on {status['dt']}")
+
+    return da_ids

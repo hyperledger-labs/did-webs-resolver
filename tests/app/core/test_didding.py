@@ -229,7 +229,7 @@ def setup_habs():
 
 def test_gen_did_doc(setup_habs):
     hby, hab, wesHby, wesHab, did = setup_habs
-    didDoc = didding.generateDIDDoc(hab, did, hab.pre, oobi=None, metadata=False)
+    didDoc = didding.generateDIDDoc(hby, did, hab.pre, oobi=None, metadata=False)
     assert (
         didDoc["id"]
         == "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
@@ -274,7 +274,7 @@ def test_gen_did_doc(setup_habs):
 
 def test_gen_did_doc_with_metadata(setup_habs):
     hby, hab, wesHby, wesHab, did = setup_habs
-    didDoc = didding.generateDIDDoc(hab, did, hab.pre, oobi=None, metadata=True)
+    didDoc = didding.generateDIDDoc(hby, did, hab.pre, oobi=None, metadata=True)
     assert (
         didDoc["didDocument"]["id"]
         == "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
@@ -369,7 +369,7 @@ def da_cred():
 
 def setup_rgy(hby, hab):
     # setup issuer with defaults for allowBackers, backers and estOnly
-    regery = credentialing.Regery(hby=hby, name=hby.name, temp=True)
+    regery = credentialing.Regery(hby=hby, name=hby.name)
     registry = regery.makeRegistry(prefix=hab.pre, name=hby.name, noBackers=True)
     assert registry.name == hby.name
 
@@ -507,6 +507,7 @@ def issue_desig_aliases(seeder, hby, hab, whby, whab, registryName="cam"):
 
     # kli vc registry incept --name "$alias" --alias "$alias" --registry-name "$reg_name"
     regery, registry, reg_anc = setup_rgy(hby, hab)
+    regery.reger.schms.rem(keys=didding.DES_ALIASES_SCHEMA.encode("utf-8"))
     verifier, seqner = setup_verifier(hby, hab, regery, registry, reg_anc)
 
     # kli vc create --name "$alias" --alias "$alias" --registry-name "$reg_name" --schema "${d_alias_schema}" --credential @desig-aliases-public.json
@@ -529,7 +530,7 @@ def test_gen_desig_aliases(setup_habs, seeder):
     )
 
     didDoc = didding.generateDIDDoc(
-        hab, did, hab.pre, crdntler=crdntler, oobi=None, metadata=True
+        hby, did, hab.pre, oobi=None, metadata=True, reg_name=crdntler.rgy.name
     )
     assert (
         didDoc["didDocument"]["id"]
@@ -583,6 +584,8 @@ def test_gen_desig_aliases(setup_habs, seeder):
         re.match(didding.DID_TIME_PATTERN, didDoc["didResolutionMetadata"]["retrieved"])
         != None
     )
+    
+    
 
 
 def test_gen_desig_aliases_revoked(setup_habs, seeder):
@@ -600,7 +603,7 @@ def test_gen_desig_aliases_revoked(setup_habs, seeder):
     revoke_cred(hab, crdntler.rgy, crdntler.rgy.registryByName(hby.name), creds[0])
 
     didDoc = didding.generateDIDDoc(
-        hab, did, hab.pre, crdntler=crdntler, oobi=None, metadata=True
+        hby, did, hab.pre, oobi=None, metadata=True
     )
     assert (
         didDoc["didDocument"]["id"]
