@@ -53,15 +53,15 @@ def parseDIDWebs(did):
     return domain, port, path, aid
 
 
-def generateDIDDoc(hby, did, aid, reger=None, oobi=None, metadata=None):
+def generateDIDDoc(hab, did, aid, crdntler=None, oobi=None, metadata=None):
     if oobi is not None:
-        obr = hby.db.roobi.get(keys=(oobi,))
+        obr = hab.db.roobi.get(keys=(oobi,))
         if obr is None or obr.state == oobiing.Result.failed:
             msg = dict(msg=f"OOBI resolution for did {did} failed.")
             data = json.dumps(msg)
             return data.encode("utf-8")
 
-    kever = hby.kevers[aid]
+    kever = hab.kevers[aid]
     vms = []
     for idx, verfer in enumerate(kever.verfers):
         kid = verfer.qb64
@@ -107,12 +107,12 @@ def generateDIDDoc(hby, did, aid, reger=None, oobi=None, metadata=None):
         ))
 
     x = [(keys[1], loc.url) for keys, loc in
-         hby.db.locs.getItemIter(keys=(aid,)) if loc.url]
+         hab.db.locs.getItemIter(keys=(aid,)) if loc.url]
 
     witnesses = []
     for idx, eid in enumerate(kever.wits):
         keys = (eid,)
-        for (tid, scheme), loc in hby.db.locs.getItemIter(keys):
+        for (tid, scheme), loc in hab.db.locs.getItemIter(keys):
             witnesses.append(dict(
                 idx=idx,
                 scheme=scheme,
@@ -120,8 +120,8 @@ def generateDIDDoc(hby, did, aid, reger=None, oobi=None, metadata=None):
             ))
             
     sEnds=[]
-    if hasattr(hby, 'endsFor'):
-        ends = hby.endsFor(aid)
+    if hasattr(hab, 'endsFor'):
+        ends = hab.endsFor(aid)
         for role in ends:
             eDict = ends[role]
             for eid in eDict:
@@ -137,33 +137,32 @@ def generateDIDDoc(hby, did, aid, reger=None, oobi=None, metadata=None):
     da_ids = []
     # similar to kli vc list --name "$alias" --alias "$alias" --issued --said --schema "${d_alias_schema}")
 
-    if reger is not None:
-        saiders = reger.schms.get(keys=DES_ALIASES_SCHEMA.encode("utf-8"))
+    eq_ids = []
+    aka_ids = []
+    if crdntler is not None:
+        saiders = crdntler.rgy.reger.schms.get(keys=DES_ALIASES_SCHEMA.encode("utf-8"))
 
         creds = []
-        for saider in saiders:
-            creder, prefixer, seqner, saider = reger.cloneCred(said=saider.qb64)
-            creds.append((creder, prefixer, seqner, saider))
-            print(f"Current issued attestations for {hby.name} ({aid}):\n")
+        # for saider in saiders:
+        creds = crdntler.rgy.reger.cloneCreds(saiders, hab.db)
 
-            for creder, prefixer, seqner, saider in creds:
-                sad = creder.crd
+        for idx, cred in enumerate(creds):
+            sad = cred['sad']
+            status = cred["status"]
+            schema = sad['s']
+            scraw = crdntler.verifier.resolver.resolve(schema)
+            schemer = scheming.Schemer(raw=scraw)
+            print(f"Credential #{idx+1}: {sad['d']}")
+            print(f"    Type: {schemer.sed['title']}")
+            if status['et'] == 'iss' or status['et'] == 'bis':
+                print(f"    Status: Issued {terming.Colors.OKGREEN}{terming.Symbols.CHECKMARK}{terming.Colors.ENDC}")
                 da_ids = sad['a']['ids']
-                # scraw = hby.mbx.verifier.resolver.resolve(schema)
-                # if not scraw:
-                #     raise kering.ConfigurationError("Credential schema {} not found".format(schema))
-
-                # schemer = scheming.Schemer(raw=scraw)
-                # print(f"Credential #{idx+1}: {sad['d']}")
-                # print(f"    Type: {schemer.sed['title']}")
-                # if status['et'] == 'iss' or status['et'] == 'bis':
-                #     print(f"    Status: Issued {terming.Colors.OKGREEN}{terming.Symbols.CHECKMARK}{terming.Colors.ENDC}")
-                # elif status['et'] == 'rev' or status['et'] == 'brv':
-                #     print(f"    Status: Revoked {terming.Colors.FAIL}{terming.Symbols.FAILED}{terming.Colors.ENDC}")
-                # else:
-                #     print(f"    Status: Unknown")
-                # print(f"    Issued by {sad['i']}")
-                # print(f"    Issued on {status['dt']}")
+            elif status['et'] == 'rev' or status['et'] == 'brv':
+                print(f"    Status: Revoked {terming.Colors.FAIL}{terming.Symbols.FAILED}{terming.Colors.ENDC}")
+            else:
+                print(f"    Status: Unknown")
+            print(f"    Issued by {sad['i']}")
+            print(f"    Issued on {status['dt']}")
 
         dws_pre = "did:webs"
         eq_ids = [s for s in da_ids if s.startswith(dws_pre)]

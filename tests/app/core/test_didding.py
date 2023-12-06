@@ -3,6 +3,7 @@
 tests.core.didding module
 
 """
+import json
 import pytest
 from dkr.core import didding
 
@@ -10,7 +11,7 @@ import keri
 import re
 import time
 from hio.core import http
-from keri.app import habbing, oobiing, notifying
+from keri.app import habbing, grouping, signing
 from keri.core import coring, eventing, parsing, scheming
 from keri.db import basing
 from keri.end import ending
@@ -18,7 +19,7 @@ from keri.help import helping
 from keri import help, kering
 from keri.peer import exchanging
 from keri.vdr import credentialing, verifying
-from keri.vdr.credentialing import proving
+from keri.vdr.credentialing import Credentialer, proving
 
 
 def test_parse_keri_did():
@@ -110,7 +111,9 @@ def setup_habs():
 
         wits = [wesHab.pre]
 
-        hab = hby.makeHab(name="cam", isith="1", icount=1, toad=1, wits=wits)
+        hab = hby.makeHab(
+            name="cam", isith="1", nsith="1", icount=1, ncount=1, toad=1, wits=wits
+        )
         assert hab.kever.prefixer.transferable
         assert len(hab.iserder.werfers) == len(wits)
         for werfer in hab.iserder.werfers:
@@ -226,11 +229,11 @@ def setup_habs():
         }
 
         did = "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
-        yield hby, hab, did
+        yield hby, hab, wesHby, wesHab, did
 
 
 def test_gen_did_doc(setup_habs):
-    hby, hab, did = setup_habs
+    hby, hab, wesHby, wesHab, did = setup_habs
     didDoc = didding.generateDIDDoc(hab, did, hab.pre, oobi=None, metadata=False)
     assert (
         didDoc["id"]
@@ -275,7 +278,7 @@ def test_gen_did_doc(setup_habs):
 
 
 def test_gen_did_doc_with_metadata(setup_habs):
-    hby, hab, did = setup_habs
+    hby, hab, wesHby, wesHab, did = setup_habs
     didDoc = didding.generateDIDDoc(hab, did, hab.pre, oobi=None, metadata=True)
     assert (
         didDoc["didDocument"]["id"]
@@ -324,7 +327,7 @@ def test_gen_did_doc_with_metadata(setup_habs):
     )
 
 
-def da_cred(hab, regk):
+def da_cred():
     """
     Generate test credential from with Habitat as issuer
 
@@ -366,45 +369,85 @@ def da_cred(hab, regk):
         sad=r_sad, code=coring.MtrDex.Blake3_256, label=scheming.Saids.d
     )
 
-    creder = proving.credential(
-        issuer=hab.pre,
-        schema=didding.DES_ALIASES_SCHEMA,
-        data=attrs,
-        status=regk,
-        rules=rules,
-    )
+    return attrs, rules
 
-    return creder
-
-
-def test_gen_desig_aliases(setup_habs, seeder):
-    hby, hab, did = setup_habs
-    seeder.seedSchema(db=hby.db)
-    
+def setup_rgy(hby, hab):
     # setup issuer with defaults for allowBackers, backers and estOnly
-    rgy = credentialing.Regery(hby=hby, name=hby.name, temp=True)
-    issuer = rgy.makeRegistry(prefix=hab.pre, name=hby.name, noBackers=True)
-    rseal = eventing.SealEvent(issuer.regk, "0", issuer.regd)._asdict()
-    hab.interact(data=[rseal])
+    regery = credentialing.Regery(hby=hby, name=hby.name, temp=True)
+    registry = regery.makeRegistry(prefix=hab.pre, name=hby.name, noBackers=True)
+    assert registry.name == hby.name
+
+    rseal = eventing.SealEvent(registry.regk, "0", registry.regd)._asdict()
+    anc = hab.interact(data=[rseal])
+    
+    dec_anc = anc.decode("utf-8")
+    before, sep, after = dec_anc.rpartition("}")
+    actual = json.loads(before + sep)
+    expected = dict(v="KERI10JSON00013a_",
+                t="ixn",
+                d=actual.get("d"),
+                i="EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre",
+                s="1",
+                p="EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre",
+                a=[
+                    dict(i=f"{registry.regk}",
+                     s="0",
+                     d=f"{registry.regk}",
+                    )
+                ],)
+    assert expected == actual
+    
     seqner = coring.Seqner(sn=hab.kever.sn)
-    issuer.anchorMsg(
-        pre=issuer.regk, regd=issuer.regd, seqner=seqner, saider=hab.kever.serder.saider
+    registry.anchorMsg(pre=registry.regk, regd=registry.regd, seqner=seqner, saider=hab.kever.serder.saider)
+    regery.processEscrows()
+    assert registry.regk in regery.reger.tevers
+    
+    return regery, registry, anc
+
+def setup_verifier(hby, hab, regery, registry, reg_anc):
+    verifier = verifying.Verifier(hby=hby, reger=regery.reger)
+    
+    vcid = "EA8Ih8hxLi3mmkyItXK1u55cnHl4WgNZ_RE-gKXqgcX4"
+    msg = verifier.query(hab.pre, registry.regk,
+                        vcid=vcid,
+                        route="tels")
+    
+    dec_msg = msg.decode("utf-8")
+    before, sep, after = dec_msg.rpartition("}")
+    actual = json.loads(before + sep)
+    
+    expected = dict(v="KERI10JSON0000fe_",
+                t="qry",
+                d=actual.get("d"),
+                dt=actual.get("dt"),
+                r="tels",
+                rr='',
+                q=dict(i=vcid,
+                       ri=f'{registry.regk}'),)
+    assert expected == actual
+
+    seqner = coring.Seqner(sn=hab.kever.sn)
+    registry.anchorMsg(
+        pre=registry.regk, regd=registry.regd, seqner=seqner, saider=hab.kever.serder.saider
     )
-    rgy.processEscrows()
-    assert issuer.regk in rgy.reger.tevers
+    regery.processEscrows()
+    assert registry.regk in regery.reger.tevers
+    
+    return verifier, seqner
 
-    verifier = verifying.Verifier(hby=hby, reger=rgy.reger)
+def setup_cred(hab, registry, verifier, seqner):
+    attrs, rules = da_cred()
 
-    creder = da_cred(hab=hab, regk=issuer.regk)
+    creder = proving.credential(issuer=hab.pre,
+                                schema=didding.DES_ALIASES_SCHEMA,
+                                data=attrs,
+                                rules=rules,
+                                status=registry.regk)
     missing = False
     try:
         # Specify an anchor directly in the KEL
-        verifier.processCredential(
-            creder,
-            prefixer=hab.kever.prefixer,
-            seqner=seqner,
-            saider=hab.kever.serder.saider,
-        )
+        verifier.processCredential(creder, prefixer=hab.kever.prefixer, seqner=seqner,
+                                    saider=hab.kever.serder.saider)
     except kering.MissingRegistryError:
         missing = True
 
@@ -413,29 +456,60 @@ def test_gen_desig_aliases(setup_habs, seeder):
     cue = verifier.cues.popleft()
     assert cue["kin"] == "telquery"
     q = cue["q"]
-    assert q["ri"] == issuer.regk
-
-    iss = issuer.issue(said=creder.said)
+    assert q["ri"] == registry.regk
+    
+    return creder
+    
+def issue_cred(hab, regery, registry, creder):
+    iss = registry.issue(said=creder.said)
     rseal = eventing.SealEvent(iss.pre, "0", iss.said)._asdict()
     hab.interact(data=[rseal])
     seqner = coring.Seqner(sn=hab.kever.sn)
-    issuer.anchorMsg(
-        pre=iss.pre, regd=iss.said, seqner=seqner, saider=hab.kever.serder.saider
-    )
-    rgy.processEscrows()
+    registry.anchorMsg(pre=iss.pre, regd=iss.said, seqner=seqner, saider=hab.kever.serder.saider)
+    regery.processEscrows()
+    state = registry.tever.vcState(vci=creder.said)
+    assert state.ked["et"] == coring.Ilks.iss
+    
+def revoke_cred(hab, regery, registry, creder):
+    rev = registry.revoke(said=creder["sad"]["d"])
+    rseal = eventing.SealEvent(rev.pre, "1", rev.said)._asdict()
+    hab.interact(data=[rseal])
+    seqner = coring.Seqner(sn=hab.kever.sn)
+    registry.anchorMsg(pre=rev.pre, regd=rev.said, seqner=seqner, saider=hab.kever.serder.saider)
+    regery.processEscrows()
+    state = registry.tever.vcState(vci=creder["sad"]["d"])
+    assert state.ked["et"] == coring.Ilks.rev
 
-    # Now that the credential has been issued, process escrows and it will find the TEL event
+def issue_desig_aliases(seeder, hby, hab, whby, whab, registryName="cam"):
+    seeder.seedSchema(db=hby.db)
+    assert hab.pre == 'EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre'
+    
+    # kli vc registry incept --name "$alias" --alias "$alias" --registry-name "$reg_name"
+    regery, registry, reg_anc = setup_rgy(hby, hab)
+    verifier, seqner = setup_verifier(hby, hab, regery, registry, reg_anc)
+    
+    # kli vc create --name "$alias" --alias "$alias" --registry-name "$reg_name" --schema "${d_alias_schema}" --credential @desig-aliases-public.json
+    creder = setup_cred(hab, registry, verifier, seqner)
+    
+    issue_cred(hab, regery, registry, creder)
     verifier.processEscrows()
 
-    assert len(verifier.cues) == 1
-    cue = verifier.cues.popleft()
-    assert cue["kin"] == "saved"
-    assert cue["creder"].raw == creder.raw
-    
-    saids = rgy.reger.issus.get(keys=hab.pre)
-    scads = rgy.reger.schms.get(keys=didding.DES_ALIASES_SCHEMA)
+    saids = regery.reger.issus.get(keys=hab.pre)
+    scads = regery.reger.schms.get(keys=didding.DES_ALIASES_SCHEMA)
 
-    didDoc = didding.generateDIDDoc(hab, did, hab.pre, reger=rgy.reger, oobi=None, metadata=True)
+    return Credentialer(hby,regery,None,verifier)
+
+
+def test_gen_desig_aliases(setup_habs, seeder):
+    hby, hab, wesHby, wesHab, did = setup_habs
+
+    crdntler = issue_desig_aliases(
+        seeder, hby, hab, whby=wesHby, whab=wesHab, registryName=hby.name
+    )
+
+    didDoc = didding.generateDIDDoc(
+        hab, did, hab.pre, crdntler=crdntler, oobi=None, metadata=True
+    )
     assert (
         didDoc["didDocument"]["id"]
         == "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
@@ -477,88 +551,78 @@ def test_gen_desig_aliases(setup_habs, seeder):
         "serviceEndpoint": {"http": "http://127.0.0.1:8888"},
     }
 
-    assert didDoc["didDocumentMetadata"]["equivalentId"] == ['did:webs:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe']
-    assert didDoc["didDocument"]["alsoKnownAs"] == ['did:web:example.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe']
+    assert didDoc["didDocumentMetadata"]["equivalentId"] == [
+        "did:webs:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+    ]
+    assert didDoc["didDocument"]["alsoKnownAs"] == [
+        "did:web:example.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+    ]
 
     assert (
         re.match(didding.DID_TIME_PATTERN, didDoc["didResolutionMetadata"]["retrieved"])
         != None
     )
 
+def test_gen_desig_aliases_revoked(setup_habs, seeder):
+    hby, hab, wesHby, wesHab, did = setup_habs
 
-# sch_said = "EMQWEcCnVRk1hatTNyK3sIykYSrrFvafX3bHQ9Gkk1kC"
-def test_verifier(seeder):
-    with habbing.openHab(name="sid", temp=True, salt=b"0123456789abcdef") as (
-        hby,
-        hab,
-    ):
-        seeder.seedSchema(db=hby.db)
-        assert hab.pre == "EKC8085pwSwzLwUGzh-HrEoFDwZnCJq27bVp5atdMT9o"
+    crdntler = issue_desig_aliases(
+        seeder, hby, hab, whby=wesHby, whab=wesHab, registryName=hby.name
+    )
+    
+    saiders = crdntler.rgy.reger.schms.get(keys=didding.DES_ALIASES_SCHEMA.encode("utf-8"))
+    creds = crdntler.rgy.reger.cloneCreds(saiders, hab.db)
+    
+    revoke_cred(hab,crdntler.rgy,crdntler.rgy.registryByName(hby.name),creds[0])
 
-        regery = credentialing.Regery(hby=hby, name="test", temp=True)
-        issuer = regery.makeRegistry(prefix=hab.pre, name="test")
-        rseal = eventing.SealEvent(issuer.regk, "0", issuer.regd)._asdict()
-        hab.interact(data=[rseal])
-        seqner = coring.Seqner(sn=hab.kever.sn)
-        issuer.anchorMsg(
-            pre=issuer.regk,
-            regd=issuer.regd,
-            seqner=seqner,
-            saider=hab.kever.serder.saider,
-        )
-        regery.processEscrows()
+    didDoc = didding.generateDIDDoc(
+        hab, did, hab.pre, crdntler=crdntler, oobi=None, metadata=True
+    )
+    assert (
+        didDoc["didDocument"]["id"]
+        == "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
+    )
 
-        verifier = verifying.Verifier(hby=hby, reger=regery.reger)
+    assert didDoc["didDocument"]["verificationMethod"] == [
+        {
+            "id": "#DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp",
+            "type": "JsonWebKey",
+            "controller": "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
+            "publicKeyJwk": {
+                "kid": "DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp",
+                "kty": "OKP",
+                "crv": "Ed25519",
+                "x": "JBtEHHnzNtE-zxH1xeX4wxs9rEfUQ8d1ancgJJ1BLKk",
+            },
+        }
+    ]
 
-        creder = da_cred(hab=hab, regk=issuer.regk)
-        missing = False
-        try:
-            # Specify an anchor directly in the KEL
-            verifier.processCredential(
-                creder,
-                prefixer=hab.kever.prefixer,
-                seqner=seqner,
-                saider=hab.kever.serder.saider,
-            )
-        except kering.MissingRegistryError:
-            missing = True
+    assert len(didDoc["didDocument"]["service"]) == 4
+    assert didDoc["didDocument"]["service"][0] == {
+        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/agent",
+        "type": "agent",
+        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
+    }
+    assert didDoc["didDocument"]["service"][1] == {
+        "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
+        "type": "controller",
+        "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
+    }
+    assert didDoc["didDocument"]["service"][2] == {
+        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox",
+        "type": "mailbox",
+        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
+    }
+    assert didDoc["didDocument"]["service"][3] == {
+        "id": "#BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr/witness",
+        "type": "witness",
+        "serviceEndpoint": {"http": "http://127.0.0.1:8888"},
+    }
 
-        assert missing is True
-        assert len(verifier.cues) == 1
-        cue = verifier.cues.popleft()
-        assert cue["kin"] == "telquery"
-        q = cue["q"]
-        assert q["ri"] == issuer.regk
+    assert didDoc["didDocumentMetadata"]["equivalentId"] == []
+    assert didDoc["didDocument"]["alsoKnownAs"] == []
 
-        iss = issuer.issue(said=creder.said)
-        rseal = eventing.SealEvent(iss.pre, "0", iss.said)._asdict()
-        hab.interact(data=[rseal])
-        seqner = coring.Seqner(sn=hab.kever.sn)
-        issuer.anchorMsg(
-            pre=iss.pre, regd=iss.said, seqner=seqner, saider=hab.kever.serder.saider
-        )
-        regery.processEscrows()
-
-        # Now that the credential has been issued, process escrows and it will find the TEL event
-        verifier.processEscrows()
-
-        assert len(verifier.cues) == 1
-        cue = verifier.cues.popleft()
-        assert cue["kin"] == "saved"
-        assert cue["creder"].raw == creder.raw
-
-        dcre, *_ = regery.reger.cloneCred(said=creder.saider.qb64)
-
-        assert dcre.raw == creder.raw
-
-        saider = regery.reger.issus.get(hab.pre)
-        assert saider[0].qb64 == creder.said
-        saider = regery.reger.schms.get(didding.DES_ALIASES_SCHEMA)
-        assert saider[0].qb64 == creder.said
-
-        for schm in regery.reger.schms.getItemIter():
-            print("Schemas avaialable: ", schm)
-        for cred in regery.reger.creds.getItemIter():
-            print("Creds avaialable: ", cred)
-        for tel in regery.reger.getTelItemPreIter(pre=hab.pre):
-            print("Tels avaialable: ", tel)
+    assert (
+        re.match(didding.DID_TIME_PATTERN, didDoc["didResolutionMetadata"]["retrieved"])
+        != None
+    )
