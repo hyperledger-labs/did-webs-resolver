@@ -61,15 +61,21 @@ class Generator(doing.DoDoer):
         _ = (yield self.tock)
 
         domain, port, path, aid = didding.parseDIDWebs(self.did)
-        obr = basing.OobiRecord(date=helping.nowIso8601())
-        obr.cid = aid
-        self.hby.db.oobis.pin(keys=(self.oobi,), val=obr)
 
-        while self.hby.db.roobi.get(keys=(self.oobi,)) is None:
-            _ = yield tock
-            
-        oobiHab = self.hby.habs[aid]
-        msgs = oobiHab.replyToOobi(aid=aid, role="controller", eids=None)
+        msgs = bytearray()        
+        if self.oobi is not None or self.oobi == "":
+            print(f"Using oobi {self.oobi} to get CESR event stream")
+            obr = basing.OobiRecord(date=helping.nowIso8601())
+            obr.cid = aid
+            self.hby.db.oobis.pin(keys=(self.oobi,), val=obr)
+
+            while self.hby.db.roobi.get(keys=(self.oobi,)) is None:
+                _ = yield tock
+                
+            oobiHab = self.hby.habs[aid]
+            msgs = oobiHab.replyToOobi(aid=aid, role="controller", eids=None)
+        else:
+            print(f"Generating CESR event stream from local hab")
         
         # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
         kc_dir_path = f"{webbing.KC_DEFAULT_DIR}/{aid}"
