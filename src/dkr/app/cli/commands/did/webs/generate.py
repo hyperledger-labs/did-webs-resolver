@@ -11,6 +11,7 @@ from hio.base import doing
 from keri.core import coring, eventing
 from keri.app import habbing, oobiing
 from keri.app.cli.common import existing
+from keri.app.cli.commands.vc import export
 from keri.db import basing, dbing
 from keri.help import helping
 
@@ -47,6 +48,7 @@ class Generator(doing.DoDoer):
         self.hby = existing.setupHby(name=name, base=base, bran=bran)
         hbyDoer = habbing.HaberyDoer(habery=self.hby)  # setup doer
         obl = oobiing.Oobiery(hby=self.hby)
+        self.exp = export.ExportDoer(name=name, alias=name, base=base, bran=bran, said=None, tels=True, kels=True, chains=True, files=True)
         self.did = did
         self.oobi = oobi
         self.da_reg = da_reg
@@ -76,6 +78,15 @@ class Generator(doing.DoDoer):
             msgs = oobiHab.replyToOobi(aid=aid, role="controller", eids=None)
         else:
             print(f"Generating CESR event stream from local hab")
+            saids = self.exp.rgy.reger.issus.get(keys=aid)
+            scads = self.exp.rgy.reger.schms.get(keys=didding.DES_ALIASES_SCHEMA.encode("utf-8"))
+            # self-attested, there is no issuee, and schmea is designated aliases
+            saiders = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
+            for saider in saiders:
+                # self.exp.exportDo(tymth, tock=tock)
+                self.exp.outputCred(said=saider.qb64)
+            self.exp.done = True
+            self.exp.exit()
         
         # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
         kc_dir_path = f"{webbing.KC_DEFAULT_DIR}/{aid}"
