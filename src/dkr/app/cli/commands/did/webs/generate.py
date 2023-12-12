@@ -12,7 +12,7 @@ from keri.core import coring, eventing
 from keri.app import directing, habbing, oobiing
 from keri.app.cli.common import existing
 from keri.app.cli.commands.vc import export
-from keri.vdr import credentialing
+from keri.vdr import credentialing, viring
 from keri.db import basing, dbing
 from keri.help import helping
 
@@ -92,11 +92,18 @@ class Generator(doing.DoDoer):
             # self-attested, there is no issuee, and schmea is designated aliases
             saiders = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
             for saider in saiders:
+                creder, *_ = rgy.reger.cloneCred(said=saider.qb64)
+                cmsg = self.hby.habByName(self.da_reg).endorse(creder)
                 rgy.close()
                 self.hby.close()
                 exp = export.ExportDoer(said=saider.qb64, name=self.name, alias=self.name, base=self.base, bran=self.bran, tels=True, kels=True, chains=True, files=True)
                 directing.runController(doers=[exp], expire=0.0)
+
+                f = open(f"{creder.said}-acdc.cesr", 'w')
+                f.write(cmsg.decode("utf-8"))
+                f.close()
                 self.hby = existing.setupHby(name=self.hby.name, base=self.hby.base, bran=self.bran)
+                rgy = credentialing.Regery(hby=self.hby, name=self.hby.name, base=self.hby.base)
         
         # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
         kc_dir_path = f"{webbing.KC_DEFAULT_DIR}/{aid}"
