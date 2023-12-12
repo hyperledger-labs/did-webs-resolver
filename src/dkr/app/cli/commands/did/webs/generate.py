@@ -12,6 +12,7 @@ from keri.core import coring, eventing
 from keri.app import habbing, oobiing
 from keri.app.cli.common import existing
 from keri.app.cli.commands.vc import export
+from keri.vdr import credentialing
 from keri.db import basing, dbing
 from keri.help import helping
 
@@ -40,15 +41,20 @@ def handler(args):
     gen = Generator(name=args.name, base=args.base, bran=args.bran, did=args.did, oobi=args.oobi, da_reg=args.da_reg)
     return [gen]
 
+class DynamicObject:
+    def __init__(self, data):
+        for key, value in data.items():
+            setattr(self, key, value)
 
 class Generator(doing.DoDoer):
 
     def __init__(self, name, base, bran, did, oobi, da_reg):
 
         self.hby = existing.setupHby(name=name, base=base, bran=bran)
+        self.bran = bran
         hbyDoer = habbing.HaberyDoer(habery=self.hby)  # setup doer
         obl = oobiing.Oobiery(hby=self.hby)
-        self.exp = export.ExportDoer(name=name, alias=name, base=base, bran=bran, said=None, tels=True, kels=True, chains=True, files=True)
+        # self.exp = export.ExportDoer(name=name, alias=name, base=base, bran=bran, said=None, tels=True, kels=True, chains=True, files=True)
         self.did = did
         self.oobi = oobi
         self.da_reg = da_reg
@@ -78,15 +84,24 @@ class Generator(doing.DoDoer):
             msgs = oobiHab.replyToOobi(aid=aid, role="controller", eids=None)
         else:
             print(f"Generating CESR event stream from local hab")
-            saids = self.exp.rgy.reger.issus.get(keys=aid)
-            scads = self.exp.rgy.reger.schms.get(keys=didding.DES_ALIASES_SCHEMA.encode("utf-8"))
+            rgy = credentialing.Regery(hby=self.hby, name=self.hby.name, base=self.hby.base)
+            saids = rgy.reger.issus.get(keys=aid)
+            scads = rgy.reger.schms.get(keys=didding.DES_ALIASES_SCHEMA.encode("utf-8"))
+
             # self-attested, there is no issuee, and schmea is designated aliases
             saiders = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
             for saider in saiders:
                 # self.exp.exportDo(tymth, tock=tock)
-                self.exp.outputCred(said=saider.qb64)
-            self.exp.done = True
-            self.exp.exit()
+                args={"tels": True, "kels": True, "chains": True, "full": True, "files": True, "said": saider.qb64, "name": self.hby.name, "alias": self.hby.name, "base": self.hby.base, "bran": self.bran}
+                do = DynamicObject(args)
+                rgy.close()
+                self.hby.close()
+                export.export_credentials(args=do)
+                self.hby = existing.setupHby(name=self.hby.name, base=self.hby.base, bran=self.bran)
+            #     self.exp.outputCred(said=saider.qb64)
+            #     self.exp.
+            # self.exp.done = True
+            # self.exp.exit()
         
         # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
         kc_dir_path = f"{webbing.KC_DEFAULT_DIR}/{aid}"
