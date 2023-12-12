@@ -9,7 +9,7 @@ import os
 
 from hio.base import doing
 from keri.core import coring, eventing
-from keri.app import habbing, oobiing
+from keri.app import directing, habbing, oobiing
 from keri.app.cli.common import existing
 from keri.app.cli.commands.vc import export
 from keri.vdr import credentialing
@@ -49,12 +49,13 @@ class DynamicObject:
 class Generator(doing.DoDoer):
 
     def __init__(self, name, base, bran, did, oobi, da_reg):
-
+        self.name = name
+        self.base = base
+        self.bran = bran
         self.hby = existing.setupHby(name=name, base=base, bran=bran)
         self.bran = bran
         hbyDoer = habbing.HaberyDoer(habery=self.hby)  # setup doer
         obl = oobiing.Oobiery(hby=self.hby)
-        # self.exp = export.ExportDoer(name=name, alias=name, base=base, bran=bran, said=None, tels=True, kels=True, chains=True, files=True)
         self.did = did
         self.oobi = oobi
         self.da_reg = da_reg
@@ -91,17 +92,11 @@ class Generator(doing.DoDoer):
             # self-attested, there is no issuee, and schmea is designated aliases
             saiders = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
             for saider in saiders:
-                # self.exp.exportDo(tymth, tock=tock)
-                args={"tels": True, "kels": True, "chains": True, "full": True, "files": True, "said": saider.qb64, "name": self.hby.name, "alias": self.hby.name, "base": self.hby.base, "bran": self.bran}
-                do = DynamicObject(args)
                 rgy.close()
                 self.hby.close()
-                export.export_credentials(args=do)
+                exp = export.ExportDoer(said=saider.qb64, name=self.name, alias=self.name, base=self.base, bran=self.bran, tels=True, kels=True, chains=True, files=True)
+                directing.runController(doers=[exp], expire=0.0)
                 self.hby = existing.setupHby(name=self.hby.name, base=self.hby.base, bran=self.bran)
-            #     self.exp.outputCred(said=saider.qb64)
-            #     self.exp.
-            # self.exp.done = True
-            # self.exp.exit()
         
         # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
         kc_dir_path = f"{webbing.KC_DEFAULT_DIR}/{aid}"
