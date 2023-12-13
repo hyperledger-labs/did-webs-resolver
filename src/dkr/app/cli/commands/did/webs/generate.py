@@ -12,6 +12,7 @@ from keri.core import coring, eventing
 from keri.app import directing, habbing, oobiing
 from keri.app.cli.common import existing
 from keri.app.cli.commands.vc import export
+from keri.vc import proving
 from keri.vdr import credentialing, viring
 from keri.db import basing, dbing
 from keri.help import helping
@@ -85,25 +86,10 @@ class Generator(doing.DoDoer):
             msgs = oobiHab.replyToOobi(aid=aid, role="controller", eids=None)
         else:
             print(f"Generating CESR event stream from local hab")
-            rgy = credentialing.Regery(hby=self.hby, name=self.hby.name, base=self.hby.base)
-            saids = rgy.reger.issus.get(keys=aid)
-            scads = rgy.reger.schms.get(keys=didding.DES_ALIASES_SCHEMA.encode("utf-8"))
-
-            # self-attested, there is no issuee, and schmea is designated aliases
-            saiders = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
-            for saider in saiders:
-                creder, *_ = rgy.reger.cloneCred(said=saider.qb64)
-                cmsg = self.hby.habByName(self.da_reg).endorse(creder)
-                rgy.close()
-                self.hby.close()
-                exp = export.ExportDoer(said=saider.qb64, name=self.name, alias=self.name, base=self.base, bran=self.bran, tels=True, kels=True, chains=True, files=True)
-                directing.runController(doers=[exp], expire=0.0)
-
-                f = open(f"{creder.said}-acdc.cesr", 'w')
-                f.write(cmsg.decode("utf-8"))
-                f.close()
-                self.hby = existing.setupHby(name=self.hby.name, base=self.hby.base, bran=self.bran)
-                rgy = credentialing.Regery(hby=self.hby, name=self.hby.name, base=self.hby.base)
+            #add KEL
+            self.genKelCesr(aid, msgs)
+            #add designated aliases TELs and ACDCs
+            self.genCredCesr(aid, didding.DES_ALIASES_SCHEMA, msgs)
         
         # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
         kc_dir_path = f"{webbing.KC_DEFAULT_DIR}/{aid}"
@@ -172,3 +158,62 @@ class Generator(doing.DoDoer):
         print(didData)
         self.remove(self.toRemove)
         return True
+
+    def genKelCesr(self, pre: str, msgs: bytearray):
+        print(f"Generating {pre} KEL CESR events")
+        for msg in self.hby.db.clonePreIter(pre=pre):
+            msgs.extend(msg)
+                
+    def genTelCesr(self, reger: viring.Reger, regk: str, msgs: bytearray):
+        print(f"Generating {regk} TEL CESR events")
+        for msg in reger.clonePreIter(pre=regk):
+            msgs.extend(msg)
+                
+    def genAcdcCesr(self, creder: proving.Creder, msgs: bytearray):
+        print(f"Generating {creder.crd['d']} ACDC CESR events, issued by {creder.crd['i']}")
+        cmsg = self.hby.habByName(self.da_reg).endorse(creder)
+        msgs.extend(cmsg)
+                
+    def genCredCesr(self, aid: str, schema: str, msgs: bytearray):
+        rgy = credentialing.Regery(hby=self.hby, name=self.hby.name, base=self.hby.base)
+        saids = rgy.reger.issus.get(keys=aid)
+        scads = rgy.reger.schms.get(keys=schema.encode("utf-8"))
+
+        # self-attested, there is no issuee, and schema is designated aliases
+        saiders = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
+        for saider in saiders:
+            
+            creder, *_ = rgy.reger.cloneCred(said=saider.qb64)
+             
+            if creder.status is not None:
+                self.genTelCesr(rgy.reger, creder.status, msgs)
+                self.genTelCesr(rgy.reger, creder.said, msgs)
+            self.genAcdcCesr(creder, msgs)
+            
+            
+            # re-init our hby and rgy now that export is complete
+            # self.hby = existing.setupHby(name=self.hby.name, base=self.hby.base, bran=self.bran)
+            # rgy = credentialing.Regery(hby=self.hby, name=self.hby.name, base=self.hby.base)
+    
+    # def genCesr(self, said: str, creder: proving.Creder, cred_msg: bytearray):
+    #     exp = export.ExportDoer(said=said, name=self.name, alias=self.name, base=self.base, bran=self.bran, tels=True, kels=True, chains=True, files=True)
+    #     exp.outputCred(said=said)
+
+    #     #overwite acdc output to include endorsement
+    #     f = open(f"{creder.said}-acdc.cesr", 'w')
+    #     f.write(cred_msg.decode("utf-8"))
+    #     f.close()
+    
+    # def combineCesr(said, file_names):
+
+    #     # Step 1: Create a new directory
+    #     os.makedirs(said, exist_ok=True)
+
+    #     # Step 3: Read all the files and combine their contents into a single file
+    #     combined_file_name = 'keri.cesr'
+    #     with open(combined_file_name, 'w') as combined_file:
+    #         for file_name in file_names:
+    #             with open(os.path.join(said, file_name), 'r') as file:
+    #                 combined_file.write(file.read() + "\n")
+
+    #     print(f"All files have been combined into {combined_file_name}.")
