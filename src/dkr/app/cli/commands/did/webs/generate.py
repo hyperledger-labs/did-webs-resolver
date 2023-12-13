@@ -42,11 +42,6 @@ def handler(args):
     gen = Generator(name=args.name, base=args.base, bran=args.bran, did=args.did, oobi=args.oobi, da_reg=args.da_reg)
     return [gen]
 
-class DynamicObject:
-    def __init__(self, data):
-        for key, value in data.items():
-            setattr(self, key, value)
-
 class Generator(doing.DoDoer):
 
     def __init__(self, name, base, bran, did, oobi, da_reg):
@@ -189,31 +184,3 @@ class Generator(doing.DoDoer):
                 self.genTelCesr(rgy.reger, creder.status, msgs)
                 self.genTelCesr(rgy.reger, creder.said, msgs)
             self.genAcdcCesr(creder, msgs)
-            
-            
-            # re-init our hby and rgy now that export is complete
-            # self.hby = existing.setupHby(name=self.hby.name, base=self.hby.base, bran=self.bran)
-            # rgy = credentialing.Regery(hby=self.hby, name=self.hby.name, base=self.hby.base)
-    
-    # def genCesr(self, said: str, creder: proving.Creder, cred_msg: bytearray):
-    #     exp = export.ExportDoer(said=said, name=self.name, alias=self.name, base=self.base, bran=self.bran, tels=True, kels=True, chains=True, files=True)
-    #     exp.outputCred(said=said)
-
-    #     #overwite acdc output to include endorsement
-    #     f = open(f"{creder.said}-acdc.cesr", 'w')
-    #     f.write(cred_msg.decode("utf-8"))
-    #     f.close()
-    
-    # def combineCesr(said, file_names):
-
-    #     # Step 1: Create a new directory
-    #     os.makedirs(said, exist_ok=True)
-
-    #     # Step 3: Read all the files and combine their contents into a single file
-    #     combined_file_name = 'keri.cesr'
-    #     with open(combined_file_name, 'w') as combined_file:
-    #         for file_name in file_names:
-    #             with open(os.path.join(said, file_name), 'r') as file:
-    #                 combined_file.write(file.read() + "\n")
-
-    #     print(f"All files have been combined into {combined_file_name}.")
