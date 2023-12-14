@@ -54,7 +54,7 @@ def parseDIDWebs(did):
 
 
 def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=None, reg_name=None):
-    hab = hby.habByPre(aid)
+    hab = hby.habs[aid]
     
     if oobi is not None:
         obr = hby.db.roobi.get(keys=(oobi,))
@@ -122,19 +122,12 @@ def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=None, reg_
             ))
             
     sEnds=[]
-    if hab and hasattr(hab, 'endsFor'):
-        ends = hab.endsFor(aid)
-        for role in ends:
-            eDict = ends[role]
-            for eid in eDict:
-                sDict = dict()
-                for proto in eDict[eid]:
-                    sDict[proto]=f"{eDict[eid][proto]}"
-                sEnds.append(dict(
-                        id=f"#{eid}/{role}",
-                        type=role,
-                        serviceEndpoint=sDict
-                    ))
+    # hab.fetchRoleUrls(hab.pre).get("controller").get("EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre").get("http") == "http://127.0.0.1:7777"
+    if hab and hasattr(hab, 'fetchRoleUrls'):
+        ends = hab.fetchRoleUrls(aid)
+        sEnds.extend(addEnds(ends))
+        ends = hab.fetchWitnessUrls(aid)
+        sEnds.extend(addEnds(ends))
                 
     # similar to kli vc list --name "$alias" --alias "$alias" --issued --said --schema "${d_alias_schema}")
     eq_ids = []
@@ -191,7 +184,7 @@ def desAliases(hby: habbing.Habery, aid: str, reg_name: str=None):
     Returns the credentialer for the des-aliases schema, or None if it doesn't exist.
     """
     if reg_name is None:
-        reg_name = hby.habByPre(aid).name
+        reg_name = hby.habs[aid].name
     rgy = credentialing.Regery(hby=hby, name=reg_name)
     vry = verifying.Verifier(hby=hby, reger=rgy.reger)
     
@@ -202,7 +195,7 @@ def desAliases(hby: habbing.Habery, aid: str, reg_name: str=None):
 
     da_ids = []
     # for saider in saiders:
-    creds = rgy.reger.cloneCreds(saiders, hby.db)
+    creds = rgy.reger.cloneCreds(saiders)
 
     for idx, cred in enumerate(creds):
         sad = cred['sad']
@@ -223,3 +216,18 @@ def desAliases(hby: habbing.Habery, aid: str, reg_name: str=None):
         print(f"    Issued on {status['dt']}")
 
     return da_ids
+
+def addEnds(ends):
+    sEnds=[]
+    for role in ends:
+        eDict = ends[role]
+        for eid in eDict:
+            sDict = dict()
+            for proto in eDict[eid]:
+                sDict[proto]=f"{eDict[eid][proto]}"
+            sEnds.append(dict(
+                    id=f"#{eid}/{role}",
+                    type=role,
+                    serviceEndpoint=sDict
+                ))
+    return sEnds

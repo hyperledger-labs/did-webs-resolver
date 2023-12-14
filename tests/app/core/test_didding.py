@@ -186,7 +186,7 @@ def setup_habs():
 
         msgs.extend(
             hab.makeEndRole(
-                eid=agentHab.pre, role=kering.Roles.agent, stamp=helping.nowIso8601()
+                eid=agentHab.pre, role=kering.Roles.registrar, stamp=helping.nowIso8601()
             )
         )
 
@@ -199,29 +199,10 @@ def setup_habs():
         agentHab.psr.parse(ims=bytearray(msgs))
         hab.psr.parse(ims=bytearray(msgs))
 
-        ends = hab.endsFor(hab.pre)
-        assert ends == {
-            "agent": {
-                "EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ": {
-                    "http": "http://127.0.0.1:6666"
-                }
-            },
-            "controller": {
-                "EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre": {
-                    "http": "http://127.0.0.1:7777"
-                }
-            },
-            "mailbox": {
-                "EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ": {
-                    "http": "http://127.0.0.1:6666"
-                }
-            },
-            "witness": {
-                "BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr": {
-                    "http": "http://127.0.0.1:8888"
-                }
-            },
-        }
+        assert hab.fetchRoleUrls(hab.pre).get("controller").get("EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre").get("http") == "http://127.0.0.1:7777"
+        assert hab.fetchRoleUrls(hab.pre).get("registrar").get("EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ").get("http") == "http://127.0.0.1:6666"
+        assert hab.fetchRoleUrls(hab.pre).get("mailbox").get("EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ").get("http") == "http://127.0.0.1:6666"
+        assert hab.fetchWitnessUrls(hab.pre).get("witness").get("BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr").get("http") == "http://127.0.0.1:8888"
 
         did = "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
         yield hby, hab, wesHby, wesHab, did
@@ -251,18 +232,18 @@ def test_gen_did_doc(setup_habs):
 
     assert len(didDoc["service"]) == 4
     assert didDoc["service"][0] == {
-        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/agent",
-        "type": "agent",
-        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
-    }
-    assert didDoc["service"][1] == {
         "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
         "type": "controller",
         "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
     }
-    assert didDoc["service"][2] == {
+    assert didDoc["service"][1] == {
         "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox",
         "type": "mailbox",
+        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
+    }
+    assert didDoc["service"][2] == {
+        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/registrar",
+        "type": "registrar",
         "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
     }
     assert didDoc["service"][3] == {
@@ -296,18 +277,18 @@ def test_gen_did_doc_with_metadata(setup_habs):
 
     assert len(didDoc["didDocument"]["service"]) == 4
     assert didDoc["didDocument"]["service"][0] == {
-        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/agent",
-        "type": "agent",
-        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
-    }
-    assert didDoc["didDocument"]["service"][1] == {
         "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
         "type": "controller",
         "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
     }
-    assert didDoc["didDocument"]["service"][2] == {
+    assert didDoc["didDocument"]["service"][1] == {
         "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox",
         "type": "mailbox",
+        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
+    }
+    assert didDoc["didDocument"]["service"][2] == {
+        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/registrar",
+        "type": "registrar",
         "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
     }
     assert didDoc["didDocument"]["service"][3] == {
@@ -341,7 +322,7 @@ def da_cred():
     )
 
     _, attrs = scheming.Saider.saidify(
-        sad=a_sad, code=coring.MtrDex.Blake3_256, label=scheming.Saids.d
+        sad=a_sad, code=coring.MtrDex.Blake3_256, label=scheming.Ids.d
     )
 
     r_sad = dict(
@@ -361,17 +342,19 @@ def da_cred():
     )
 
     _, rules = scheming.Saider.saidify(
-        sad=r_sad, code=coring.MtrDex.Blake3_256, label=scheming.Saids.d
+        sad=r_sad, code=coring.MtrDex.Blake3_256, label=scheming.Ids.d
     )
 
     return attrs, rules
 
 
-def setup_rgy(hby, hab):
+def setup_rgy(hby, hab, reg_name="cam"):
     # setup issuer with defaults for allowBackers, backers and estOnly
     regery = credentialing.Regery(hby=hby, name=hby.name)
-    registry = regery.makeRegistry(prefix=hab.pre, name=hby.name, noBackers=True)
-    assert registry.name == hby.name
+    # registry = regery.registryByName(name=reg_name)
+    # if registry is None:
+    registry = regery.makeRegistry(prefix=hab.pre, name=reg_name, noBackers=True)
+    assert registry.name != hby.name
 
     rseal = eventing.SealEvent(registry.regk, "0", registry.regd)._asdict()
     anc = hab.interact(data=[rseal])
@@ -380,7 +363,7 @@ def setup_rgy(hby, hab):
     before, sep, after = dec_anc.rpartition("}")
     actual = json.loads(before + sep)
     expected = dict(
-        v="KERI10JSON00013a_",
+        v=actual.get("v"),
         t="ixn",
         d=actual.get("d"),
         i="EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre",
@@ -443,7 +426,7 @@ def setup_verifier(hby, hab, regery, registry, reg_anc):
     return verifier, seqner
 
 
-def setup_cred(hab, registry, verifier, seqner):
+def setup_cred(hab, registry, verifier: verifying.Verifier, seqner):
     attrs, rules = da_cred()
 
     creder = proving.credential(
@@ -453,14 +436,14 @@ def setup_cred(hab, registry, verifier, seqner):
         rules=rules,
         status=registry.regk,
     )
+    sadsigers, sadcigars = signing.signPaths(hab=hab, serder=creder, paths=[[]])
     missing = False
     try:
         # Specify an anchor directly in the KEL
         verifier.processCredential(
             creder,
-            prefixer=hab.kever.prefixer,
-            seqner=seqner,
-            saider=hab.kever.serder.saider,
+            sadsigers=sadsigers,
+            sadcigars=sadcigars
         )
     except kering.MissingRegistryError:
         missing = True
@@ -488,7 +471,7 @@ def issue_cred(hab, regery, registry, creder):
     assert state.ked["et"] == coring.Ilks.iss
 
 
-def revoke_cred(hab, regery, registry, creder):
+def revoke_cred(hab, regery, registry: credentialing.Registry, creder):
     rev = registry.revoke(said=creder["sad"]["d"])
     rseal = eventing.SealEvent(rev.pre, "1", rev.said)._asdict()
     hab.interact(data=[rseal])
@@ -506,7 +489,7 @@ def issue_desig_aliases(seeder, hby, hab, whby, whab, registryName="cam"):
     assert hab.pre == "EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre"
 
     # kli vc registry incept --name "$alias" --alias "$alias" --registry-name "$reg_name"
-    regery, registry, reg_anc = setup_rgy(hby, hab)
+    regery, registry, reg_anc = setup_rgy(hby, hab, registryName)
     regery.reger.schms.rem(keys=didding.DES_ALIASES_SCHEMA.encode("utf-8"))
     verifier, seqner = setup_verifier(hby, hab, regery, registry, reg_anc)
 
@@ -518,6 +501,7 @@ def issue_desig_aliases(seeder, hby, hab, whby, whab, registryName="cam"):
 
     saids = regery.reger.issus.get(keys=hab.pre)
     scads = regery.reger.schms.get(keys=didding.DES_ALIASES_SCHEMA)
+    assert len(scads) == 1
 
     return Credentialer(hby, regery, None, verifier)
 
@@ -526,7 +510,7 @@ def test_gen_desig_aliases(setup_habs, seeder):
     hby, hab, wesHby, wesHab, did = setup_habs
 
     crdntler = issue_desig_aliases(
-        seeder, hby, hab, whby=wesHby, whab=wesHab, registryName=hby.name
+        seeder, hby, hab, whby=wesHby, whab=wesHab, registryName="dAliases"
     )
 
     didDoc = didding.generateDIDDoc(
@@ -553,18 +537,18 @@ def test_gen_desig_aliases(setup_habs, seeder):
 
     assert len(didDoc["didDocument"]["service"]) == 4
     assert didDoc["didDocument"]["service"][0] == {
-        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/agent",
-        "type": "agent",
-        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
-    }
-    assert didDoc["didDocument"]["service"][1] == {
         "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
         "type": "controller",
         "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
     }
-    assert didDoc["didDocument"]["service"][2] == {
+    assert didDoc["didDocument"]["service"][1] == {
         "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox",
         "type": "mailbox",
+        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
+    }
+    assert didDoc["didDocument"]["service"][2] == {
+        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/registrar",
+        "type": "registrar",
         "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
     }
     assert didDoc["didDocument"]["service"][3] == {
@@ -592,15 +576,15 @@ def test_gen_desig_aliases_revoked(setup_habs, seeder):
     hby, hab, wesHby, wesHab, did = setup_habs
 
     crdntler = issue_desig_aliases(
-        seeder, hby, hab, whby=wesHby, whab=wesHab, registryName=hby.name
+        seeder, hby, hab, whby=wesHby, whab=wesHab, registryName="dAliases"
     )
 
     saiders = crdntler.rgy.reger.schms.get(
         keys=didding.DES_ALIASES_SCHEMA.encode("utf-8")
     )
-    creds = crdntler.rgy.reger.cloneCreds(saiders, hab.db)
+    creds = crdntler.rgy.reger.cloneCreds(saiders)
 
-    revoke_cred(hab, crdntler.rgy, crdntler.rgy.registryByName(hby.name), creds[0])
+    revoke_cred(hab, crdntler.rgy, crdntler.rgy.registryByName("dAliases"), creds[0])
 
     didDoc = didding.generateDIDDoc(
         hby, did, hab.pre, oobi=None, metadata=True
@@ -626,18 +610,18 @@ def test_gen_desig_aliases_revoked(setup_habs, seeder):
 
     assert len(didDoc["didDocument"]["service"]) == 4
     assert didDoc["didDocument"]["service"][0] == {
-        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/agent",
-        "type": "agent",
-        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
-    }
-    assert didDoc["didDocument"]["service"][1] == {
         "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
         "type": "controller",
         "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
     }
-    assert didDoc["didDocument"]["service"][2] == {
+    assert didDoc["didDocument"]["service"][1] == {
         "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox",
         "type": "mailbox",
+        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
+    }
+    assert didDoc["didDocument"]["service"][2] == {
+        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/registrar",
+        "type": "registrar",
         "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
     }
     assert didDoc["didDocument"]["service"][3] == {

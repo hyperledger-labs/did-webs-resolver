@@ -145,7 +145,7 @@ class Generator(doing.DoDoer):
         result = dict(
             didDocument=diddoc,
             pre=pre,
-            state=kever.state()._asdict(),
+            state=kever.state().ked,
             kel=kel
         )
         didData = json.dumps(result, indent=2)
@@ -164,9 +164,9 @@ class Generator(doing.DoDoer):
         for msg in reger.clonePreIter(pre=regk):
             msgs.extend(msg)
                 
-    def genAcdcCesr(self, creder: proving.Creder, msgs: bytearray):
+    def genAcdcCesr(self, aid, creder: proving.Creder, msgs: bytearray):
         print(f"Generating {creder.crd['d']} ACDC CESR events, issued by {creder.crd['i']}")
-        cmsg = self.hby.habByName(self.da_reg).endorse(creder)
+        cmsg = self.hby.habs[aid].endorse(creder)
         msgs.extend(cmsg)
                 
     def genCredCesr(self, aid: str, schema: str, msgs: bytearray):
@@ -183,4 +183,4 @@ class Generator(doing.DoDoer):
             if creder.status is not None:
                 self.genTelCesr(rgy.reger, creder.status, msgs)
                 self.genTelCesr(rgy.reger, creder.said, msgs)
-            self.genAcdcCesr(creder, msgs)
+            self.genAcdcCesr(aid, creder, msgs)
