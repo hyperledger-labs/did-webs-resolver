@@ -94,7 +94,9 @@ class Generator(doing.DoDoer):
         # File path
         kc_file_path = os.path.join(kc_dir_path, f"{webbing.KERI_CESR}")
         kcf = open(kc_file_path, "w")
-        kcf.write(msgs.decode("utf-8"))
+        tmsg = msgs.decode("utf-8")
+        print(f"Writing CESR events to {kc_file_path}: \n{tmsg}")
+        kcf.write(tmsg)
 
         #generate did doc
         diddoc = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi, reg_name=self.da_reg)

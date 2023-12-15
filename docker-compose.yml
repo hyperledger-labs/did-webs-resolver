@@ -1,6 +1,19 @@
 version: "3"
 
 services:
+    witnesshost:
+        container_name: witnesshost
+        hostname: witnesshost
+        image: gleif/keri:latest
+        tty: true
+        volumes:
+            - ./volume/witnesshost/keripy/scripts/keri/cf/main/:/keripy/scripts/keri/cf/main/
+        ports:
+            - 5642:5642  # witness
+            - 5643:5643  # witness
+            - 5644:5644  # witness
+        entrypoint: kli witness demo
+
     dkr:
         container_name: dkr
         hostname: dkr
@@ -9,6 +22,12 @@ services:
             dockerfile: ./images/dkr.dockerfile
         image: gleif/dkr:latest
         tty: true
+        volumes:
+            - ./volume/dkr/my-scripts/:/keripy/my-scripts/
+            - ./volume/dkr/did_json/:/usr/local/var/did-keri-resolver/did_json/
+            - ./volume/dkr/keri_cesr/:/usr/local/var/did-keri-resolver/keri_cesr/
+            - ./volume/dkr/examples/:/usr/local/var/did-keri-resolver/examples/
+            - ./volume/pages/:/pages/
 
     did-webs-service:
         container_name: did-webs-service
@@ -33,15 +52,3 @@ services:
         image: gleif/did-webs-resolver-service:latest
         ports:
             - 7677:7677
-
-    did-keri-resolver-service:
-        container_name: did-keri-resolver-service
-        hostname: did-keri-resolver-service
-        build:
-            context: .
-            dockerfile: ./images/did-keri-resolver-service.dockerfile
-        depends_on:
-            - dkr
-        image: gleif/did-keri-resolver-service:latest
-        ports:
-            - 7678:7678
