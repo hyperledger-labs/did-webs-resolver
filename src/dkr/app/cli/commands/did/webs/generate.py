@@ -93,7 +93,7 @@ class Generator(doing.DoDoer):
         self.genCredCesr(aid, didding.DES_ALIASES_SCHEMA, msgs)
         
         # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
-        kc_dir_path = f"{webbing.KC_DEFAULT_DIR}/{aid}"
+        kc_dir_path = f"{aid}"
         if not os.path.exists(kc_dir_path):
             os.makedirs(kc_dir_path)
 
@@ -108,7 +108,7 @@ class Generator(doing.DoDoer):
         diddoc = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, reg_name=self.da_reg)
         
         # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
-        dd_dir_path = f"{webbing.DD_DEFAULT_DIR}/{aid}"
+        dd_dir_path = f"{aid}"
         if not os.path.exists(dd_dir_path):
             os.makedirs(dd_dir_path)
         

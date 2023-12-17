@@ -6,12 +6,14 @@ Thank you to Markus Sabadello @peacekeeper from DanubeTech who created the origi
 
 If you're running into trouble in the process below, be sure to check the section [Trouble Shooting](#trouble-shooting) below. 
 
+Let's get started! We'll use docker to setup and run in a simple environment.
+
 ## Run Docker build
 ```
 docker compose build
 ```
 
-## Run Docker containers for the keri witness network and `did:webs` generator and resolver
+## Run Docker containers for the keri witness network and the `did:webs` generator and resolver environment
 
 ```
 docker compose down
@@ -24,7 +26,17 @@ docker compose up -d
 docker compose exec dkr /bin/bash
 ```
 
-## (Optional) You can use the KERI cli (kli) to create a unique salt (seed) for your KERI AID private keys
+## Run the script or execute the commands yourself
+If you would like to run the script, you can do so by running the following command:
+
+```
+cd examples
+./get_started.sh
+```
+Otherwise you can type these commands manually.
+Lets go through each step.
+
+## (Optional) You can use the KERI-client (kli) to create a unique salt (seed) for your KERI AID private keys
 
 ```
 kli salt
@@ -36,7 +48,7 @@ Example response:
 0AAQmsjh-C7kAJZQEzdrzwB7
 ```
 
-Note: In our examples we will use this salt `0AAQmsjh-C7kAJZQEzdrzwB7` replace it when necessary
+Note: In our examples we will use this salt `0AAQmsjh-C7kAJZQEzdrzwB7`, if you generated your own then replace it when necessary
 
 ## Provide your unique salt and configure your KERI AID
 
@@ -75,7 +87,7 @@ http://witnesshost:5644/oobi/BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX/contro
 ```
 
 ## Create your KERI AID
-Now that your environment is ready, create your AID (via an inception event) with inception configuration that contains your witnesses. It is a transferable AID (meaning you can rotate the keys, witnesses, etc):
+Now that you have intitalized things, create your AID (via an inception event) with inception configuration that contains your witnesses. It is a transferable AID (meaning you can rotate the keys, witnesses, etc):
 
 `config`
 ```json
@@ -132,14 +144,11 @@ dkr did webs generate --name controller --did did:webs:labs.hyperledger.org:did-
 ```
 
 This creates files:
--  `did.json` under local path `./volume/dkr/did_json/<your AID>`
--  `keri.cesr` under local path `./volume/dkr/keri_cesr/<your AID>`
+-  `did.json` and `keri.cesr` under local path `./volume/dkr/examples/<your AID>/did.json`
 
 You can access these files either from within your Docker container or on your local computer filesystem.
-- `<local path on computer to did-webs-resolver>/volume/dkr/` 
-- `/usr/local/var/did-keri-resolver/did_json/<your AID>` (local path in the Docker container)
-
-and extend those paths with either `did_json/<your AID>` or `keri_cesr/<your AID>`.
+- `<local path on computer to did-webs-resolver>/volume/dkr/examples/<your AID>` 
+- `/usr/local/var/did-keri-resolver/volume/dkr/examples/<your AID>` (local path in the Docker container)
 
 
 ## Upload did.json and keri.cesr to your web server
