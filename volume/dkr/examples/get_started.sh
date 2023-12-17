@@ -10,5 +10,5 @@ kli incept --name controller --alias controller --file "/keripy/my-scripts/my-in
 curl http://witnesshost:5642/oobi/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/witness/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha
 
 # generate controller did:webs for labs.hyperledger.org
-dkr did webs generate --name controller --did did:webs:labs.hyperledger.org:did-webs-resolver:pages:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP --oobi http://witnesshost:5642/oobi/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/witness/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha
-# dkr did webs generate --name controller --did did:webs:labs.hyperledger.org:did-webs-resolver:pages:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP
+# dkr did webs generate --name controller --did did:webs:labs.hyperledger.org:did-webs-resolver:pages:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP --oobi http://witnesshost:5642/oobi/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/witness/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha
+dkr did webs generate --name controller --did did:webs:labs.hyperledger.org:did-webs-resolver:pages:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP

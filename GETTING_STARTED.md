@@ -128,7 +128,7 @@ Note: Replace with your actual web address and AID, convert to did:web(s) confor
 
 Be sure to execute the command in the root of your local `did-webs` repo (and in the Docker container)
 ```
-dkr did webs generate --name controller --did did:webs:labs.hyperledger.org:did-webs-resolver:pages:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP --oobi http://witnesshost:5642/oobi/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/witness/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha
+dkr did webs generate --name controller --did did:webs:labs.hyperledger.org:did-webs-resolver:pages:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP
 ```
 
 This creates files:
