@@ -31,7 +31,8 @@ If you would like to run the script, you can do so by running the following comm
 
 ```
 cd examples
-./get_started.sh
+./get_started_keri.sh "controller" "/keripy/my-scripts" "config-docker" "incept-wits.json"
+./get_started_webs.sh "controller" "labs.hyperledger.org:did-webs-resolver:pages" "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP"
 ```
 Otherwise you can type these commands manually.
 Lets go through each step.

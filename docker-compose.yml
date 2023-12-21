@@ -24,8 +24,6 @@ services:
         tty: true
         volumes:
             - ./volume/dkr/my-scripts/:/keripy/my-scripts/
-            - ./volume/dkr/did_json/:/usr/local/var/did-keri-resolver/did_json/
-            - ./volume/dkr/keri_cesr/:/usr/local/var/did-keri-resolver/keri_cesr/
             - ./volume/dkr/examples/:/usr/local/var/did-keri-resolver/examples/
             - ./volume/pages/:/pages/
 
