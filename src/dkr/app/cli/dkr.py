@@ -26,6 +26,7 @@ def main():
 
     try:
         doers = args.handler(args)
+        # print(f"doers={doers}")
         directing.runController(doers=doers, expire=0.0)
 
     except Exception as ex:

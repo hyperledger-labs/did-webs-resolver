@@ -13,11 +13,12 @@ from keri.end import ending
 from dkr.core import didding
 
 CESR_MIME = "application/cesr"
-DD_DEFAULT_DIR = "./did_json"
+DD_DEFAULT_DIR = "./"
+DD_DIR_CFG = "did.doc.dir"
 DID_JSON = "did.json"
-KC_DEFAULT_DIR = "./keri_cesr"
+KC_DEFAULT_DIR = "./"
 KERI_CESR = "keri.cesr"
-KERI_CESR_CFG = "keri.cesr.dir"
+KC_DIR_CFG = "keri.cesr.dir"
 
 
 def setup(app, hby, cf):
@@ -37,10 +38,15 @@ def setup(app, hby, cf):
         web = data["did:web"]
 
     loadEnds(app, hby, web)
-    loadFileEnds(app, DidJsonResourceEnd(), DID_JSON, DD_DEFAULT_DIR)
-    print(f"Using config property {KERI_CESR_CFG} to look for {KERI_CESR} files{data[KERI_CESR_CFG]}")
-    print(f"Found config {data[KERI_CESR_CFG]}")
-    loadFileEnds(app, KeriCesrWebResourceEnd(hby), KERI_CESR, data[KERI_CESR_CFG])
+    if DD_DIR_CFG in data:
+        print(f"Using config property {DD_DIR_CFG} to look for {DID_JSON} files: {data[DD_DIR_CFG]}")
+    default_did_dir = data[DD_DIR_CFG] if DD_DIR_CFG in data else DD_DEFAULT_DIR
+    loadFileEnds(app, DidJsonResourceEnd(), DID_JSON, default_did_dir)
+    if KC_DIR_CFG in data:
+        print(f"Using config property {KC_DIR_CFG} to look for {KERI_CESR} files: {data[KC_DIR_CFG]}")
+    default_cesr_dir = data[KC_DIR_CFG] if KC_DIR_CFG in data else KC_DEFAULT_DIR
+    print(f"Using keri cesr dir {default_cesr_dir}")
+    loadFileEnds(app, KeriCesrWebResourceEnd(hby), KERI_CESR, default_cesr_dir)
 
 def loadEnds(app, hby, web):
     """ Load endpoints for all AIDs or configured AIDs only

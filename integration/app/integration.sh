@@ -4,21 +4,24 @@
 # Run this script from the base resolver directory, like
 # did-webs-resolver% ./integration/app/integration.sh
 #
+# If there is an error you can search for running services (on mac) with
+# sudo lsof -i -P -n | grep LISTEN | grep <port>
 
 #print commands
-set -x
+# set -x
 
 #save this current directory, this is where the integration_clienting file also is
 ORIG_CUR_DIR=$( pwd )
 
-CTRL_NAME="controller"
+controller="controller"
+host="127.0.0.1"
 
 KERI_BRANCH="main"
 # KERI_TAG="c3a6fc455b5fac194aa9c264e48ea2c52328d4c5"
 KERI_PRIMARY_STORAGE="/usr/local/var/keri/"
 KERI_FALLBACK_STORAGE="${HOME}/.keri/"
 db_files=()
-db_names=("$CTRL_NAME" wan wes wil wit wub wyz)
+db_names=("$controller" wan wes wil wit wub wyz)
 for db_name in "${db_names[@]}"; do
     path="${KERI_PRIMARY_STORAGE}*/${db_name}*"
     db_files+=( $path )
@@ -56,10 +59,10 @@ function genDidWebs() {
         echo "Skipping generate did:webs did document"
     else
         echo "Generating did:webs DID Document and KERI event stream"
-        start_webs="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs.sh"
-        if [ -f "${start_webs}" ]; then
+        start_webs_gen="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_gen.sh"
+        if [ -f "${start_webs_gen}" ]; then
             echo "Found get started script to generate did:webs"
-            source "${start_webs}" "${CTRL_NAME}" "labs.hyperledger.org:did-webs-resolver:pages" "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP"
+            source "${start_webs_gen}" "${controller}" "${host}%3a7676" "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP"
             sleep 3
             echo "Completed loading generating did:webs"
         else
@@ -118,13 +121,13 @@ function createKeriId() {
     fi
     create_keri_id=${run_kload_input:-$default_kload}
     if [ "${create_keri_id}" == "n" ]; then
-        echo "Skipping load KERI data"
+        echo "Skipping create KERI id"
     else
-        echo "Running load KERI data"
+        echo "Running create KERI id"
         create_aid_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_create_id.sh"
         if [ -f "${create_aid_script}" ]; then
-            echo "Found get started keri script"
-            source "${create_aid_script}" "${CTRL_NAME}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local" "incept-wits.json"
+            echo "Found get started create id script"
+            source "${create_aid_script}" "${controller}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local" "incept-wits.json"
             sleep 3
             echo "Completed creating KERI identity"
         else
@@ -148,15 +151,13 @@ function resolveDIDAndKeriEvents() {
         echo "Resolving did:webs DID Document and Keri Events"
         res_webs_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_resolve.sh"
         if [ -f "${res_webs_script}" ]; then
-            echo "Found get started keri script"
-            source "${res_webs_script}" "${CTRL_NAME}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local"
+            echo "Found get started resolve script"
+            source "${res_webs_script}" "${controller}" "${host}%3a7676" "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP"
             sleep 3
             echo "Completed creating KERI identity"
         else
             echo "Couldn't find get started keri script"
         fi
-        dkr did webs resolve --name wan --did did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha
-        sleep 3
     fi
 }
 
@@ -203,13 +204,14 @@ function serveDidAndKeriEvents() {
     if [ "${serve_webs}" == "n" ]; then
         echo "Skipping serving did:webs DID Document and Keri Events"
     else
-        srv_webs_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_resolve.sh"
+        srv_webs_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_serve.sh"
         if [ -f "${srv_webs_script}" ]; then
             echo "Found get started serve script"
-            source "${srv_webs_script}" "${CTRL_NAME}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local"
-        servePid=$!
-        sleep 3
-        echo "Serving did:webs and keri events"
+            source "${srv_webs_script}" "${controller}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local"
+            servePid=$!
+            echo "Serving did:webs and keri events @pid ${servePid}"
+            echo "DID doc served at http://${host}:7676/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/did.json"
+            echo "KERI CESR at http://${host}:7676/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/keri.cesr"
         else
             echo "Couldn't find get started serve script"
         fi
