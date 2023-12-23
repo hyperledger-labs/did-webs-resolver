@@ -6,8 +6,6 @@ services:
         hostname: witnesshost
         image: gleif/keri:latest
         tty: true
-        volumes:
-            - ./volume/witnesshost/keripy/scripts/keri/cf/main/:/keripy/scripts/keri/cf/main/
         ports:
             - 5642:5642  # witness
             - 5643:5643  # witness
@@ -23,7 +21,6 @@ services:
         image: gleif/dkr:latest
         tty: true
         volumes:
-            - ./volume/dkr/my-scripts/:/keripy/my-scripts/
             - ./volume/dkr/examples/:/usr/local/var/did-keri-resolver/examples/
             - ./volume/pages/:/pages/
 
@@ -38,6 +35,9 @@ services:
         image: gleif/did-webs-service:latest
         ports:
             - 7676:7676
+        volumes:
+            - ./volume/dkr/examples/:/usr/local/var/did-keri-resolver/examples/
+            - ./volume/pages/:/pages/
 
     did-webs-resolver-service:
         container_name: did-webs-resolver-service

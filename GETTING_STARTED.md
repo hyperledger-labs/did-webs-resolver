@@ -26,36 +26,35 @@ docker compose up -d
 docker compose exec dkr /bin/bash
 ```
 
-## Run the script or execute the commands yourself
-If you would like to run the script, you can do so by running the following command:
-
+## What ran when the dkr docker container started?
+The following commands were run when the dkr docker container started:
+* Go to the `examples` dir
 ```
 cd examples
-./get_started_keri.sh "controller" "/keripy/my-scripts" "config-docker" "incept-wits.json"
-./get_started_webs.sh "controller" "labs.hyperledger.org:did-webs-resolver:pages" "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP"
 ```
-Otherwise you can type these commands manually.
-Lets go through each step.
+* Create the KERI AID ```EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP```
+```
+./get_started_create_id.sh controller ./my-scripts config-docker incept-wits.json
+```
+* Generate the did:webs ```did.json``` and ```keri.cesr``` for for the AID ```EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP```
+```
+./get_started_webs_gen.sh "controller" "did-webs-service%3a7676" "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP"
+```
 
-## (Optional) You can use the KERI-client (kli) to create a unique salt (seed) for your KERI AID private keys
-
+## Manually create your own KERI AID and did:webs files
+### Create a cryptographic salt with sufficient entropy is generated
 ```
 kli salt
 ```
-
-Example response:
-
+The example salt we use in the scripts:
 ```
 0AAQmsjh-C7kAJZQEzdrzwB7
 ```
 
-Note: In our examples we will use this salt `0AAQmsjh-C7kAJZQEzdrzwB7`, if you generated your own then replace it when necessary
-
-## Provide your unique salt and configure your KERI AID
-
+### Provide your unique salt and configure your KERI AID
 You control this AID so lets call it `controller`.
-The config-file in the container is at /keripy/my-scripts/my-config and contains the oobis of the witnesses that we'll use:
-In this case they are available from the witness network that we started in the docker-compose. If you `cat` the config at `/keripy/my-scripts/keri/cf/my-config.json` you should see:
+The AID config-file in the container is at /keripy/my-scripts/keri/cf/config-docker.json and contains the KERI OOBIs of the witnesses that we'll use:
+In this case they are available from the witness network that we started in the docker-compose. If you `cat` the config at `/keripy/my-scripts/keri/cf/config-docker.json` you should see:
 
 `config`
 ```json
@@ -69,15 +68,19 @@ bash-5.1# cat /keripy/my-scripts/keri/cf/my-config.json
   ]
 }
 ```
-Run the init command to prep your environment with the config:
+Run the init command to prep your environment with the *environment configuration*:
+
+`command`
 ```
-kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir "/keripy/my-scripts" --config-file my-config
+kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir "/keripy/my-scripts" --config-file "config-docker"
 ```
+
+Produces output like:
 
 `output`
 ```
-bash-5.1# kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir "/keripy/my-scripts" --config-file my-config
 KERI Keystore created at: /usr/local/var/keri/ks/controller
+bash-5.1# kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir "/keripy/my-scripts" --config-file config-docker
 KERI Database created at: /usr/local/var/keri/db/controller
 KERI Credential Store created at: /usr/local/var/keri/reg/controller
 
@@ -88,11 +91,11 @@ http://witnesshost:5644/oobi/BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX/contro
 ```
 
 ## Create your KERI AID
-Now that you have intitalized things, create your AID (via an inception event) with inception configuration that contains your witnesses. It is a transferable AID (meaning you can rotate the keys, witnesses, etc):
+Now that you have intitalized your AID environment, you can create your AID (via an inception event) with *inception configuration* that contains your witnesses. It is a transferable AID (meaning you can rotate the keys, witnesses, etc):
 
 `config`
 ```json
-bash-5.1# cat /keripy/my-scripts/my-incept.json
+bash-5.1# cat /keripy/my-scripts/incept-wits.json
 {
   "transferable": true,
   "wits": [
@@ -104,13 +107,15 @@ bash-5.1# cat /keripy/my-scripts/my-incept.json
 ```
 
 Run the incept command to create your AID:
+
+`command`
 ```
-kli incept --name controller --alias controller --file "/keripy/my-scripts/my-incept.json"
+kli incept --name controller --alias controller --file "/keripy/my-scripts/incept-wits.json"
 ```
 
 `output`
 ```
-bash-5.1# kli incept --name controller --alias controller --file "/keripy/my-scripts/my-incept.json"
+bash-5.1# kli incept --name controller --alias controller --file "/keripy/my-scripts/incept-wits.json"
 Waiting for witness receipts...
 Prefix  EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP
         Public key 1:  DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr
