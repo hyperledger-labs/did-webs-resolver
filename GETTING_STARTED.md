@@ -30,7 +30,7 @@ docker compose exec dkr /bin/bash
 The following commands were run when the dkr docker container started:
 * Go to the `examples` dir
 ```
-cd examples
+cd volume/dkr/examples
 ```
 * Create the KERI AID ```EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP```
 ```
@@ -53,8 +53,8 @@ The example salt we use in the scripts:
 
 ### Provide your unique salt and configure your KERI AID
 You control this AID so lets call it `controller`.
-The AID config-file in the container is at /keripy/my-scripts/keri/cf/config-docker.json and contains the KERI OOBIs of the witnesses that we'll use:
-In this case they are available from the witness network that we started in the docker-compose. If you `cat` the config at `/keripy/my-scripts/keri/cf/config-docker.json` you should see:
+The AID config-file in the container is at ./my-scripts/keri/cf/config-docker.json and contains the KERI OOBIs of the witnesses that we'll use:
+In this case they are available from the witness network that we started in the docker-compose. If you `cat` the config at `./my-scripts/keri/cf/config-docker.json` you should see:
 
 `config`
 ```json
@@ -121,7 +121,7 @@ Prefix  EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP
         Public key 1:  DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr
 ```
 
-Congrats! You have an AID `EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP` with one public key as the current key `DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr`
+Congrats! You have an AID (the example one already created is `EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP`) with one public key as the current key `DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr`
 
 ## (Optional) Perform more KERI operations
 

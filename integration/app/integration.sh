@@ -127,7 +127,7 @@ function createKeriId() {
         create_aid_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_create_id.sh"
         if [ -f "${create_aid_script}" ]; then
             echo "Found get started create id script"
-            source "${create_aid_script}" "${controller}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local" "incept-wits.json"
+            source "${create_aid_script}" "${controller}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts/incept-wits.json"
             sleep 3
             echo "Completed creating KERI identity"
         else
