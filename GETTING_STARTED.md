@@ -20,28 +20,19 @@ docker compose down
 docker compose up -d
 ```
 
-## Enter the docker environment command line to begin running keri, etc. commands
+## Enter the dkr docker environment command line to begin running keri, etc. commands
 
 ```
 docker compose exec dkr /bin/bash
 ```
 
-## What ran when the dkr docker container started?
-The following commands were run when the dkr docker container started:
+## Create your KERI identifier
+Execute the following commands to create your KERI identifier that secures your did:webs DID:
 * Go to the `examples` dir
 ```
 cd volume/dkr/examples
 ```
-* Create the KERI AID ```EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP```
-```
-./get_started_create_id.sh controller ./my-scripts config-docker incept-wits.json
-```
-* Generate the did:webs ```did.json``` and ```keri.cesr``` for for the AID ```EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP```
-```
-./get_started_webs_gen.sh "controller" "did-webs-service%3a7676" "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP"
-```
 
-## Manually create your own KERI AID and did:webs files
 ### Create a cryptographic salt with sufficient entropy is generated
 ```
 kli salt
@@ -51,14 +42,45 @@ The example salt we use in the scripts:
 0AAQmsjh-C7kAJZQEzdrzwB7
 ```
 
-### Provide your unique salt and configure your KERI AID
-You control this AID so lets call it `controller`.
+
+### Create the KERI AID ```ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe```
+#### initialize your environment with a name, salt, and config file
+
+`command:`
+```
+kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir ./my-scripts --config-file config-docker
+```
+
+#### create your AID by creating it's first event, the inception event
+
+`command:`
+```
+kli incept --name controller --alias controller --file ./my-scripts/incept
+```
+
+```output:```
+```
+bash-5.1# kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir ./my-scripts --config-file config-docker
+KERI Keystore created at: /usr/local/var/keri/ks/controller
+KERI Database created at: /usr/local/var/keri/db/controller
+KERI Credential Store created at: /usr/local/var/keri/reg/controller
+
+Loading 3 OOBIs...
+http://witnesshost:5642/oobi/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha/controller succeeded
+http://witnesshost:5643/oobi/BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM/controller succeeded
+http://witnesshost:5644/oobi/BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX/controller succeeded 
+bash-5.1# kli incept --name controller --alias controller --file ./my-scripts/incept.json 
+Prefix  ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
+        Public key 1:  DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr
+```
+Your AID is ```ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe``` and your current public key is ```DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr```
+
+#### Additional info
 The AID config-file in the container is at ./my-scripts/keri/cf/config-docker.json and contains the KERI OOBIs of the witnesses that we'll use:
 In this case they are available from the witness network that we started in the docker-compose. If you `cat` the config at `./my-scripts/keri/cf/config-docker.json` you should see:
 
-`config`
+`config:`
 ```json
-bash-5.1# cat /keripy/my-scripts/keri/cf/my-config.json
 {
   "dt": "2022-01-20T12:57:59.823350+00:00",
   "iurls": [
@@ -68,60 +90,6 @@ bash-5.1# cat /keripy/my-scripts/keri/cf/my-config.json
   ]
 }
 ```
-Run the init command to prep your environment with the *environment configuration*:
-
-`command`
-```
-kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir "/keripy/my-scripts" --config-file "config-docker"
-```
-
-Produces output like:
-
-`output`
-```
-KERI Keystore created at: /usr/local/var/keri/ks/controller
-bash-5.1# kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir "/keripy/my-scripts" --config-file config-docker
-KERI Database created at: /usr/local/var/keri/db/controller
-KERI Credential Store created at: /usr/local/var/keri/reg/controller
-
-Loading 3 OOBIs...
-http://witnesshost:5642/oobi/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha/controller succeeded
-http://witnesshost:5643/oobi/BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM/controller succeeded
-http://witnesshost:5644/oobi/BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX/controller succeeded
-```
-
-## Create your KERI AID
-Now that you have intitalized your AID environment, you can create your AID (via an inception event) with *inception configuration* that contains your witnesses. It is a transferable AID (meaning you can rotate the keys, witnesses, etc):
-
-`config`
-```json
-bash-5.1# cat /keripy/my-scripts/incept-wits.json
-{
-  "transferable": true,
-  "wits": [
-    "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
-    "BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM",
-    "BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX"
-  ]...
-}
-```
-
-Run the incept command to create your AID:
-
-`command`
-```
-kli incept --name controller --alias controller --file "/keripy/my-scripts/incept-wits.json"
-```
-
-`output`
-```
-bash-5.1# kli incept --name controller --alias controller --file "/keripy/my-scripts/incept-wits.json"
-Waiting for witness receipts...
-Prefix  EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP
-        Public key 1:  DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr
-```
-
-Congrats! You have an AID (the example one already created is `EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP`) with one public key as the current key `DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr`
 
 ## (Optional) Perform more KERI operations
 
@@ -140,17 +108,46 @@ Example web address:
 https://labs.hyperledger.org/did-webs-resolver/pages/
 ```
 
-## Generate did:webs files for AID
+## Generate your did:webs identifier files using your KERI AID
 
 Note: Replace with your actual web address and AID, convert to did:web(s) conformant identifier
 
-Be sure to execute the command in the root of your local `did-webs` repo (and in the Docker container)
+You should pick the web address (domain, optional port, optional path) where you will host the did:webs identifier. For this example we'll use the docker service we've created `did-webs-service%3a7676`
+
+`command:`
 ```
-dkr did webs generate --name controller --did did:webs:labs.hyperledger.org:did-webs-resolver:pages:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP
+dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
 ```
 
-This creates files:
--  `did.json` and `keri.cesr` under local path `./volume/dkr/examples/<your AID>/did.json`
+`output:`
+```
+bash-5.1# dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+Generating CESR event stream data from hab
+Generating ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe KEL CESR events
+Writing CESR events to ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr: 
+{"v":"KERI10JSON00012b_","t":"icp","d":"ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe","i":"ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe","s":"0","kt":"1","k":["DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr"],"nt":"1","n":["ELa775aLyane1vdiJEuexP8zrueiIoG995pZPGJiBzGX"],"bt":"0","b":[],"c":[],"a":[]}-VAn-AABAADjfOjbPu9OWce59OQIc-y3Su4kvfC2BAd_e_NLHbXcOK8-3s6do5vBfrxQ1kDyvFGCPMcSl620dLMZ4QDYlvME-EAB0AAAAAAAAAAAAAAAAAAAAAAA1AAG2023-12-26T20c12c58d336072p00c00
+
+  "didDocument": {
+    "id": "did:web:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+    "verificationMethod": [
+      {
+        "id": "#DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr",
+        "type": "JsonWebKey",
+        "controller": "did:web:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+        "publicKeyJwk": {
+          "kid": "DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr",
+          "kty": "OKP",
+          "crv": "Ed25519",
+          "x": "evT4j6Yw3uHpwsw5NEmSR8-4x3S-BA-s6Thjd51oeOs"
+        }
+      }
+    ],
+    "service": [],
+    "alsoKnownAs": []
+  }...
+```
+
+This creates files `did.json` and `keri.cesr` under local path `./volume/dkr/examples/<your AID>/did.json`
 
 You can access these files either from within your Docker container or on your local computer filesystem.
 - `<local path on computer to did-webs-resolver>/volume/dkr/examples/<your AID>` 
@@ -161,7 +158,11 @@ You can access these files either from within your Docker container or on your l
 
 E.g. using git, Github pages, FTP, SCP, etc.
 
-### Example WOT-terms install using git
+### Example docker install
+
+
+
+### Example WOT-terms install using GIT
 
 We choose `WOT-terms` as our [DESTINATION LOCAL REPO]
 

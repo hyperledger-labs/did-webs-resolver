@@ -22,7 +22,7 @@ services:
         tty: true
         volumes:
             - ./volume/dkr/examples/:/usr/local/var/webs/volume/dkr/examples/
-            - ./volume/pages/:/usr/local/var/webs/volume/pages/
+            - ./volume/dkr/pages/:/usr/local/var/webs/volume/pages/
 
     did-webs-service:
         container_name: did-webs-service
@@ -36,8 +36,8 @@ services:
         ports:
             - 7676:7676
         volumes:
-            - ./volume/dkr/examples/:/usr/local/var/webs/volume/dkr/examples/
-            - ./volume/pages/:/usr/local/var/webs/volume/pages/
+            - ./volume/dkr/examples/:/usr/local/var/did-keri-resolver/examples/
+            - ./volume/dkr/pages/:/usr/local/var/did-keri-resolver/pages/
 
     did-webs-resolver-service:
         container_name: did-webs-resolver-service
