@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ./volume/dkr/examples
+#cd ./volume/dkr/examples
 
 kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir ./my-scripts --config-file config-docker
 

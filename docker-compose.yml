@@ -30,11 +30,10 @@ services:
         build:
             context: .
             dockerfile: ./images/did-webs-service.dockerfile
-        depends_on:
-            - dkr
-        image: gleif/did-webs-service:latest
+        image: gleif/dkr:latest
         ports:
             - 7676:7676
+        tty: true
         volumes:
             - ./volume/dkr/examples/:/usr/local/var/did-keri-resolver/examples/
             - ./volume/dkr/pages/:/usr/local/var/did-keri-resolver/pages/

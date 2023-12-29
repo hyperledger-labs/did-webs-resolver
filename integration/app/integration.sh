@@ -15,6 +15,7 @@ ORIG_CUR_DIR=$( pwd )
 
 controller="controller"
 host="127.0.0.1"
+aid="EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP"
 
 KERI_BRANCH="main"
 # KERI_TAG="c3a6fc455b5fac194aa9c264e48ea2c52328d4c5"
@@ -62,7 +63,7 @@ function genDidWebs() {
         start_webs_gen="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_gen.sh"
         if [ -f "${start_webs_gen}" ]; then
             echo "Found get started script to generate did:webs"
-            source "${start_webs_gen}" "${controller}" "${host}%3a7676" "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP"
+            source "${start_webs_gen}" "${controller}" "${host}%3a7676" "${aid}"
             sleep 3
             echo "Completed loading generating did:webs"
         else
@@ -152,9 +153,9 @@ function resolveDIDAndKeriEvents() {
         res_webs_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_resolve.sh"
         if [ -f "${res_webs_script}" ]; then
             echo "Found get started resolve script"
-            source "${res_webs_script}" "${controller}" "${host}%3a7676" "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP"
+            source "${res_webs_script}" "${controller}" "${host}%3a7676" "${aid}"
             sleep 3
-            echo "Completed creating KERI identity"
+            echo "Resolved did:webs identity"
         else
             echo "Couldn't find get started keri script"
         fi
@@ -210,8 +211,8 @@ function serveDidAndKeriEvents() {
             source "${srv_webs_script}" "${controller}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local"
             servePid=$!
             echo "Serving did:webs and keri events @pid ${servePid}"
-            echo "DID doc served at http://${host}:7676/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/did.json"
-            echo "KERI CESR at http://${host}:7676/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/keri.cesr"
+            echo "DID doc served at http://${host}:7676/${aid}/did.json"
+            echo "KERI CESR at http://${host}:7676/${aid}/keri.cesr"
         else
             echo "Couldn't find get started serve script"
         fi
@@ -270,7 +271,7 @@ do
     # if [ "${prompt}" == "y" ]; then
     # fi
     read -p "Your servers still running, hit enter to tear down: " teardown
-    echo "Tearing down any leftover processes"
+    echo "Tearing down any leftover processes ${teardown}"
     # #tear down the signify client
     # kill "$signifyPid" >/dev/null 2>&1
     # # tear down the keria cloud agent

@@ -158,11 +158,37 @@ You can access these files either from within your Docker container or on your l
 
 E.g. using git, Github pages, FTP, SCP, etc.
 
-### Example docker install
+### Example: serve from docker
+You can run the docker example service to serve the did.json and keri.cesr files for the other docker containers:
+
+```
+docker compose exec did-webs-service /bin/bash
+```
+
+```
+dkr did webs service --name controller --config-dir ./my-scripts --config-file config-docker
+```
+
+It will search for AID named directories and for the two files under those directories. The search occurs from the directory specified in the config-file properties:
+```
+    "keri.cesr.dir": "./",
+    "did.doc.dir": "./"
+```
+
+And when a file is found it will look like:
+```
+Looking for keri.cesr file ./ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
+registering /ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr
+```
+
+It will serve it at a URL that you can CURL from any other docker container (for instance from the dkr container) like:
+
+```
+curl -GET http://did-webs-service:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/did.json
+```
 
 
-
-### Example WOT-terms install using GIT
+### Example: WOT-terms install using GIT
 
 We choose `WOT-terms` as our [DESTINATION LOCAL REPO]
 
