@@ -5,6 +5,6 @@
       "http://witnesshost:5644/oobi/BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX/controller",
       "http://witnesshost:5643/oobi/BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM/controller"
     ],
-    "keri.cesr.dir": "./",
-    "did.doc.dir": "./"
+    "keri.cesr.dir": "/usr/local/var/webs/volume/dkr/pages/",
+    "did.doc.dir": "/usr/local/var/webs/volume/dkr/pages/"
 }

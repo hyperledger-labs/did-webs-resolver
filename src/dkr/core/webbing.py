@@ -8,6 +8,8 @@ import os
 
 import falcon
 from hio.core import http
+from keri.app import habbing
+from keri.core import coring, eventing, parsing, scheming
 from keri.end import ending
 
 from dkr.core import didding
@@ -88,7 +90,7 @@ def loadFileEnds(app, res, file_end, dirPath):
             path=f"/{aid}/{file_end}"
             print(f"registering {path}")
             app.add_route(f"{path}", res)
-            res.add_lookup(path,fPath)
+            res.add_lookup(path,fPath,aid)
         else:
             print(f"Skipping {fPath} as it is not a file")
 
@@ -146,7 +148,7 @@ class DidJsonResourceEnd():
         """
         self.lookup = {}
         
-    def add_lookup(self, path, fPath):
+    def add_lookup(self, path, fPath, aid=None):
         self.lookup[path] = fPath
         
     def on_get(self, req, rep, aid=None):
@@ -194,9 +196,18 @@ class KeriCesrWebResourceEnd():
         self.hby = hby
         self.lookup = {}
         
-    def add_lookup(self, path, fPath):
+    def add_lookup(self, path, fPath, aid=None):
         self.lookup[path] = fPath
         
+        if aid is None:
+            aid = os.path.basename(os.path.normpath(path.rstrip(f"/{KERI_CESR}")))
+        ahab = self.hby.makeHab(name=aid, temp=True)
+        kvy = eventing.Kevery(db=ahab.db, lax=False, local=False)
+        with open(fPath, 'rb') as file:
+            ba = bytearray(file.read())
+            parsing.Parser().parse(ims=ba, kvy=kvy)
+            assert ahab.pre in kvy.kevers
+            
     def on_get(self, req, rep, aid=None):
         """ GET endpoint for acessing {KERI_CESR} stream for AID
 
@@ -217,10 +228,10 @@ class KeriCesrWebResourceEnd():
             raise falcon.HTTPNotFound(description=f"keri.cesr for KERI AID {aid} not found")
 
         # 404 if AID not recognized
-        if aid not in self.hby.kevers:
-            raise falcon.HTTPNotFound(description=f"KERI AID {aid} not found")
+        # if aid not in self.hby.kevers:
+        #     raise falcon.HTTPNotFound(description=f"KERI AID {aid} not found")
 
-        print(f"Serving data for {aid}")
+        print(f"Serving KERI CESR data for {aid}")
         port = ""
         if req.port != 80 and req.port != 443:
             port = f"%3A{req.port}"

@@ -32,7 +32,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='dkr',
-    version='0.0.1',  # also change in src/did-keri-resolver/__init__.py
+    version='0.0.1',  # also change in src/did-webs-resolver/__init__.py
     license='Apache Software License 2.0',
     description='did:keri DID Method Resolver',
     long_description="did:keri DID Method Resolver.",

@@ -28,12 +28,12 @@ docker compose exec dkr /bin/bash
 
 ## Create your KERI identifier
 Execute the following commands to create your KERI identifier that secures your did:webs DID:
-* Go to the `examples` dir
+* From the dkr Docker container shell, go to the `examples` dir
 ```
 cd volume/dkr/examples
 ```
 
-### Create a cryptographic salt with sufficient entropy is generated
+### Create a cryptographic salt to secure your KERI identifier
 ```
 kli salt
 ```
@@ -51,13 +51,6 @@ The example salt we use in the scripts:
 kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir ./my-scripts --config-file config-docker
 ```
 
-#### create your AID by creating it's first event, the inception event
-
-`command:`
-```
-kli incept --name controller --alias controller --file ./my-scripts/incept
-```
-
 ```output:```
 ```
 bash-5.1# kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir ./my-scripts --config-file config-docker
@@ -69,6 +62,17 @@ Loading 3 OOBIs...
 http://witnesshost:5642/oobi/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha/controller succeeded
 http://witnesshost:5643/oobi/BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM/controller succeeded
 http://witnesshost:5644/oobi/BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX/controller succeeded 
+```
+
+#### create your AID by creating it's first event, the inception event
+
+`command:`
+```
+kli incept --name controller --alias controller --file ./my-scripts/incept.json
+```
+
+```output:```
+```
 bash-5.1# kli incept --name controller --alias controller --file ./my-scripts/incept.json 
 Prefix  ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
         Public key 1:  DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr
@@ -100,9 +104,9 @@ See [a key rotation example](#example-key-rotation) below.
 
 ## Decide your web address for did:webs
 
-Find a web address (domain, optional port, optional path) that you control.
+Find a web address (host, optional port, optional path) that you control.
 
-Example web address:
+Example web address with host `labs.hyperledger.org`, no optional port, and optional path `pages`:
 
 ```
 https://labs.hyperledger.org/did-webs-resolver/pages/
@@ -110,9 +114,9 @@ https://labs.hyperledger.org/did-webs-resolver/pages/
 
 ## Generate your did:webs identifier files using your KERI AID
 
-Note: Replace with your actual web address and AID, convert to did:web(s) conformant identifier
+Note: Replace with your actual web address and AID
 
-You should pick the web address (domain, optional port, optional path) where you will host the did:webs identifier. For this example we'll use the docker service we've created `did-webs-service%3a7676`
+You should pick the web address (host, optional port, optional path) where you will host the did:webs identifier. For this example we'll use the docker service we've created at host `did-webs-service` and with optional port `7676`. NOTE the spec requires the colon `:` before an optional port to be encoded as `%3a` in the did:webs identifier.
 
 `command:`
 ```
@@ -144,17 +148,18 @@ Writing CESR events to ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr:
     ],
     "service": [],
     "alsoKnownAs": []
-  }...
+  }
+  ... with additional output continuing...
 ```
 
 This creates files `did.json` and `keri.cesr` under local path `./volume/dkr/examples/<your AID>/did.json`
 
 You can access these files either from within your Docker container or on your local computer filesystem.
-- `<local path on computer to did-webs-resolver>/volume/dkr/examples/<your AID>` 
-- `/usr/local/var/did-keri-resolver/volume/dkr/examples/<your AID>` (local path in the Docker container)
+- `<local path on computer to did-webs-resolver>/volume/dkr/examples/<your AID>` (local path on your computer)
+- `/usr/local/var/webs/volume/dkr/examples/<your AID>` (local path in the Docker container)
 
 
-## Upload did.json and keri.cesr to your web server
+## Upload did.json and keri.cesr to the web address (host, optional port, optional path) that corresponds to the 
 
 E.g. using git, Github pages, FTP, SCP, etc.
 
@@ -166,25 +171,29 @@ docker compose exec did-webs-service /bin/bash
 ```
 
 ```
-dkr did webs service --name controller --config-dir ./my-scripts --config-file config-docker
+dkr did webs service --name webserve --config-dir /usr/local/var/webs/volume/dkr/examples/my-scripts --config-file config-docker
 ```
 
-It will search for AID named directories and for the two files under those directories. The search occurs from the directory specified in the config-file properties:
+It will search for AID named directories and for the two files (`did.json` and `keri.cesr`) under those directories. The search occurs from the directory specified in the config-file properties:
 ```
-    "keri.cesr.dir": "./",
-    "did.doc.dir": "./"
+    "keri.cesr.dir": "/usr/local/var/webs/volume/dkr/pages/",
+    "did.doc.dir": "/usr/local/var/webs/volume/dkr/pages/"
 ```
 
-And when a file is found it will look like:
+And when a file is found by the service, there will be logs like:
 ```
-Looking for keri.cesr file ./ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
-registering /ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr
+Looking for did.json file /usr/local/var/webs/volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
+registering /ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/did.json
 ```
 
 It will serve it at a URL that you can CURL from any other docker container (for instance from the dkr container) like:
 
 ```
 curl -GET http://did-webs-service:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/did.json
+```
+and
+```
+curl -GET http://did-webs-service:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr
 ```
 
 

@@ -19,7 +19,7 @@ from keri.help import helping
 from keri.vdr import credentialing, verifying
 
 DID_KERI_RE = re.compile(r'\Adid:keri:(?P<aid>[^:]+)\Z', re.IGNORECASE)
-DID_WEBS_RE = re.compile(r'\Adid:webs:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?(?::(?P<path>.+?))?(?::(?P<aid>[^:]+))\Z', re.IGNORECASE)
+DID_WEBS_RE = re.compile(r'\Adid:web(s)?:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?(?::(?P<path>.+?))?(?::(?P<aid>[^:]+))\Z', re.IGNORECASE)
 DID_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DID_TIME_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 DES_ALIASES_SCHEMA="EN6Oh5XSD5_q2Hgu-aqpdfbVepdpYpFlgz6zvJL5b_r5"
@@ -41,7 +41,7 @@ def parseDIDKeri(did):
 def parseDIDWebs(did):
     match = DID_WEBS_RE.match(did)
     if match is None:
-        raise ValueError(f"{did} is not a valid did:webs DID")
+        raise ValueError(f"{did} is not a valid did:web(s) DID")
 
     domain, port, path, aid = match.group("domain", "port", "path", "aid")
 
