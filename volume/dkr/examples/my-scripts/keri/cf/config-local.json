@@ -8,6 +8,6 @@
     "durls": [
       "https://weboftrust.github.io/oobi/EN6Oh5XSD5_q2Hgu-aqpdfbVepdpYpFlgz6zvJL5b_r5"
     ],
-    "keri.cesr.dir": "./",
-    "did.doc.dir": "./"
+    "keri.cesr.dir": "./volume/dkr/pages/",
+    "did.doc.dir": "./volume/dkr/pages/"
   }

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+# set -x
 
 # RUN cd /usr/local/var/webs/volume/dkr/examples
 # RUN ./get_started_create_id.sh "controller" "./my-scripts" "config-docker" "incept-wits.json"

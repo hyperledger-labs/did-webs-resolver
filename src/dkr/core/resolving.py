@@ -135,3 +135,10 @@ class OobiIterable:
 
         self.finished = True
         return self.data.encode("utf-8")
+
+
+def loadFile(file_path):
+    # Read the file in binary mode
+    with open(file_path, 'rb') as file:
+        msgs = file.read()
+        return msgs

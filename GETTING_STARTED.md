@@ -10,7 +10,7 @@ Let's get started! We'll use docker to setup and run in a simple environment.
 
 ## Run Docker build
 ```
-docker compose build
+docker compose build --no-cache
 ```
 
 ## Run Docker containers for the keri witness network and the `did:webs` generator and resolver environment
@@ -48,12 +48,12 @@ The example salt we use in the scripts:
 
 `command:`
 ```
-kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir ./my-scripts --config-file config-docker
+kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir /usr/local/var/webs/volume/dkr/examples/my-scripts --config-file config-docker
 ```
 
 ```output:```
 ```
-bash-5.1# kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir ./my-scripts --config-file config-docker
+bash-5.1# kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir /usr/local/var/webs/volume/dkr/examples/my-scripts --config-file config-docker
 KERI Keystore created at: /usr/local/var/keri/ks/controller
 KERI Database created at: /usr/local/var/keri/db/controller
 KERI Credential Store created at: /usr/local/var/keri/reg/controller
@@ -68,7 +68,7 @@ http://witnesshost:5644/oobi/BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX/contro
 
 `command:`
 ```
-kli incept --name controller --alias controller --file ./my-scripts/incept.json
+kli incept --name controller --alias controller --file /usr/local/var/webs/volume/dkr/examples/my-scripts/incept.json
 ```
 
 ```output:```
@@ -81,7 +81,7 @@ Your AID is ```ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe``` and your current 
 
 #### Additional info
 The AID config-file in the container is at ./my-scripts/keri/cf/config-docker.json and contains the KERI OOBIs of the witnesses that we'll use:
-In this case they are available from the witness network that we started in the docker-compose. If you `cat` the config at `./my-scripts/keri/cf/config-docker.json` you should see:
+In this case they are available from the witness network that we started in the docker-compose. If you `cat` the config at `/usr/local/var/webs/volume/dkr/examples/my-scripts/keri/cf/config-docker.json` you should see:
 
 `config:`
 ```json
@@ -319,7 +319,7 @@ But the exact spot to extract the files as text would be something like:
 ```
 http://raw.githubusercontent.com/WOT-terms/test/did-webs-iiw37-tutorial/[your AID] 
 ```
-The reason for this confusion is dat a static page generator like Docusaurus or Jekyll might interfere with the location, visibility and accessibility of your files on Github Pages.
+The reason for this confusion is that a static page generator like Docusaurus or Jekyll might interfere with the location, visibility and accessibility of your files on Github Pages.
 
 We advise to choose a simple public directory that you control and we won't go into more detail on how to deal with static site generators.
 

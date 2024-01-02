@@ -74,7 +74,7 @@ def loadEnds(app, hby, web):
         else:
             prefix = f"/{web.lstrip('/').rstrip('/')}/"
 
-        path = f"{prefix}/{{aid}}/{DID_JSON}"
+        path = f"{prefix}/{DID_JSON}"
         print(f"Added route {path}")
         app.add_route(path, res)
 
@@ -201,12 +201,10 @@ class KeriCesrWebResourceEnd():
         
         if aid is None:
             aid = os.path.basename(os.path.normpath(path.rstrip(f"/{KERI_CESR}")))
-        ahab = self.hby.makeHab(name=aid, temp=True)
-        kvy = eventing.Kevery(db=ahab.db, lax=False, local=False)
+        # ahab = habbing..makeHab(name=aid, temp=True)
+        # kvy = eventing.Kevery(db=ahab.db, lax=False, local=False)
         with open(fPath, 'rb') as file:
-            ba = bytearray(file.read())
-            parsing.Parser().parse(ims=ba, kvy=kvy)
-            assert ahab.pre in kvy.kevers
+            self.hby.psr.parse(ims=bytearray(file.read()))
             
     def on_get(self, req, rep, aid=None):
         """ GET endpoint for acessing {KERI_CESR} stream for AID

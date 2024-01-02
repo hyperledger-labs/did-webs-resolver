@@ -5,6 +5,7 @@ services:
         container_name: witnesshost
         hostname: witnesshost
         image: gleif/keri:latest
+        platform: linux/amd64
         tty: true
         ports:
             - 5642:5642  # witness
@@ -12,17 +13,17 @@ services:
             - 5644:5644  # witness
         entrypoint: kli witness demo
 
-    dkr:
-        container_name: dkr
-        hostname: dkr
+    webs:
+        container_name: webs
+        hostname: webs
         build:
             context: .
-            dockerfile: ./images/dkr.dockerfile
-        image: gleif/dkr:latest
+            dockerfile: ./images/webs.dockerfile
+        image: 2byrds/webs:latest
         tty: true
         volumes:
-            - ~/VSCode/did-keri-resolver/volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
-            - ~/VSCode/did-keri-resolver/volume/dkr/pages:/usr/local/var/webs/volume/dkr/pages
+            - ~/VSCode/did-keri-resolver/volume/dkr/examples:/usr/local/var/webs/volume/webs/examples
+            - ~/VSCode/did-keri-resolver/volume/dkr/pages:/usr/local/var/webs/volume/webs/pages
 
     did-webs-service:
         container_name: did-webs-service
@@ -30,13 +31,14 @@ services:
         build:
             context: .
             dockerfile: ./images/did-webs-service.dockerfile
-        # image: ./images/did-webs-service:latest
+        depends_on:
+            - webs
         ports:
             - 7676:7676
         tty: true
         volumes:
-            - ~/VSCode/did-keri-resolver/volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
-            - ~/VSCode/did-keri-resolver/volume/dkr/pages:/usr/local/var/webs/volume/dkr/pages
+            - ~/VSCode/did-keri-resolver/volume/dkr/examples:/usr/local/var/webs/volume/webs/examples
+            - ~/VSCode/did-keri-resolver/volume/dkr/pages:/usr/local/var/webs/volume/webs/pages
 
     did-webs-resolver-service:
         container_name: did-webs-resolver
@@ -44,7 +46,9 @@ services:
         build:
             context: .
             dockerfile: ./images/did-webs-resolver-service.dockerfile
-        # image: gleif/did-webs-resolver:latest
+        image: did-webs-resolver:latest
         ports:
             - 7677:7677
         tty: true
+        depends_on:
+            - webs

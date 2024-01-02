@@ -71,7 +71,7 @@ class WebsResolver(doing.DoDoer):
         # Load the KERI CESR
         kc_url = f"{base_url}/{webbing.KERI_CESR}"
         print(f"Loading KERI CESR from {kc_url}", file=sys.stderr)
-        self.hby.psr.parse(ims=bytearray(self.loadUrl(kc_url)))
+        self.hby.psr.parse(ims=bytearray(self.loadUrl(kc_url)),kvy=self.hby.kvy)
 
         didresult = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, metadata=True)
         didresult['didDocumentMetadata']['didDocUrl'] = dd_url
@@ -101,14 +101,6 @@ class WebsResolver(doing.DoDoer):
         response.raise_for_status()
         # Convert the content to a bytearray
         return response.content
-    
-    def loadFile(self, aid):
-        # File path
-        file_path = f"./keri_cesr/{aid}/{webbing.KERI_CESR}"
-        # Read the file in binary mode
-        with open(file_path, 'rb') as file:
-            msgs = file.read()
-            return msgs
         
     def verifyDidDocs(self, expected, actual):
         if expected != actual:

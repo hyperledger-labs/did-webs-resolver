@@ -66,6 +66,7 @@ function genDidWebs() {
             source "${start_webs_gen}" "${controller}" "${host}%3a7676" "${aid}"
             sleep 3
             echo "Completed loading generating did:webs"
+            cp -R "${ORIG_CUR_DIR}/${aid}" "${ORIG_CUR_DIR}/volume/dkr/pages/${aid}"
         else
             echo "Couldn't find get started did:webs script"
         fi

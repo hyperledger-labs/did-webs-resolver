@@ -1,4 +1,4 @@
-FROM gleif/dkr:latest
+FROM 2byrds/webs:latest
 
 EXPOSE 7678
 
