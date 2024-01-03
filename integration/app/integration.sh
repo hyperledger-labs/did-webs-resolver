@@ -7,22 +7,26 @@
 # If there is an error you can search for running services (on mac) with
 # sudo lsof -i -P -n | grep LISTEN | grep <port>
 
-#print commands
-# set -x
+# print commands
+set -x
 
 #save this current directory, this is where the integration_clienting file also is
 ORIG_CUR_DIR=$( pwd )
 
-controller="controller"
+controller="my-controller"
+csalt="0AAQmsjh-C7kAJZQEzdrzwB7"
+verifier="my-verifier"
+vsalt="0ABPTOtI5Qy8dCYNSs3uoCHe"
 host="127.0.0.1"
-aid="EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP"
+caid="ELCUOZXs-0xn3jOihm0AJ-L8XTFVT8SnIpmEDhFF9Kz_"
+vaid="ENdjGq0Hfxtr0tBe7TzAtS2A6Gv9wEGu7GjFKcARalUE"
 
 KERI_BRANCH="main"
 # KERI_TAG="c3a6fc455b5fac194aa9c264e48ea2c52328d4c5"
 KERI_PRIMARY_STORAGE="/usr/local/var/keri/"
 KERI_FALLBACK_STORAGE="${HOME}/.keri/"
 db_files=()
-db_names=("$controller" wan wes wil wit wub wyz)
+db_names=("$controller" "$verifier" wan wes wil wit wub wyz)
 for db_name in "${db_names[@]}"; do
     path="${KERI_PRIMARY_STORAGE}*/${db_name}*"
     db_files+=( $path )
@@ -63,10 +67,10 @@ function genDidWebs() {
         start_webs_gen="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_gen.sh"
         if [ -f "${start_webs_gen}" ]; then
             echo "Found get started script to generate did:webs"
-            source "${start_webs_gen}" "${controller}" "${host}%3a7676" "${aid}"
+            source "${start_webs_gen}" "${controller}" "${host}%3a7676" "${caid}"
             sleep 3
             echo "Completed loading generating did:webs"
-            cp -R "${ORIG_CUR_DIR}/${aid}" "${ORIG_CUR_DIR}/volume/dkr/pages/${aid}"
+            cp -R "${ORIG_CUR_DIR}/${caid}" "${ORIG_CUR_DIR}/volume/dkr/pages/${caid}"
         else
             echo "Couldn't find get started did:webs script"
         fi
@@ -113,7 +117,7 @@ function intro() {
     fi
 }
 
-function createKeriId() {
+function createKeriIds() {
     cd ${ORIG_CUR_DIR} || exit
     kloadPid=-1
     default_kload="y"
@@ -129,7 +133,9 @@ function createKeriId() {
         create_aid_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_create_id.sh"
         if [ -f "${create_aid_script}" ]; then
             echo "Found get started create id script"
-            source "${create_aid_script}" "${controller}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts/incept-wits.json"
+            source "${create_aid_script}" "${controller}"  "${csalt}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts/incept-wits.json"
+            sleep 3
+            source "${create_aid_script}" "${verifier}"  "${vsalt}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local-verifier" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts/incept.json"
             sleep 3
             echo "Completed creating KERI identity"
         else
@@ -154,7 +160,9 @@ function resolveDIDAndKeriEvents() {
         res_webs_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_resolve.sh"
         if [ -f "${res_webs_script}" ]; then
             echo "Found get started resolve script"
-            source "${res_webs_script}" "${controller}" "${host}%3a7676" "${aid}"
+            # kli init --name "${verifier}" --salt 0ABPTOtI5Qy8dCYNSs3uoCHe --nopasscode
+            # kli incept --name "${verifier}" --alias "${verifier}" --file "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts/incept.json"
+            source "${res_webs_script}" "${verifier}" "${host}%3a7676" "${caid}"
             sleep 3
             echo "Resolved did:webs identity"
         else
@@ -212,8 +220,8 @@ function serveDidAndKeriEvents() {
             source "${srv_webs_script}" "${controller}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local"
             servePid=$!
             echo "Serving did:webs and keri events @pid ${servePid}"
-            echo "DID doc served at http://${host}:7676/${aid}/did.json"
-            echo "KERI CESR at http://${host}:7676/${aid}/keri.cesr"
+            echo "DID doc served at http://${host}:7676/${caid}/did.json"
+            echo "KERI CESR at http://${host}:7676/${caid}/keri.cesr"
         else
             echo "Couldn't find get started serve script"
         fi
@@ -257,7 +265,7 @@ do
 
     runKeri
 
-    createKeriId
+    createKeriIds
 
     genDidWebs
 

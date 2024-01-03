@@ -52,7 +52,7 @@ class WebsResolver(doing.DoDoer):
         doers = list(self.toRemove) + [doing.doify(self.resolve)]
         super(WebsResolver, self).__init__(doers=doers)
 
-    def resolve(self, tymth, tock=0.0, **opts):
+    def resolve(self, tymth, tock=0.125, **opts):
         self.wind(tymth)
         self.tock = tock
         _ = (yield self.tock)
@@ -71,7 +71,11 @@ class WebsResolver(doing.DoDoer):
         # Load the KERI CESR
         kc_url = f"{base_url}/{webbing.KERI_CESR}"
         print(f"Loading KERI CESR from {kc_url}", file=sys.stderr)
-        self.hby.psr.parse(ims=bytearray(self.loadUrl(kc_url)),kvy=self.hby.kvy)
+        kc_bytes = self.loadUrl(kc_url)
+        print(f"Got KERI CESR: {kc_bytes.decode('utf-8')}", file=sys.stderr)
+        self.hby.psr.parse(ims=bytearray(kc_bytes))
+        print("Waiting for KERI CESR to be processed...")
+        yield 3.0
 
         didresult = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, metadata=True)
         didresult['didDocumentMetadata']['didDocUrl'] = dd_url

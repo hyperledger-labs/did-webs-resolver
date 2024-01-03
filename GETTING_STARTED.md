@@ -23,7 +23,7 @@ docker compose up -d
 ## Enter the dkr docker environment command line to begin running keri, etc. commands
 
 ```
-docker compose exec dkr /bin/bash
+docker compose exec webs /bin/bash
 ```
 
 ## Create your KERI identifier
@@ -53,7 +53,6 @@ kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config
 
 ```output:```
 ```
-bash-5.1# kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir /usr/local/var/webs/volume/dkr/examples/my-scripts --config-file config-docker
 KERI Keystore created at: /usr/local/var/keri/ks/controller
 KERI Database created at: /usr/local/var/keri/db/controller
 KERI Credential Store created at: /usr/local/var/keri/reg/controller
@@ -125,7 +124,6 @@ dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:
 
 `output:`
 ```
-bash-5.1# dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
 Generating CESR event stream data from hab
 Generating ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe KEL CESR events
 Writing CESR events to ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr: 
@@ -163,8 +161,10 @@ You can access these files either from within your Docker container or on your l
 
 E.g. using git, Github pages, FTP, SCP, etc.
 
-### Example: serve from docker
+## Example: serve from docker
 You can run the docker example service to serve the did.json and keri.cesr files for the other docker containers:
+
+First, lets copy our generated files to the directory we'll serve from. On your local machine (or within the container) you can copy `volume/dkr/examples/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe` to `volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe`:
 
 ```
 docker compose exec did-webs-service /bin/bash
@@ -186,7 +186,7 @@ Looking for did.json file /usr/local/var/webs/volume/dkr/pages/ENro7uf0ePmiK3jdT
 registering /ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/did.json
 ```
 
-It will serve it at a URL that you can CURL from any other docker container (for instance from the dkr container) like:
+It will serve it at a URL that you can CURL from any other docker container (for instance from the webs container) like:
 
 ```
 curl -GET http://did-webs-service:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/did.json
@@ -195,9 +195,20 @@ and
 ```
 curl -GET http://did-webs-service:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr
 ```
+### Example: Resolve AID as did:webs using local resolver
 
+Back in the webs docker container, you can resolve the DID from the did-webs-service:
 
-### Example: WOT-terms install using GIT
+Initialize a `verifier` environment:
+```
+kli init --name verifier --nopasscode
+```
+Resolve the did:webs for the `controller` did:
+```
+dkr did webs resolve --name verifier --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+```
+
+## Example: WOT-terms install using GIT
 
 We choose `WOT-terms` as our [DESTINATION LOCAL REPO]
 
@@ -223,7 +234,7 @@ git push upstream main
 ```
 If you get the expected output of the push action, the files are on the controlled webserver.
 
-## Check if files are available on your server
+### Check if files are available on your server
 
 Note: Replace with your actual web address and AID
 
@@ -232,7 +243,7 @@ https://peacekeeper.github.io/did-webs-iiw37-tutorial/EKYGGh-FtAphGmSZbsuBs_t4qp
 https://peacekeeper.github.io/did-webs-iiw37-tutorial/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/keri.cesr
 
 
-## (Optional) Resolve AID as did:keri using local resolver
+### (Optional) Resolve AID as did:keri using local resolver
 
 Optionally resolve the AID locally as did:keri, given an OOBI as resolution option.
 
@@ -242,7 +253,7 @@ Note: Replace with your actual AID
 dkr did keri resolve --name controller --did did:keri:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP --oobi http://witnesshost:5642/oobi/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/witness/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha
 ```
 
-## (Optional) Resolve AID as did:webs using local resolver
+### (Optional) Resolve AID as did:webs using local resolver
 
 Optionally resolve the AID locally as did:webs.
 
@@ -252,15 +263,15 @@ Note: Replace with your actual web address and AID
 dkr did webs resolve --name controller --did did:webs:peacekeeper.github.io:did-webs-iiw37-tutorial:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP
 ```
 
-## Resolve as did:web using Universal Resolver
+### Resolve as did:web using Universal Resolver
 
 https://dev.uniresolver.io/#did:web:peacekeeper.github.io:did-webs-iiw37-tutorial:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP
 
-## Resolve as did:webs using Universal Resolver
+### Resolve as did:webs using Universal Resolver
 
 https://dev.uniresolver.io/#did:webs:peacekeeper.github.io:did-webs-iiw37-tutorial:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP
 
-## Example key rotation
+### Example key rotation
 
 Use the following two commands in your running Docker container.
 

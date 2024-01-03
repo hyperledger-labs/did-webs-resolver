@@ -7,18 +7,20 @@
 
 #controller
 ctrlName=$1
+#salt
+ctrlSalt=$2
 #./my-scripts
-configDir=$2
+configDir=$3
 #my-config
-configFile=$3
+configFile=$4
 #./my-scripts/my-incept.json
-inceptFile=$4
+inceptFile=$5
 
 echo "Init KERI id config file at ${configDir}/keri/cf/${configFile} contains:"
-cat "${configDir}/keri/cf/${configFile}"
+cat "${configDir}/keri/cf/${configFile}.json"
 
 # init environment for controller AID
-kli init --name "${ctrlName}" --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config-dir "${configDir}" --config-file "${configFile}"
+kli init --name "${ctrlName}" --salt "${ctrlSalt}" --nopasscode --config-dir "${configDir}" --config-file "${configFile}"
 
 echo "Incept KERI id config file at ${inceptFile} contains:"
 cat "${inceptFile}"

@@ -22,8 +22,8 @@ services:
         image: 2byrds/webs:latest
         tty: true
         volumes:
-            - ~/VSCode/did-keri-resolver/volume/dkr/examples:/usr/local/var/webs/volume/webs/examples
-            - ~/VSCode/did-keri-resolver/volume/dkr/pages:/usr/local/var/webs/volume/webs/pages
+            - ~/VSCode/did-keri-resolver/volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
+            - ~/VSCode/did-keri-resolver/volume/dkr/pages:/usr/local/var/webs/volume/dkr/pages
 
     did-webs-service:
         container_name: did-webs-service
@@ -37,8 +37,8 @@ services:
             - 7676:7676
         tty: true
         volumes:
-            - ~/VSCode/did-keri-resolver/volume/dkr/examples:/usr/local/var/webs/volume/webs/examples
-            - ~/VSCode/did-keri-resolver/volume/dkr/pages:/usr/local/var/webs/volume/webs/pages
+            - ~/VSCode/did-keri-resolver/volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
+            - ~/VSCode/did-keri-resolver/volume/dkr/pages:/usr/local/var/webs/volume/dkr/pages
 
     did-webs-resolver-service:
         container_name: did-webs-resolver
