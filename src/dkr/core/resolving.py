@@ -142,3 +142,9 @@ def loadFile(file_path):
     with open(file_path, 'rb') as file:
         msgs = file.read()
         return msgs
+    
+def loadJsonFile(file_path):
+    # Read the file in binary mode
+    with open(file_path, 'r', encoding="utf-8") as file:
+        msgs = json.load(file)
+        return msgs

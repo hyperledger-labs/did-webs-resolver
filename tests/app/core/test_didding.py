@@ -359,62 +359,28 @@ def test_gen_did_doc_with_metadata(setup_habs):
     )
 
 def test_gen_did_doc_no_hab(setup_habs):
-    hby, hab, wesHby, wesHab, did = setup_habs
+    hby, hab, wesHby, wesHab, wdid = setup_habs
     aid = "ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+    did = f"did:web:did-webs-service%3a7676:{aid}"
 
     try:
         didDoc = didding.generateDIDDoc(hby, did, aid, oobi=None, metadata=False)
     except KeyError as e:
         assert str(e) == f"'{aid}'"
         
-    hab = hby.makeHab(name=aid)
-    cwd = os.getcwd()
-    print(f"Current directory {cwd}")
-    msgs = resolving.loadFile("./volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr")
-    hab.psr.parse(ims=msgs)
+    msgs = resolving.loadFile(f"./volume/dkr/pages/{aid}/keri.cesr")
+    hby.psr.parse(ims=msgs)
         
     didDoc = didding.generateDIDDoc(hby, did, aid, oobi=None, metadata=False)
     
-    assert (
-        didDoc["id"]
-        == "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
-    )
+    expected = resolving.loadJsonFile(f"./volume/dkr/pages/{aid}/did.json")
+    
+    assert (didDoc["id"] == expected["id"])
+    assert (didDoc["id"].startswith("did:web:"))
+    assert (didDoc["id"].endswith(f"{aid}"))
+    assert didDoc["verificationMethod"] == expected["verificationMethod"]
 
-    assert didDoc["verificationMethod"] == [
-        {
-            "id": "#DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp",
-            "type": "JsonWebKey",
-            "controller": "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
-            "publicKeyJwk": {
-                "kid": "DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp",
-                "kty": "OKP",
-                "crv": "Ed25519",
-                "x": "JBtEHHnzNtE-zxH1xeX4wxs9rEfUQ8d1ancgJJ1BLKk",
-            },
-        }
-    ]
-
-    assert len(didDoc["service"]) == 4
-    assert didDoc["service"][0] == {
-        "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
-        "type": "controller",
-        "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
-    }
-    assert didDoc["service"][1] == {
-        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox",
-        "type": "mailbox",
-        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
-    }
-    assert didDoc["service"][2] == {
-        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/registrar",
-        "type": "registrar",
-        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
-    }
-    assert didDoc["service"][3] == {
-        "id": "#BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr/witness",
-        "type": "witness",
-        "serviceEndpoint": {"http": "http://127.0.0.1:8888"},
-    }
+    assert len(didDoc["service"]) == 0
 
 def da_cred():
     """

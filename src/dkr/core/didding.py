@@ -54,7 +54,9 @@ def parseDIDWebs(did):
 
 
 def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=None, reg_name=None):
-    hab = hby.habs[aid]
+    hab = None
+    if aid in hby.habs:
+        hab = hby.habs[aid]
     
     if oobi is not None:
         obr = hby.db.roobi.get(keys=(oobi,))
@@ -183,37 +185,38 @@ def desAliases(hby: habbing.Habery, aid: str, reg_name: str=None):
     """
     Returns the credentialer for the des-aliases schema, or None if it doesn't exist.
     """
-    if reg_name is None:
-        reg_name = hby.habs[aid].name
-    rgy = credentialing.Regery(hby=hby, name=reg_name)
-    vry = verifying.Verifier(hby=hby, reger=rgy.reger)
-    
-    saids = rgy.reger.issus.get(keys=aid)
-    scads = rgy.reger.schms.get(keys=DES_ALIASES_SCHEMA.encode("utf-8"))
-    # self-attested, there is no issuee, and schmea is designated aliases
-    saiders = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
-
     da_ids = []
-    # for saider in saiders:
-    creds = rgy.reger.cloneCreds(saiders)
+    if aid in hby.habs:
+        if reg_name is None:
+            reg_name = hby.habs[aid].name
+        rgy = credentialing.Regery(hby=hby, name=reg_name)
+        vry = verifying.Verifier(hby=hby, reger=rgy.reger)
+        
+        saids = rgy.reger.issus.get(keys=aid)
+        scads = rgy.reger.schms.get(keys=DES_ALIASES_SCHEMA.encode("utf-8"))
+        # self-attested, there is no issuee, and schmea is designated aliases
+        saiders = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
 
-    for idx, cred in enumerate(creds):
-        sad = cred['sad']
-        status = cred["status"]
-        schema = sad['s']
-        scraw = vry.resolver.resolve(schema)
-        schemer = scheming.Schemer(raw=scraw)
-        print(f"Credential #{idx+1}: {sad['d']}")
-        print(f"    Type: {schemer.sed['title']}")
-        if status['et'] == 'iss' or status['et'] == 'bis':
-            print(f"    Status: Issued {terming.Colors.OKGREEN}{terming.Symbols.CHECKMARK}{terming.Colors.ENDC}")
-            da_ids = sad['a']['ids']
-        elif status['et'] == 'rev' or status['et'] == 'brv':
-            print(f"    Status: Revoked {terming.Colors.FAIL}{terming.Symbols.FAILED}{terming.Colors.ENDC}")
-        else:
-            print(f"    Status: Unknown")
-        print(f"    Issued by {sad['i']}")
-        print(f"    Issued on {status['dt']}")
+        # for saider in saiders:
+        creds = rgy.reger.cloneCreds(saiders)
+
+        for idx, cred in enumerate(creds):
+            sad = cred['sad']
+            status = cred["status"]
+            schema = sad['s']
+            scraw = vry.resolver.resolve(schema)
+            schemer = scheming.Schemer(raw=scraw)
+            print(f"Credential #{idx+1}: {sad['d']}")
+            print(f"    Type: {schemer.sed['title']}")
+            if status['et'] == 'iss' or status['et'] == 'bis':
+                print(f"    Status: Issued {terming.Colors.OKGREEN}{terming.Symbols.CHECKMARK}{terming.Colors.ENDC}")
+                da_ids = sad['a']['ids']
+            elif status['et'] == 'rev' or status['et'] == 'brv':
+                print(f"    Status: Revoked {terming.Colors.FAIL}{terming.Symbols.FAILED}{terming.Colors.ENDC}")
+            else:
+                print(f"    Status: Unknown")
+            print(f"    Issued by {sad['i']}")
+            print(f"    Issued on {status['dt']}")
 
     return da_ids
 
