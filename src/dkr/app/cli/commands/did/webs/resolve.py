@@ -72,7 +72,7 @@ class WebsResolver(doing.DoDoer):
         kc_url = f"{base_url}/{webbing.KERI_CESR}"
         print(f"Loading KERI CESR from {kc_url}", file=sys.stderr)
         kc_bytes = self.loadUrl(kc_url)
-        print(f"Got KERI CESR: {kc_bytes.decode('utf-8')}", file=sys.stderr)
+        print(f"Got KERI CESR: {kc_bytes.decode('utf-8')}")
         self.hby.psr.parse(ims=bytearray(kc_bytes))
         print("Waiting for KERI CESR to be processed...")
         yield 3.0

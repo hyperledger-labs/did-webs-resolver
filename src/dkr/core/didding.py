@@ -65,7 +65,15 @@ def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=None, reg_
             data = json.dumps(msg)
             return data.encode("utf-8")
 
-    kever = hby.kevers[aid]
+    kever = None
+    if aid in hby.kevers:
+        kever = hby.kevers[aid]
+    else:
+        print(f"Habery does not have a kever for {did}. Did you parse the keri.cesr file?")
+        for kev in hby.kevers:
+            print("Known kevers: ", kev)
+        hby.kevers[aid]
+        
     vms = []
     for idx, verfer in enumerate(kever.verfers):
         kid = verfer.qb64

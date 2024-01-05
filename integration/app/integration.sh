@@ -19,7 +19,7 @@ verifier="my-verifier"
 vsalt="0ABPTOtI5Qy8dCYNSs3uoCHe"
 host="127.0.0.1"
 caid="ELCUOZXs-0xn3jOihm0AJ-L8XTFVT8SnIpmEDhFF9Kz_"
-vaid="ENdjGq0Hfxtr0tBe7TzAtS2A6Gv9wEGu7GjFKcARalUE"
+vaid="EKK9_Aau-htVcu8HyAZCIUkTFMqyVB6I2LCa_GhMYWm2"
 
 KERI_BRANCH="main"
 # KERI_TAG="c3a6fc455b5fac194aa9c264e48ea2c52328d4c5"
