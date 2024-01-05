@@ -8,16 +8,19 @@ import os
 
 import falcon
 from hio.core import http
+from keri.app import habbing
+from keri.core import coring, eventing, parsing, scheming
 from keri.end import ending
 
 from dkr.core import didding
 
 CESR_MIME = "application/cesr"
-DD_DEFAULT_DIR = "./did_json"
+DD_DEFAULT_DIR = "./"
+DD_DIR_CFG = "did.doc.dir"
 DID_JSON = "did.json"
-KC_DEFAULT_DIR = "./keri_cesr"
+KC_DEFAULT_DIR = "./"
 KERI_CESR = "keri.cesr"
-KERI_CESR_CFG = "keri.cesr.dir"
+KC_DIR_CFG = "keri.cesr.dir"
 
 
 def setup(app, hby, cf):
@@ -37,10 +40,15 @@ def setup(app, hby, cf):
         web = data["did:web"]
 
     loadEnds(app, hby, web)
-    loadFileEnds(app, DidJsonResourceEnd(), DID_JSON, DD_DEFAULT_DIR)
-    print(f"Using config property {KERI_CESR_CFG} to look for {KERI_CESR} files{data[KERI_CESR_CFG]}")
-    print(f"Found config {data[KERI_CESR_CFG]}")
-    loadFileEnds(app, KeriCesrWebResourceEnd(hby), KERI_CESR, data[KERI_CESR_CFG])
+    if DD_DIR_CFG in data:
+        print(f"Using config property {DD_DIR_CFG} to look for {DID_JSON} files: {data[DD_DIR_CFG]}")
+    default_did_dir = data[DD_DIR_CFG] if DD_DIR_CFG in data else DD_DEFAULT_DIR
+    loadFileEnds(app, DidJsonResourceEnd(), DID_JSON, default_did_dir)
+    if KC_DIR_CFG in data:
+        print(f"Using config property {KC_DIR_CFG} to look for {KERI_CESR} files: {data[KC_DIR_CFG]}")
+    default_cesr_dir = data[KC_DIR_CFG] if KC_DIR_CFG in data else KC_DEFAULT_DIR
+    print(f"Using keri cesr dir {default_cesr_dir}")
+    loadFileEnds(app, KeriCesrWebResourceEnd(hby), KERI_CESR, default_cesr_dir)
 
 def loadEnds(app, hby, web):
     """ Load endpoints for all AIDs or configured AIDs only
@@ -66,7 +74,7 @@ def loadEnds(app, hby, web):
         else:
             prefix = f"/{web.lstrip('/').rstrip('/')}/"
 
-        path = f"{prefix}/{{aid}}/{DID_JSON}"
+        path = f"{prefix}/{DID_JSON}"
         print(f"Added route {path}")
         app.add_route(path, res)
 
@@ -82,7 +90,7 @@ def loadFileEnds(app, res, file_end, dirPath):
             path=f"/{aid}/{file_end}"
             print(f"registering {path}")
             app.add_route(f"{path}", res)
-            res.add_lookup(path,fPath)
+            res.add_lookup(path,fPath,aid)
         else:
             print(f"Skipping {fPath} as it is not a file")
 
@@ -140,7 +148,7 @@ class DidJsonResourceEnd():
         """
         self.lookup = {}
         
-    def add_lookup(self, path, fPath):
+    def add_lookup(self, path, fPath, aid=None):
         self.lookup[path] = fPath
         
     def on_get(self, req, rep, aid=None):
@@ -188,9 +196,16 @@ class KeriCesrWebResourceEnd():
         self.hby = hby
         self.lookup = {}
         
-    def add_lookup(self, path, fPath):
+    def add_lookup(self, path, fPath, aid=None):
         self.lookup[path] = fPath
         
+        if aid is None:
+            aid = os.path.basename(os.path.normpath(path.rstrip(f"/{KERI_CESR}")))
+        # ahab = habbing..makeHab(name=aid, temp=True)
+        # kvy = eventing.Kevery(db=ahab.db, lax=False, local=False)
+        with open(fPath, 'rb') as file:
+            self.hby.psr.parse(ims=bytearray(file.read()))
+            
     def on_get(self, req, rep, aid=None):
         """ GET endpoint for acessing {KERI_CESR} stream for AID
 
@@ -211,10 +226,10 @@ class KeriCesrWebResourceEnd():
             raise falcon.HTTPNotFound(description=f"keri.cesr for KERI AID {aid} not found")
 
         # 404 if AID not recognized
-        if aid not in self.hby.kevers:
-            raise falcon.HTTPNotFound(description=f"KERI AID {aid} not found")
+        # if aid not in self.hby.kevers:
+        #     raise falcon.HTTPNotFound(description=f"KERI AID {aid} not found")
 
-        print(f"Serving data for {aid}")
+        print(f"Serving KERI CESR data for {aid}")
         port = ""
         if req.port != 80 and req.port != 443:
             port = f"%3A{req.port}"

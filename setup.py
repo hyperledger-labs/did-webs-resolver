@@ -32,13 +32,13 @@ from setuptools import find_packages, setup
 
 setup(
     name='dkr',
-    version='0.0.1',  # also change in src/did-keri-resolver/__init__.py
+    version='0.0.1',  # also change in src/did-webs-resolver/__init__.py
     license='Apache Software License 2.0',
-    description='did:keri DID Method Resolver',
-    long_description="did:keri DID Method Resolver.",
+    description='did:webs DID Method Resolver',
+    long_description="did:webs DID Method Resolver.",
     author='Philip S. Feairheller',
     author_email='pfeairheller@gmail.com',
-    url='https://github.com/WebOfTrust/kara',
+    url='https://github.com/hyperledger-labs/did-webs-resolver',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],

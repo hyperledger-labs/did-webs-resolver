@@ -1,3 +1,15 @@
+# Introduction
+
+Welcome to the `did:webs` reference implementation repository. See the did:webs [specification](https://trustoverip.github.io/tswg-did-method-webs-specification/) for more information.
+
+Thank you to Phil Feairheller @pfeairheller from GLEIF who started this work [here](https://github.com/WebOfTrust/did-keri-resolver)
+
+# Developers - Getting Started
+
+Developers who want to jump into using the `did:webs` reference implementation should follow the [Getting Started](./GETTING_STARTED.md) guide.
+
+Thank you to Markus Sabadello @peacekeeper from DanubeTech who started the original tutorial for IIW37 [here](https://github.com/peacekeeper/did-webs-iiw-tutorial)
+
 # dkr
 
 did:keri/did:webs DID Resolver Reference Implementation

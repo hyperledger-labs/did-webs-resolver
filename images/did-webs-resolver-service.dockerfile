@@ -1,5 +1,5 @@
-FROM gleif/dkr:latest
+FROM 2byrds/webs:latest
 
 EXPOSE 7677
 
-CMD ["/usr/local/var/did-keri-resolver/scripts/did-webs-resolver-service.sh"]
+WORKDIR /usr/local/var/webs/volume/dkr/examples

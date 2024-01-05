@@ -1,14 +1,29 @@
 version: "3"
 
 services:
-    dkr:
-        container_name: dkr
-        hostname: dkr
+    witnesshost:
+        container_name: witnesshost
+        hostname: witnesshost
+        image: gleif/keri:latest
+        platform: linux/amd64
+        tty: true
+        ports:
+            - 5642:5642  # witness
+            - 5643:5643  # witness
+            - 5644:5644  # witness
+        entrypoint: kli witness demo
+
+    webs:
+        container_name: webs
+        hostname: webs
         build:
             context: .
-            dockerfile: ./images/dkr.dockerfile
-        image: gleif/dkr:latest
+            dockerfile: ./images/webs.dockerfile
+        image: 2byrds/webs:latest
         tty: true
+        volumes:
+            - ~/VSCode/did-keri-resolver/volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
+            - ~/VSCode/did-keri-resolver/volume/dkr/pages:/usr/local/var/webs/volume/dkr/pages
 
     did-webs-service:
         container_name: did-webs-service
@@ -17,31 +32,23 @@ services:
             context: .
             dockerfile: ./images/did-webs-service.dockerfile
         depends_on:
-            - dkr
-        image: gleif/did-webs-service:latest
+            - webs
         ports:
             - 7676:7676
+        tty: true
+        volumes:
+            - ~/VSCode/did-keri-resolver/volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
+            - ~/VSCode/did-keri-resolver/volume/dkr/pages:/usr/local/var/webs/volume/dkr/pages
 
     did-webs-resolver-service:
-        container_name: did-webs-resolver-service
-        hostname: did-webs-resolver-service
+        container_name: did-webs-resolver
+        hostname: did-webs-resolver
         build:
             context: .
             dockerfile: ./images/did-webs-resolver-service.dockerfile
-        depends_on:
-            - dkr
-        image: gleif/did-webs-resolver-service:latest
+        image: did-webs-resolver:latest
         ports:
             - 7677:7677
-
-    did-keri-resolver-service:
-        container_name: did-keri-resolver-service
-        hostname: did-keri-resolver-service
-        build:
-            context: .
-            dockerfile: ./images/did-keri-resolver-service.dockerfile
+        tty: true
         depends_on:
-            - dkr
-        image: gleif/did-keri-resolver-service:latest
-        ports:
-            - 7678:7678
+            - webs

@@ -4,57 +4,89 @@
 # Run this script from the base resolver directory, like
 # did-webs-resolver% ./integration/app/integration.sh
 #
+# If there is an error you can search for running services (on mac) with
+# sudo lsof -i -P -n | grep LISTEN | grep <port>
 
-#print commands
-#set -x
+# print commands
+set -x
 
 #save this current directory, this is where the integration_clienting file also is
 ORIG_CUR_DIR=$( pwd )
 
-KERI_PRIMARY_STORAGE="/usr/local/var/keri"
-KERI_FALLBACK_STORAGE="${HOME}/.keri"
+controller="my-controller"
+csalt="0AAQmsjh-C7kAJZQEzdrzwB7"
+verifier="my-verifier"
+vsalt="0ABPTOtI5Qy8dCYNSs3uoCHe"
+host="127.0.0.1"
+caid="ELCUOZXs-0xn3jOihm0AJ-L8XTFVT8SnIpmEDhFF9Kz_"
+vaid="EKK9_Aau-htVcu8HyAZCIUkTFMqyVB6I2LCa_GhMYWm2"
 
-KERI_DEV_BRANCH="development"
-# KERI_DEV_TAG="c3a6fc455b5fac194aa9c264e48ea2c52328d4c5"
+KERI_BRANCH="main"
+# KERI_TAG="c3a6fc455b5fac194aa9c264e48ea2c52328d4c5"
+KERI_PRIMARY_STORAGE="/usr/local/var/keri/"
+KERI_FALLBACK_STORAGE="${HOME}/.keri/"
+db_files=()
+db_names=("$controller" "$verifier" wan wes wil wit wub wyz)
+for db_name in "${db_names[@]}"; do
+    path="${KERI_PRIMARY_STORAGE}*/${db_name}*"
+    db_files+=( $path )
+    path="${KERI_FALLBACK_STORAGE}*/${db_name}*"
+    db_files+=( $path )
+done
 
 prompt="y"
-function intro() {
-    echo "Welcome to the integration test setup/run/teardown script"
-    read -p "Enable prompts?, [y]: " enablePrompts
-    prompt=${enablePrompts:-"y"}
-    if [ "${prompt}" != "n" ]; then
-        echo "Prompts enabled"
+
+function cleanKeri() {
+    echo "Cleaning KERI data"
+    #clean up any old KERI data
+    default_clean_keri="y"
+    if [ "${prompt}" == "y" ]; then
+        read -p "Clean keri dbs ${db_files[*]} (y/n)? [${default_clean_keri}]: " cleanKeriInput
+    fi
+    clean_keri_data=${cleanKeriInput:-$default_clean_keri}
+    if [ "${clean_keri_data}" == "n" ]; then
+        echo "Skipping clean KERI data"
     else
-        echo "Skipping prompts, using defaults"
+        echo "Running clean KERI data"
+        for db_file in "${db_files[@]}"; do rm -R "$db_file";done
+        echo "Cleaned KERI data"
     fi
 }
 
 function genDidWebs() {
+    default_gen_webs="y"
     if [ "${prompt}" == "y" ]; then
-        read -p "Generate did:webs (y/n)? [n]: " runGenDid
+        default_gen_webs="n"
+        read -p "Generate did:webs (y/n)? [${default_gen_webs}]: " runGenDid
     fi
-    runGenDidWebs=${runGenDid:-"y"}
-    if [ "${runGenDidWebs}" == "n" ]; then
+    run_gen_webs=${runGenDid:-$default_gen_webs}
+    if [ "${run_gen_webs}" == "n" ]; then
         echo "Skipping generate did:webs did document"
     else
-        echo "Generating did:webs DID Document"
-        # if [ "${prompt}" == "y" ]; then
-        #     read -p "Name the identity [searcher]: " runGenDid
-        # fi
-        dkr did webs generate --name=wan --did=did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha --oobi http://127.0.0.1:5642/oobi/BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha/controller
+        echo "Generating did:webs DID Document and KERI event stream"
+        start_webs_gen="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_gen.sh"
+        if [ -f "${start_webs_gen}" ]; then
+            echo "Found get started script to generate did:webs"
+            source "${start_webs_gen}" "${controller}" "${host}%3a7676" "${caid}"
+            sleep 3
+            echo "Completed loading generating did:webs"
+            cp -R "${ORIG_CUR_DIR}/${caid}" "${ORIG_CUR_DIR}/volume/dkr/pages/${caid}"
+        else
+            echo "Couldn't find get started did:webs script"
+        fi
     fi
 }
 
 function getKeripyDir() {
     # Check if the environment variable is set
     if [ -z "$KERIPY_DIR" ]; then
-        default_value="../keripy"
         # Prompt the user for input with a default value
+        default_keri_dir="../keripy"
         if [ "${prompt}" == "y" ]; then
-            read -p "Set keripy dir [${default_value}]: " keriDirInput
+            read -p "Set keripy dir [${default_keri_dir}]: " keriDirInput
         fi
         # Set the value to the user input or the default value
-        KERIPY_DIR=${keriDirInput:-$default_value}
+        KERIPY_DIR=${keriDirInput:-$default_keri_dir}
     fi
     # Use the value of the environment variable
     echo "$KERIPY_DIR"
@@ -74,34 +106,40 @@ function installPythonUpdates() {
     fi
 }
 
-function loadKeriData() {
+function intro() {
+    echo "Welcome to the integration test setup/run/teardown script"
+    read -p "Enable prompts?, [y]: " enablePrompts
+    prompt=${enablePrompts:-"y"}
+    if [ "${prompt}" != "n" ]; then
+        echo "Prompts enabled"
+    else
+        echo "Skipping prompts, using defaults"
+    fi
+}
+
+function createKeriIds() {
     cd ${ORIG_CUR_DIR} || exit
     kloadPid=-1
-    keriDir=$(getKeripyDir)
-    echo "Keripy dir set to: ${keriDir}"
+    default_kload="y"
     if [ "${prompt}" == "y" ]; then
-        read -p "Run load keri data (y/n)? [y]: " runKload
+        default_kload="n"
+        read -p "Run create keri id (y/n)? [${default_kload}]: " run_kload_input
     fi
-    runLoadKeriData=${runKload:-"n"}
-    if [ "${runLoadKeriData}" == "n" ]; then
-        echo "Skipping load KERI data"
+    create_keri_id=${run_kload_input:-$default_kload}
+    if [ "${create_keri_id}" == "n" ]; then
+        echo "Skipping create KERI id"
     else
-        echo "Running load KERI data"
-        scriptsDir="${keriDir}/scripts"
-        if [ -d "${scriptsDir}" ]; then
-            echo "Found keri scripts dir"
-            demoScriptsDir="${scriptsDir}/demo"
-            if [ -d "${demoScriptsDir}" ]; then
-                echo "Found keri demo scripts dir"
-                cd ${demoScriptsDir} || exit
-                source demo-script.sh
-                source ./basic/query-for-anchor.sh
-                echo "Completed loading KERI data"
-            else
-                echo "Couldn't find keri demo scripts dir"
-            fi
+        echo "Running create KERI id"
+        create_aid_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_create_id.sh"
+        if [ -f "${create_aid_script}" ]; then
+            echo "Found get started create id script"
+            source "${create_aid_script}" "${controller}"  "${csalt}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts/incept-wits.json"
+            sleep 3
+            source "${create_aid_script}" "${verifier}"  "${vsalt}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local-verifier" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts/incept.json"
+            sleep 3
+            echo "Completed creating KERI identity"
         else
-            echo "Couldn't find keri scripts dir"
+            echo "Couldn't find get started keri script"
         fi
     fi
     cd "${ORIG_CUR_DIR}" || exit
@@ -109,18 +147,27 @@ function loadKeriData() {
 }
 
 function resolveDIDAndKeriEvents() {
+    default_res_webs="y"
     if [ "${prompt}" == "y" ]; then
-        read -p "Resolve did:webs and keri events (y/n)? [n]: " resolveKeriEvents
+        default_res_webs="n"
+        read -p "Resolve did:webs and keri events (y/n)? [${default_res_webs}]: " res_webs_input
     fi
-    resolveDidsAndKeriEvents=${resolveKeriEvents:-"y"}
-    if [ "${resolveDidsAndKeriEvents}" == "n" ]; then
+    res_webs=${res_webs_input:-$default_res_webs}
+    if [ "${res_webs}" == "n" ]; then
         echo "Skipping resolving did:webs DID Document and Keri Events"
     else
         echo "Resolving did:webs DID Document and Keri Events"
-        # if [ "${prompt}" == "y" ]; then
-        #     read -p "Name the identity [searcher]: " runGenDid
-        # fi
-        dkr did webs resolve --name wan --did did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha
+        res_webs_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_resolve.sh"
+        if [ -f "${res_webs_script}" ]; then
+            echo "Found get started resolve script"
+            # kli init --name "${verifier}" --salt 0ABPTOtI5Qy8dCYNSs3uoCHe --nopasscode
+            # kli incept --name "${verifier}" --alias "${verifier}" --file "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts/incept.json"
+            source "${res_webs_script}" "${verifier}" "${host}%3a7676" "${caid}"
+            sleep 3
+            echo "Resolved did:webs identity"
+        else
+            echo "Couldn't find get started keri script"
+        fi
     fi
 }
 
@@ -129,18 +176,21 @@ function runKeri() {
     witPid=-1
     keriDir=$(getKeripyDir)
     echo "Keripy dir set to: ${keriDir}"
+
+    default_wit="y"
     if [ "${prompt}" == "y" ]; then
-        read -p "Run witness network (y/n)? [y]: " runWitNet
+        default_wit="n"
+        read -p "Run witness network (y/n)? [${default_wit}]: " runWitNet
     fi
-    runWit=${runWitNet:-"y"}
+    runWit=${runWitNet:-$default_wit}
     if [ "${runWit}" == "y" ]; then
         if [ -d  "${keriDir}" ]; then
             #run a clean witness network
             echo "Launching a clean witness network"
             cd "${keriDir}" || exit
-            updateFromGit ${KERI_DEV_BRANCH}
+            updateFromGit ${KERI_BRANCH}
             installPythonUpdates "keri"
-            rm -rf "${KERI_PRIMARY_STORAGE:?}/*";rm -Rf "${KERI_FALLBACK_STORAGE:?}/*";kli witness demo &
+            kli witness demo &
             witPid=$!
             sleep 5
             echo "Clean witness network launched"
@@ -155,32 +205,37 @@ function runKeri() {
 }
 
 function serveDidAndKeriEvents() {
+    default_serve_webs="y"
     if [ "${prompt}" == "y" ]; then
-        read -p "Serve dids and keri events (y/n)? [n]: " serveKeriEvents
+        default_serve_webs="n"
+        read -p "Serve dids and keri events (y/n)? [${default_serve_webs}]: " serveKeriEvents
     fi
-    serveDidsAndKeriEvents=${serveKeriEvents:-"y"}
-    if [ "${serveDidsAndKeriEvents}" == "n" ]; then
-        echo "Skipping serving did:webs did document and keri events"
+    serve_webs=${serveKeriEvents:-$default_serve_webs}
+    if [ "${serve_webs}" == "n" ]; then
+        echo "Skipping serving did:webs DID Document and Keri Events"
     else
-        echo "Serving did:webs DID Document and Keri Events"
-        # if [ "${prompt}" == "y" ]; then
-        #     read -p "Name the identity [searcher]: " runGenDid
-        # fi
-        dkr did webs service --config-dir=./scripts --config-file=dkr.json &
-        servePid=$!
-        sleep 5
-        echo "Serving dids and keri events"
+        srv_webs_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_serve.sh"
+        if [ -f "${srv_webs_script}" ]; then
+            echo "Found get started serve script"
+            source "${srv_webs_script}" "${controller}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local"
+            servePid=$!
+            echo "Serving did:webs and keri events @pid ${servePid}"
+            echo "DID doc served at http://${host}:7676/${caid}/did.json"
+            echo "KERI CESR at http://${host}:7676/${caid}/keri.cesr"
+        else
+            echo "Couldn't find get started serve script"
+        fi
     fi
 }
 
 function updateFromGit() {
     branch=$1
     commit=$2
-
+    default_up_git="n"
     if [ "${prompt}" == "y" ]; then
-        read -p "Update git repo ${branch} ${commit}?, [n]: " upGitInput
+        read -p "Update git repo ${branch} ${commit}?, [${default_up_git}]: " upGitInput
     fi
-    update=${upGitInput:-"n"}
+    update=${upGitInput:-$default_up_git}
     if [ "${update}" == "y" ]; then
         echo "Updating git branch ${branch} ${commit}"
         fetch=$(git fetch)
@@ -199,32 +254,24 @@ function updateFromGit() {
     fi
 }
 
-runInt="test_salty"
-while [ "${runInt}" != "n" ]
+run_main_loop="y"
+while [ "${run_main_loop}" != "n" ]
 do
     intro
 
     echo "Setting up..."
 
+    cleanKeri
+
     runKeri
 
-    sleep 3
-
-    loadKeriData
-
-    sleep 3
+    createKeriIds
 
     genDidWebs
 
-    sleep 3
-
     serveDidAndKeriEvents
 
-    sleep 3
-
     resolveDIDAndKeriEvents
-
-    sleep 3
 
     # runMultisig
 
@@ -233,7 +280,7 @@ do
     # if [ "${prompt}" == "y" ]; then
     # fi
     read -p "Your servers still running, hit enter to tear down: " teardown
-    echo "Tearing down any leftover processes"
+    echo "Tearing down any leftover processes ${teardown}"
     # #tear down the signify client
     # kill "$signifyPid" >/dev/null 2>&1
     # # tear down the keria cloud agent
@@ -245,8 +292,11 @@ do
     # tear down the witness network
     kill $witPid >/dev/null 2>&1
 
-    read -p "Run again [n]?: " runAgain
-    runInt=${runAgain:-"n"}
+    default_run_again="n"
+    if [ "${prompt}" == "y" ]; then
+        read -p "Run again [${default_run_again}]?: " run_main_again
+    fi
+    run_main_loop=${run_main_again:-$default_run_again}
 done
 
 echo "Done"

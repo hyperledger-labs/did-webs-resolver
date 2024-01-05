@@ -52,7 +52,7 @@ class WebsResolver(doing.DoDoer):
         doers = list(self.toRemove) + [doing.doify(self.resolve)]
         super(WebsResolver, self).__init__(doers=doers)
 
-    def resolve(self, tymth, tock=0.0, **opts):
+    def resolve(self, tymth, tock=0.125, **opts):
         self.wind(tymth)
         self.tock = tock
         _ = (yield self.tock)
@@ -71,7 +71,11 @@ class WebsResolver(doing.DoDoer):
         # Load the KERI CESR
         kc_url = f"{base_url}/{webbing.KERI_CESR}"
         print(f"Loading KERI CESR from {kc_url}", file=sys.stderr)
-        self.hby.psr.parse(ims=bytearray(self.loadUrl(kc_url)))
+        kc_bytes = self.loadUrl(kc_url)
+        print(f"Got KERI CESR: {kc_bytes.decode('utf-8')}")
+        self.hby.psr.parse(ims=bytearray(kc_bytes))
+        print("Waiting for KERI CESR to be processed...")
+        yield 3.0
 
         didresult = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, metadata=True)
         didresult['didDocumentMetadata']['didDocUrl'] = dd_url
@@ -101,14 +105,6 @@ class WebsResolver(doing.DoDoer):
         response.raise_for_status()
         # Convert the content to a bytearray
         return response.content
-    
-    def loadFile(self, aid):
-        # File path
-        file_path = f"./keri_cesr/{aid}/{webbing.KERI_CESR}"
-        # Read the file in binary mode
-        with open(file_path, 'rb') as file:
-            msgs = file.read()
-            return msgs
         
     def verifyDidDocs(self, expected, actual):
         if expected != actual:
@@ -158,16 +154,16 @@ def compare_dicts(expected, actual, path=""):
 
 # # Test with the provided dictionaries
 # expected_dict = {
-#     'id': 'did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha',
-#     'verificationMethod': [{'id': 'did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha#key-0', 'type': 'Ed25519VerificationKey2020', 'controller': 'did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha', 'publicKeyMultibase': 'z2fD7Rmbbggzwa4SNpYKWi6csiiUcVeyUTgGzDtMrqC7b'}]
+#     'id': 'did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha',
+#     'verificationMethod': [{'id': 'did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha#key-0', 'type': 'Ed25519VerificationKey2020', 'controller': 'did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha', 'publicKeyMultibase': 'z2fD7Rmbbggzwa4SNpYKWi6csiiUcVeyUTgGzDtMrqC7b'}]
 # }
 
 # actual_dict = {
-#     "id": "did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
+#     "id": "did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
 #     "verificationMethod": [{
-#         "id": "did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha#key-0",
+#         "id": "did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha#key-0",
 #         "type": "Ed25519VerificationKey2020",
-#         "controller": "did:webs:127.0.0.1:7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
+#         "controller": "did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
 #         "publicKeyMultibase": "z2fD7Rmbbggzwa4SNpYKWi6csiiUcVeyUTgGzDtMrqC7b"
 #     }]
 # }
