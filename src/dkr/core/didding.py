@@ -54,6 +54,8 @@ def parseDIDWebs(did):
 
 
 def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=None, reg_name=None):
+    print("Generating DID document for", did, "with aid", aid, "using oobi", oobi, "and metadata", metadata, "registry name for creds", reg_name)
+    
     hab = None
     if aid in hby.habs:
         hab = hby.habs[aid]

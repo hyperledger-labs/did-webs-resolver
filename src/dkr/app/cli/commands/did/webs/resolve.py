@@ -67,12 +67,14 @@ class WebsResolver(doing.DoDoer):
         dd_url = f"{base_url}/{webbing.DID_JSON}"
         print(f"Loading DID Doc from {dd_url}", file=sys.stderr)
         dd_actual = didding.fromDidWeb(json.loads(self.loadUrl(dd_url).decode("utf-8")))
+        print(f"Got DID Doc: {dd_actual}", file=sys.stderr)
 
         # Load the KERI CESR
         kc_url = f"{base_url}/{webbing.KERI_CESR}"
         print(f"Loading KERI CESR from {kc_url}", file=sys.stderr)
         kc_bytes = self.loadUrl(kc_url)
         print(f"Got KERI CESR: {kc_bytes.decode('utf-8')}")
+        
         self.hby.psr.parse(ims=bytearray(kc_bytes))
         print("Waiting for KERI CESR to be processed...")
         yield 3.0
