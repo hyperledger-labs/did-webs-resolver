@@ -65,6 +65,7 @@ setup(
     ],
     python_requires='>=3.10.4',
     install_requires=[
+                        'aiohttp>=3.7.4',
                         'lmdb>=1.3.0',
                         'pysodium>=0.7.12',
                         'blake3>=0.3.1',

@@ -66,16 +66,19 @@ class WebsResolver(doing.DoDoer):
         # Load the did doc
         dd_url = f"{base_url}/{webbing.DID_JSON}"
         print(f"Loading DID Doc from {dd_url}", file=sys.stderr)
-        dd_actual = didding.fromDidWeb(json.loads(self.loadUrl(dd_url).decode("utf-8")))
+        dd_res = None
+        self.loadUrl(dd_url, dd_res)
+        dd_actual = didding.fromDidWeb(json.loads(dd_res.content.decode("utf-8")))
         print(f"Got DID Doc: {dd_actual}", file=sys.stderr)
 
         # Load the KERI CESR
         kc_url = f"{base_url}/{webbing.KERI_CESR}"
         print(f"Loading KERI CESR from {kc_url}", file=sys.stderr)
-        kc_bytes = self.loadUrl(kc_url)
-        print(f"Got KERI CESR: {kc_bytes.decode('utf-8')}")
+        kc_res = None
+        self.loadUrl(kc_url,kc_res)
+        print(f"Got KERI CESR: {kc_res.content.decode('utf-8')}")
         
-        self.hby.psr.parse(ims=bytearray(kc_bytes))
+        self.hby.psr.parse(ims=bytearray(kc_res.content))
         print("Waiting for KERI CESR to be processed...")
         yield 3.0
 
@@ -101,12 +104,13 @@ class WebsResolver(doing.DoDoer):
         print(data)
         return result
 
-    def loadUrl(self, url):
-        response = requests.get(f"{url}")
+    def loadUrl(self, url, resq):
+        response = requests.get(url=url)
         # Ensure the request was successful
         response.raise_for_status()
         # Convert the content to a bytearray
-        return response.content
+        resq.put(response)
+        return response
         
     def verifyDidDocs(self, expected, actual):
         if expected != actual:

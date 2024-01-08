@@ -1,20 +1,28 @@
+import aiohttp
+import asyncio
+
 import json
 
 import falcon
 from falcon import testing, media, http_status
 from hio.base import doing
 
-import keri
 from dkr.app.cli.commands.did.webs import resolve
+
+from hio.base import tyming
 from hio.core import http
+
+from keri import help, kering
 from keri.app import habbing, oobiing
 from keri.core import coring
 from keri.db import basing
 from keri.end import ending
 from keri.help import helping
-from keri import help, kering
+
 
 import os
+import queue
+import threading
 import time
 
 class ExampleEnd:
@@ -38,8 +46,8 @@ class PingResource:
 
 class DidWebsEnd:
     """ Test endpoint returning a static did document """
-    def __init__(self, aid):
-        self.aid = aid
+    def __init__(self):
+        pass
 
     def on_get(self, req, rep, aid):
         """ Return a did document
@@ -51,13 +59,15 @@ class DidWebsEnd:
         """
         a = {
             "aid": [
-                self.aid
+                aid
             ]
         }
 
         rep.status = falcon.HTTP_200
         rep.content_type = "application/json"
-        rep.data = "{reply: '/ELCUOZXs-0xn3jOihm0AJ-L8XTFVT8SnIpmEDhFF9Kz_/did.json'}"
+        data = dict()
+        data['reply'] = 0
+        rep.data = json.dumps(data).encode("utf-8")
         
 class KeriCesrEnd:
     """ Test endpoint returning a static keri cesr file """
@@ -80,7 +90,9 @@ class KeriCesrEnd:
 
         rep.status = falcon.HTTP_200
         rep.content_type = "application/json"
-        rep.data = "{reply: 'http://127.0.0.1:7676/ELCUOZXs-0xn3jOihm0AJ-L8XTFVT8SnIpmEDhFF9Kz_/keri.cesr'}"
+        data = dict()
+        data['reply'] = 1
+        rep.data = json.dumps(data).encode("utf-8")
 
 def test_resolver():
     with habbing.openHby(name="verifier") as hby:
@@ -92,8 +104,11 @@ def test_resolver():
         resDoer = resolve.WebsResolver(hby,hbyDoer,obl,did,False)
 
         # Configure the did doc and keri cesr URL
-        ddurl = f'http://127.0.0.1:7676/ELCUOZXs-0xn3jOihm0AJ-L8XTFVT8SnIpmEDhFF9Kz_/did.json'
-        kcurl = f'http://127.0.0.1:7676/ELCUOZXs-0xn3jOihm0AJ-L8XTFVT8SnIpmEDhFF9Kz_/keri.cesr'
+        ddurl = f'http://127.0.0.1:7676/{aid}/did.json'
+        kcurl = f'http://127.0.0.1:7676/{aid}/keri.cesr'
+        eurl = "http://127.0.0.1:7676/example"
+        purl = "http://127.0.0.1:7676/ping"
+        puburl = "http://example.org"
 
         app = falcon.App(middleware=falcon.CORSMiddleware(
         allow_origins='*', allow_credentials='*',
@@ -105,10 +120,10 @@ def test_resolver():
         app.req_options.media_handlers.update(media.Handlers())
         app.resp_options.media_handlers.update(media.Handlers())
         # falcon.App instances are callable WSGI apps
-        example = ExampleEnd()  # Resources are represented by long-lived class instances
-        app.add_route('/example', example)
+
+        app.add_route('/example', ExampleEnd())
         app.add_route('/ping', PingResource())
-        app.add_route('/{aid}/did.json', DidWebsEnd(aid=aid))
+        app.add_route('/{aid}/did.json', DidWebsEnd())
         app.add_route('/{aid}/keri.cesr', KeriCesrEnd(aid=aid))
 
         server = http.Server(host="127.0.0.1",port=7676, app=app, scheme="http")
@@ -122,16 +137,53 @@ def test_resolver():
         limit = 2.0
         tock = 0.03125
         doers = [httpServerDoer]
-        # doers = resDoer.doers + [httpServerDoer]
-        doist = doing.Doist(limit=limit, tock=tock)
-        doist.do(doers=doers)
+        # doers = [httpServerDoer] + resDoer.doers
+        doist = doing.Doist(limit=limit, tock=tock, doers=doers)
+        # doist.do(doers=doers)
 
-        assert doist.limit == limit
+        doist.enter()
+        tymer = tyming.Tymer(tymth=doist.tymen(), duration=doist.limit)
 
-        # obr = hby.db.roobi.get(keys=(kcurl,))
-        # assert obr is not None
-        # assert obr.state == oobiing.Result.resolved
+        estat = None
+        etres = queue.Queue()
+        et = threading.Thread(target=resDoer.loadUrl, args=(eurl,etres))
+        et.start()
+        
+        ddstat = None
+        ddtres = queue.Queue()
+        ddt = threading.Thread(target=resDoer.loadUrl, args=(ddurl,ddtres))
+        ddt.start()
+        
+        kcstat = None
+        kctres = queue.Queue()
+        kct = threading.Thread(target=resDoer.loadUrl, args=(kcurl,kctres))
+        kct.start()
+        
+        while estat == None or ddtres == None:
+            # resp = resDoer.loadUrl(ddurl)
+            # status = asyncio.run(call(eurl))
+            # resDoer.loadUrl(kcurl)
+            # resDoer.resolve(tymth=doist.tymen(), tock=doist.tock)
+            time.sleep(2)
+            doist.recur()
+
+            resp = etres.get()
+            estat = resp.status_code
+            assert estat == 200
+            print("Got example response content", resp.content)
+            
+            resp = ddtres.get()
+            ddstat = resp.status_code
+            assert ddstat == 200
+            print("Got dd response content", resp.content)
+            
+            resp = kctres.get()
+            kcstat = resp.status_code
+            assert kcstat == 200
+            print("Got kc response content", resp.content)
         doist.exit()
+
+        
 
         """Done Test"""
     
@@ -143,3 +195,13 @@ class HandleCORS(object):
         resp.set_header('Access-Control-Max-Age', 1728000)  # 20 days
         if req.method == 'OPTIONS':
             raise http_status.HTTPStatus(falcon.HTTP_200, text='\n')
+        
+# async def fetch(session, url):
+#     async with session.get(url) as response:
+#         return response.status
+
+# async def call(url):
+#     async with aiohttp.ClientSession() as session:
+#         status = await fetch(session, url)
+#         print(status)
+#         return status
