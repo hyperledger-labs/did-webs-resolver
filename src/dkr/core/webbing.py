@@ -89,8 +89,8 @@ def loadFileEnds(app, res, file_end, dirPath):
         if os.path.isfile(fPath):
             path=f"/{aid}/{file_end}"
             print(f"registering {path}")
-            app.add_route("/{aid}/" + file_end, res)
-            res.add_lookup(path,fPath,aid)
+            app.add_route(f"/{{aid}}/" + file_end, res)
+            res.add_lookup(aid, fPath)
         else:
             print(f"Skipping {fPath} as it is not a file")
 
@@ -151,7 +151,7 @@ class DidJsonResourceEnd():
     def add_lookup(self, aid, fPath):
         self.lookup[aid] = fPath
         
-    def on_get(self, req, rep, aid=None):
+    def on_get(self, req, rep, aid):
         """ GET endpoint for acessing {DID_JSON} stream for AID
 
         Parameters:

@@ -8,12 +8,13 @@ from falcon import testing, media, http_status
 from hio.base import doing
 
 from dkr.app.cli.commands.did.webs import resolve
+from dkr.core import resolving, webbing
 
 from hio.base import tyming
 from hio.core import http
 
 from keri import help, kering
-from keri.app import habbing, oobiing
+from keri.app import configing, habbing, oobiing
 from keri.core import coring
 from keri.db import basing
 from keri.end import ending
@@ -25,15 +26,15 @@ import queue
 import threading
 import time
 
-class ExampleEnd:
-    def on_get(self, req, rep):
-        """
-        Handles GET requests
-        """
-        message = "\nHello World\n\n"
-        rep.status = falcon.HTTP_200  # This is the default status
-        rep.content_type = "text/html"
-        rep.text = message
+# class ExampleEnd:
+#     def on_get(self, req, rep):
+#         """
+#         Handles GET requests
+#         """
+#         message = "\nHello World\n\n"
+#         rep.status = falcon.HTTP_200  # This is the default status
+#         rep.content_type = "text/html"
+#         rep.text = message
         
 class PingResource:
    def on_get(self, req, resp):
@@ -44,55 +45,55 @@ class PingResource:
          'Pong'
       )
 
-class DidWebsEnd:
-    """ Test endpoint returning a static did document """
-    def __init__(self):
-        pass
+# class DidWebsEnd:
+#     """ Test endpoint returning a static did document """
+#     def __init__(self):
+#         pass
 
-    def on_get(self, req, rep, aid):
-        """ Return a did document
+#     def on_get(self, req, rep, aid):
+#         """ Return a did document
 
-        Args:
-            req (Request): Falcon request object
-            rep (Response): Falcon response object
+#         Args:
+#             req (Request): Falcon request object
+#             rep (Response): Falcon response object
 
-        """
-        a = {
-            "aid": [
-                aid
-            ]
-        }
+#         """
+#         a = {
+#             "aid": [
+#                 aid
+#             ]
+#         }
 
-        rep.status = falcon.HTTP_200
-        rep.content_type = "application/json"
-        data = dict()
-        data['reply'] = 0
-        rep.data = json.dumps(data).encode("utf-8")
+#         rep.status = falcon.HTTP_200
+#         rep.content_type = "application/json"
+#         data = dict()
+#         data['reply'] = 0
+#         rep.data = json.dumps(data).encode("utf-8")
         
-class KeriCesrEnd:
-    """ Test endpoint returning a static keri cesr file """
-    def __init__(self, aid):
-        self.aid = aid
+# class KeriCesrEnd:
+#     """ Test endpoint returning a static keri cesr file """
+#     def __init__(self, aid):
+#         self.aid = aid
 
-    def on_get(self, req, rep, aid):
-        """ Return a did document
+#     def on_get(self, req, rep, aid):
+#         """ Return a did document
 
-        Args:
-            req (Request): Falcon request object
-            rep (Response): Falcon response object
+#         Args:
+#             req (Request): Falcon request object
+#             rep (Response): Falcon response object
 
-        """
-        a = {
-            "aid": [
-                self.aid
-            ]
-        }
+#         """
+#         a = {
+#             "aid": [
+#                 self.aid
+#             ]
+#         }
 
-        rep.status = falcon.HTTP_200
-        rep.content_type = "application/json"
-        data = dict()
-        data['reply'] = 1
-        rep.data = json.dumps(data).encode("utf-8")
+#         rep.status = falcon.HTTP_200
+#         rep.content_type = "application/json"
+#         data = dict()
+#         data['reply'] = 1
+#         rep.data = json.dumps(data).encode("utf-8")
 
 def test_resolver():
     with habbing.openHby(name="verifier") as hby:
@@ -101,7 +102,7 @@ def test_resolver():
         obl = oobiing.Oobiery(hby=hby)
         aid = "ELCUOZXs-0xn3jOihm0AJ-L8XTFVT8SnIpmEDhFF9Kz_"
         did = f"did:web:127.0.0.1%3a7676:{aid}"
-        resDoer = resolve.WebsResolver(hby,hbyDoer,obl,did,False)
+        # resDoer = resolve.WebsResolver(hby,hbyDoer,obl,did,False)
 
         # Configure the did doc and keri cesr URL
         ddurl = f'http://127.0.0.1:7676/{aid}/did.json'
@@ -121,10 +122,19 @@ def test_resolver():
         app.resp_options.media_handlers.update(media.Handlers())
         # falcon.App instances are callable WSGI apps
 
-        app.add_route('/example', ExampleEnd())
+        print("Current working dir", os.getcwd())
+        cf = configing.Configer(name="config-test",
+                        headDirPath="./volume/dkr/examples/my-scripts",
+                        base="",
+                        temp=False,
+                        reopen=True,
+                        clear=False)
+
+        # app.add_route('/example', ExampleEnd())
         app.add_route('/ping', PingResource())
-        app.add_route('/{aid}/did.json', DidWebsEnd())
-        app.add_route('/{aid}/keri.cesr', KeriCesrEnd(aid=aid))
+        webbing.setup(app, hby, cf)
+        # app.add_route('/{aid}/did.json', DidWebsEnd())
+        # app.add_route('/{aid}/keri.cesr', KeriCesrEnd(aid=aid))
 
         server = http.Server(host="127.0.0.1",port=7676, app=app, scheme="http")
         httpServerDoer = http.ServerDoer(server=server)
@@ -144,46 +154,63 @@ def test_resolver():
         doist.enter()
         tymer = tyming.Tymer(tymth=doist.tymen(), duration=doist.limit)
 
-        estat = None
-        etres = queue.Queue()
-        et = threading.Thread(target=resDoer.loadUrl, args=(eurl,etres))
-        et.start()
+        pstat = None
+        ptres = queue.Queue()
+        pt = threading.Thread(target=resolving.loadUrl, args=(purl,ptres))
+        pt.start()
         
         ddstat = None
         ddtres = queue.Queue()
-        ddt = threading.Thread(target=resDoer.loadUrl, args=(ddurl,ddtres))
+        ddt = threading.Thread(target=resolving.loadUrl, args=(ddurl,ddtres))
         ddt.start()
         
         kcstat = None
         kctres = queue.Queue()
-        kct = threading.Thread(target=resDoer.loadUrl, args=(kcurl,kctres))
+        kct = threading.Thread(target=resolving.loadUrl, args=(kcurl,kctres))
         kct.start()
         
-        while estat == None or ddtres == None:
+        rstat = None
+        rtres = queue.Queue()
+        rt = threading.Thread(target=resolving.resolve, args=(did, False, rtres))
+        rt.start()
+        
+        # while estat == None or ddtres == None or kctres == None:
             # resp = resDoer.loadUrl(ddurl)
             # status = asyncio.run(call(eurl))
             # resDoer.loadUrl(kcurl)
             # resDoer.resolve(tymth=doist.tymen(), tock=doist.tock)
-            time.sleep(2)
-            doist.recur()
+        time.sleep(2)
+        doist.recur()
 
-            resp = etres.get()
-            estat = resp.status_code
-            assert estat == 200
-            print("Got example response content", resp.content)
-            
-            resp = ddtres.get()
-            ddstat = resp.status_code
-            assert ddstat == 200
-            print("Got dd response content", resp.content)
-            
-            resp = kctres.get()
-            kcstat = resp.status_code
-            assert kcstat == 200
-            print("Got kc response content", resp.content)
-        doist.exit()
-
+        resp = ptres.get()
+        pstat = resp.status_code
+        assert pstat == 200
+        print("Got example response content", resp.content)
         
+        # time.sleep(2)
+        # doist.recur()
+        
+        resp = ddtres.get()
+        ddstat = resp.status_code
+        assert ddstat == 200
+        print("Got dd response content", resp.content)
+        
+        # time.sleep(2)
+        # doist.recur()
+        
+        resp = kctres.get()
+        kcstat = resp.status_code
+        assert kcstat == 200
+        print("Got kc response content", resp.content)
+
+        time.sleep(2)
+        doist.recur()
+
+        while not rtres.empty():
+            res = rtres.get()
+            print("Got resolve response",res)
+
+        doist.exit()
 
         """Done Test"""
     

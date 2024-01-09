@@ -7,7 +7,7 @@ import falcon
 from falcon import testing, media, http_status
 from hio.base import doing
 
-from dkr.core import webbing
+from dkr.core import resolving, webbing
 
 from hio.base import tyming
 from hio.core import http
@@ -34,21 +34,25 @@ class PingResource:
       )
 
 def test_service():
+    port = 7676
+    
     with habbing.openHby(name="service") as hby:
         hab = hby.makeHab(name="service")
         aid = "ELCUOZXs-0xn3jOihm0AJ-L8XTFVT8SnIpmEDhFF9Kz_"
-        did = f"did:web:127.0.0.1%3a7676:{aid}"
+        did = f"did:web:127.0.0.1%3a{port}:{aid}"
+        
+        print("Current working dir", os.getcwd())
         cf = configing.Configer(name="config-test",
-                        base=None,
-                        headDirPath="volume/dkr/examples/my-scripts",
-                        temp=True,
-                        reopen=False,
-                        clear=True)
+                        headDirPath="./volume/dkr/examples/my-scripts",
+                        base="",
+                        temp=False,
+                        reopen=True,
+                        clear=False)
 
         # Configure the did doc and keri cesr URL
-        ddurl = f'http://127.0.0.1:7676/{aid}/did.json'
-        kcurl = f'http://127.0.0.1:7676/{aid}/keri.cesr'
-        purl = "http://127.0.0.1:7676/ping"
+        ddurl = f'http://127.0.0.1:{port}/{aid}/did.json'
+        kcurl = f'http://127.0.0.1:{port}/{aid}/keri.cesr'
+        purl = f"http://127.0.0.1:{port}/ping"
         puburl = "http://example.org"
 
         app = falcon.App(middleware=falcon.CORSMiddleware(
@@ -63,11 +67,11 @@ def test_service():
         # falcon.App instances are callable WSGI apps
 
         app.add_route('/ping', PingResource())
-        service = webbing.setup(app, hby, cf)
+        webbing.setup(app, hby, cf)
         # app.add_route('/{aid}/did.json', DidWebsEnd())
         # app.add_route('/{aid}/keri.cesr', KeriCesrEnd(aid=aid))
 
-        server = http.Server(host="127.0.0.1",port=7611, app=app, scheme="http")
+        server = http.Server(host="127.0.0.1",port=port, app=app, scheme="http")
         httpServerDoer = http.ServerDoer(server=server)
 
         # client = testing.TestClient(app=app)        
@@ -78,29 +82,28 @@ def test_service():
         limit = 2.0
         tock = 0.03125
         doers = [httpServerDoer]
-        # doers = [httpServerDoer] + resDoer.doers
         doist = doing.Doist(limit=limit, tock=tock, doers=doers)
         # doist.do(doers=doers)
 
         doist.enter()
         tymer = tyming.Tymer(tymth=doist.tymen(), duration=doist.limit)
 
-        estat = None
-        etres = queue.Queue()
-        et = threading.Thread(target=resDoer.loadUrl, args=(eurl,etres))
-        et.start()
+        pstat = None
+        ptres = queue.Queue()
+        pt = threading.Thread(target=resolving.loadUrl, args=(purl,ptres))
+        pt.start()
         
         ddstat = None
         ddtres = queue.Queue()
-        ddt = threading.Thread(target=resDoer.loadUrl, args=(ddurl,ddtres))
+        ddt = threading.Thread(target=resolving.loadUrl, args=(ddurl,ddtres))
         ddt.start()
         
         kcstat = None
         kctres = queue.Queue()
-        kct = threading.Thread(target=resDoer.loadUrl, args=(kcurl,kctres))
+        kct = threading.Thread(target=resolving.loadUrl, args=(kcurl,kctres))
         kct.start()
         
-        while estat == None or ddtres == None:
+        while pstat == None or ddtres == None or kctres == None:
             # resp = resDoer.loadUrl(ddurl)
             # status = asyncio.run(call(eurl))
             # resDoer.loadUrl(kcurl)
@@ -108,10 +111,10 @@ def test_service():
             time.sleep(2)
             doist.recur()
 
-            resp = etres.get()
-            estat = resp.status_code
-            assert estat == 200
-            print("Got example response content", resp.content)
+            resp = ptres.get()
+            pstat = resp.status_code
+            assert pstat == 200
+            print("Got ping response content", resp.content)
             
             resp = ddtres.get()
             ddstat = resp.status_code
@@ -136,13 +139,3 @@ class HandleCORS(object):
         resp.set_header('Access-Control-Max-Age', 1728000)  # 20 days
         if req.method == 'OPTIONS':
             raise http_status.HTTPStatus(falcon.HTTP_200, text='\n')
-        
-# async def fetch(session, url):
-#     async with session.get(url) as response:
-#         return response.status
-
-# async def call(url):
-#     async with aiohttp.ClientSession() as session:
-#         status = await fetch(session, url)
-#         print(status)
-#         return status

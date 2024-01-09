@@ -4,18 +4,12 @@ dkr.app.cli.commands module
 
 """
 import argparse
-import json
-import requests
-import sys
 
 from hio.base import doing
 from keri.app import habbing, oobiing
 from keri.app.cli.common import existing
-from keri.db import basing
-from keri.help import helping
 
-from dkr.core import didding
-from dkr.core import webbing
+from dkr.core import resolving
 
 parser = argparse.ArgumentParser(description='Resolve a did:webs DID')
 parser.set_defaults(handler=lambda args: handler(args),
@@ -57,121 +51,9 @@ class WebsResolver(doing.DoDoer):
         self.tock = tock
         _ = (yield self.tock)
 
-        domain, port, path, aid = didding.parseDIDWebs(self.did)
-
-        opt_port = (f':{port}' if port is not None else '')
-        opt_path = (f"/{path.replace(':', '/')}" if path is not None else '')
-        base_url = f"http://{domain}{opt_port}{opt_path}/{aid}"
-
-        # Load the did doc
-        dd_url = f"{base_url}/{webbing.DID_JSON}"
-        print(f"Loading DID Doc from {dd_url}", file=sys.stderr)
-        dd_res = None
-        self.loadUrl(dd_url, dd_res)
-        dd_actual = didding.fromDidWeb(json.loads(dd_res.content.decode("utf-8")))
-        print(f"Got DID Doc: {dd_actual}", file=sys.stderr)
-
-        # Load the KERI CESR
-        kc_url = f"{base_url}/{webbing.KERI_CESR}"
-        print(f"Loading KERI CESR from {kc_url}", file=sys.stderr)
-        kc_res = None
-        self.loadUrl(kc_url,kc_res)
-        print(f"Got KERI CESR: {kc_res.content.decode('utf-8')}")
-        
-        self.hby.psr.parse(ims=bytearray(kc_res.content))
-        print("Waiting for KERI CESR to be processed...")
-        yield 3.0
-
-        didresult = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, metadata=True)
-        didresult['didDocumentMetadata']['didDocUrl'] = dd_url
-        didresult['didDocumentMetadata']['keriCesrUrl'] = kc_url
-
-        dd_expected = didresult['didDocument']
-
-        verified = self.verifyDidDocs(dd_expected, dd_actual)
-
+        aid, dd_res, kc_res = resolving.resolve(hby=self.hby, did=self.did, metadata=self.metadata)
+        ddoc = resolving.generate(hby=self.hby, did=self.did, aid=aid, dd_res=dd_res, kc_res=kc_res, oobi=None, metadata=self.metadata)
+        resolving.parse(self.hby, kc_res)    
+        dd, dd_actual = resolving.compare(self.hby, self.did, aid, dd_res, kc_res)
+        resolving.verify(dd, dd_actual, self.metadata)
         self.remove(self.toRemove)
-        
-        if verified:
-            result = didresult if self.metadata else dd_expected
-        else:
-            didresult['didDocument'] = None
-            didresult['didResolutionMetadata']['error'] = 'notVerified'
-            didresult['didResolutionMetadata']['errorMessage'] = 'The DID document could not be verified against the KERI event stream'
-            result = didresult
-
-        data = json.dumps(result, indent=2)
-        print(data)
-        return result
-
-    def loadUrl(self, url, resq):
-        response = requests.get(url=url)
-        # Ensure the request was successful
-        response.raise_for_status()
-        # Convert the content to a bytearray
-        resq.put(response)
-        return response
-        
-    def verifyDidDocs(self, expected, actual):
-        if expected != actual:
-            print("DID Doc does not verify", file=sys.stderr)
-            compare_dicts(expected, actual)
-            return False
-        else:
-            print("DID Doc verified", file=sys.stderr)
-            return True
-        
-def compare_dicts(expected, actual, path=""):
-    print("Comparing dictionaries:\nexpected:\n{expected} \nand\n \nactual:\n{actual}", file=sys.stderr)
-    
-    """Recursively compare two dictionaries and print differences."""
-    for k in expected.keys():
-        # Construct current path
-        current_path = f"{path}.{k}" if path else k
-        print(f"Comparing key {current_path}", file=sys.stderr)
-
-        # Key not present in the actual dictionary
-        if k not in actual:
-            print(f"Key {current_path} not found in the actual dictionary", file=sys.stderr)
-            continue
-
-        # If value in expected is a dictionary but not in actual
-        if isinstance(expected[k], dict) and not isinstance(actual[k], dict):
-            print(f"{current_path} is a dictionary in expected, but not in actual", file=sys.stderr)
-            continue
-
-        # If value in actual is a dictionary but not in expected
-        if isinstance(actual[k], dict) and not isinstance(expected[k], dict):
-            print(f"{current_path} is a dictionary in actual, but not in expected", file=sys.stderr)
-            continue
-
-        # If value is another dictionary, recurse
-        if isinstance(expected[k], dict) and isinstance(actual[k], dict):
-            compare_dicts(expected[k], actual[k], current_path)
-        # Compare non-dict values
-        elif expected[k] != actual[k]:
-            print(f"Different values for key {current_path}: {expected[k]} (expected) vs. {actual[k]} (actual)", file=sys.stderr)
-
-    # Check for keys in actual that are not present in expected
-    for k in actual.keys():
-        current_path = f"{path}.{k}" if path else k
-        if k not in expected:
-            print(f"Key {current_path} not found in the expected dictionary", file=sys.stderr)
-
-# # Test with the provided dictionaries
-# expected_dict = {
-#     'id': 'did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha',
-#     'verificationMethod': [{'id': 'did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha#key-0', 'type': 'Ed25519VerificationKey2020', 'controller': 'did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha', 'publicKeyMultibase': 'z2fD7Rmbbggzwa4SNpYKWi6csiiUcVeyUTgGzDtMrqC7b'}]
-# }
-
-# actual_dict = {
-#     "id": "did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
-#     "verificationMethod": [{
-#         "id": "did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha#key-0",
-#         "type": "Ed25519VerificationKey2020",
-#         "controller": "did:webs:127.0.0.1%3a7676:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
-#         "publicKeyMultibase": "z2fD7Rmbbggzwa4SNpYKWi6csiiUcVeyUTgGzDtMrqC7b"
-#     }]
-# }
-
-# compare_dicts(expected_dict, actual_dict)
