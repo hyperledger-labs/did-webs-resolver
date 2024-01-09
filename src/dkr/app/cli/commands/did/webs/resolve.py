@@ -56,4 +56,5 @@ class WebsResolver(doing.DoDoer):
         resolving.parse(self.hby, kc_res)    
         dd, dd_actual = resolving.compare(self.hby, self.did, aid, dd_res, kc_res)
         resolving.verify(dd, dd_actual, self.metadata)
+        
         self.remove(self.toRemove)

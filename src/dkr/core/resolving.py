@@ -30,13 +30,13 @@ def resolve(did: str, metadata: bool = False, resq: queue.Queue = None):
     # Load the did doc
     dd_url = f"{base_url}/{webbing.DID_JSON}"
     print(f"Loading DID Doc from {dd_url}")
-    dd_res = loadUrl(dd_url, resq)
+    dd_res = loadUrl(dd_url, resq=resq)
     print(f"Got DID doc: {dd_res.content.decode('utf-8')}")
 
     # Load the KERI CESR
     kc_url = f"{base_url}/{webbing.KERI_CESR}"
     print(f"Loading KERI CESR from {kc_url}")
-    kc_res = loadUrl(kc_url,resq)
+    kc_res = loadUrl(kc_url, resq=resq)
     print(f"Got KERI CESR: {kc_res.content.decode('utf-8')}")
     
     resq.put(aid)
@@ -44,9 +44,9 @@ def resolve(did: str, metadata: bool = False, resq: queue.Queue = None):
     resq.put(kc_res)
     return aid, dd_res, kc_res
 
-def parse(hby: habbing.Habery, kc_res: requests.Response):    
+def save(hby: habbing.Habery, kc_res: requests.Response):    
     hby.psr.parse(ims=bytearray(kc_res.content))
-    print("Waiting for KERI CESR to be processed...")
+    print("Saving...waiting for KERI CESR to be processed...")
     yield 3.0
 
 def compare(hby: habbing.Habery, did: str, aid: str, dd_res: requests.Response, kc_res: requests.Response, oobi=None, resq: queue.Queue = None):
@@ -246,10 +246,11 @@ def loadJsonFile(file_path):
         msgs = json.load(file)
         return msgs
     
-def loadUrl(url, resq):
+def loadUrl(url: str, resq: queue.Queue = None):
     response = requests.get(url=url)
     # Ensure the request was successful
     response.raise_for_status()
     # Convert the content to a bytearray
-    resq.put(response)
+    if resq is not None:
+        resq.put(response)
     return response

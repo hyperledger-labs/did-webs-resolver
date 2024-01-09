@@ -203,10 +203,22 @@ def test_resolver():
         assert kcstat == 200
         print("Got kc response content", resp.content)
 
-        time.sleep(2)
+        time.sleep(1)
         doist.recur()
-
+        dd = rtres.get()
+        print("Got resolve dd response",dd)
+        kc = rtres.get()
+        print("Got resolve kc response",kc)
+        aid = rtres.get()
+        print("Got resolve aid response",aid)
+        dd = rtres.get()
+        print("Got resolve dd response",dd)
+        kc = rtres.get()
+        print("Got resolve kc response",kc)
+        
         while not rtres.empty():
+            time.sleep(1)
+            doist.recur()
             res = rtres.get()
             print("Got resolve response",res)
 
