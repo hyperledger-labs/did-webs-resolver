@@ -195,6 +195,7 @@ and
 ```
 curl -GET http://did-webs-service:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr
 ```
+
 ### Example: Resolve AID as did:webs using local resolver
 
 Back in the webs docker container, you can resolve the DID from the did-webs-service:
