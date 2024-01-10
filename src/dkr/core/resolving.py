@@ -254,3 +254,23 @@ def loadUrl(url: str, resq: queue.Queue = None):
     if resq is not None:
         resq.put(response)
     return response
+
+def splitCesr(s, char):
+    # Find the last occurrence of the character
+    index = s.rfind(char)
+    
+    # If the character is not found, return the whole string and an empty string
+    if index == -1:
+        return s, ''
+    
+    json_str = s[:index+1]
+    # quote escaped starts with single quote and double quote and the split will lose the closing single/double quote
+    if(json_str.startswith('"')):
+        json_str = json_str + '"'
+        
+    cesr_sig = s[index + 1:]
+    if(cesr_sig.endswith('"')):
+        cesr_sig = '"' + json_str
+
+    # Split the string into two parts
+    return json_str, cesr_sig

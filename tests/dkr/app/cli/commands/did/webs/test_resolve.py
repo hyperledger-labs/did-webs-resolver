@@ -205,22 +205,38 @@ def test_resolver():
 
         time.sleep(1)
         doist.recur()
-        dd = rtres.get()
-        print("Got resolve dd response",dd)
-        kc = rtres.get()
-        print("Got resolve kc response",kc)
-        aid = rtres.get()
-        print("Got resolve aid response",aid)
-        dd = rtres.get()
-        print("Got resolve dd response",dd)
-        kc = rtres.get()
-        print("Got resolve kc response",kc)
+        
+        rdd = rtres.get()
+        print("\nGot resolve dd response",rdd)
+        
+        rkc = rtres.get()
+        print("\nGot resolve kc response",rkc)
+        
+        raid = rtres.get()
+        print("\nGot resolve aid response",raid)
+        assert raid == aid
+        
+        rdd_expected = resolving.loadJsonFile(f"./volume/dkr/pages/{aid}/did.json")
+        rdd = rtres.get()
+        print("\nGot resolve dd response",rdd)
+        assert json.loads(rdd.content) == rdd_expected
+        
+        rkc_expected = resolving.loadFile(f"./volume/dkr/pages/{aid}/keri.cesr")
+        rkc_expected, sig_exp = resolving.splitCesr(rkc_expected.decode(), '}')
+        rkc_exp_json = json.loads(rkc_expected)
+        rkc = rtres.get()
+        print("\nGot resolve kc response",rkc)
+        str_no_sig, sig = resolving.splitCesr(rkc.content.decode(), '}')
+        # double the json.loads calls to compensate for the quote escaping?
+        json_no_sig = json.loads(json.loads(str_no_sig))
+        assert json_no_sig == rkc_exp_json
         
         while not rtres.empty():
-            time.sleep(1)
-            doist.recur()
-            res = rtres.get()
-            print("Got resolve response",res)
+            assert False, "Expected no more responses"
+            # time.sleep(1)
+            # doist.recur()
+            # res = rtres.get()
+            # print("Got resolve response",res)
 
         doist.exit()
 
