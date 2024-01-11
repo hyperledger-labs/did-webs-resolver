@@ -19,11 +19,17 @@ from keri.help import helping
 from keri.vdr import credentialing, verifying
 
 DID_KERI_RE = re.compile(r'\Adid:keri:(?P<aid>[^:]+)\Z', re.IGNORECASE)
-DID_RES_META='didResolutionMetadata'
 DID_WEBS_RE = re.compile(r'\Adid:web(s)?:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?(?::(?P<path>.+?))?(?::(?P<aid>[^:]+))\Z', re.IGNORECASE)
+
 DID_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DID_TIME_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
+
 DES_ALIASES_SCHEMA="EN6Oh5XSD5_q2Hgu-aqpdfbVepdpYpFlgz6zvJL5b_r5"
+
+DID_RES_META_FIELD='didResolutionMetadata'
+DD_META_FIELD='didDocumentMetadata'
+DD_FIELD='didDocument'
+VMETH_FIELD='verificationMethod'
 
 def parseDIDKeri(did):
     match = DID_KERI_RE.match(did)
@@ -182,13 +188,13 @@ def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=None, reg_
 
 def toDidWeb(diddoc):
     diddoc['id'] = diddoc['id'].replace('did:webs', 'did:web')
-    for verificationMethod in diddoc['verificationMethod']:
+    for verificationMethod in diddoc[VMETH_FIELD]:
         verificationMethod['controller'] = verificationMethod['controller'].replace('did:webs', 'did:web')
     return diddoc
 
 def fromDidWeb(diddoc):
     diddoc['id'] = diddoc['id'].replace('did:web', 'did:webs')
-    for verificationMethod in diddoc['verificationMethod']:
+    for verificationMethod in diddoc[VMETH_FIELD]:
         verificationMethod['controller'] = verificationMethod['controller'].replace('did:web', 'did:webs')
     return diddoc
 

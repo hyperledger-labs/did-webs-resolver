@@ -44,14 +44,16 @@ def resolve(did: str, metadata: bool = False, resq: queue.Queue = None):
     resq.put(kc_res)
     return aid, dd_res, kc_res
 
-def save(hby: habbing.Habery, kc_res: requests.Response):    
+def save(hby: habbing.Habery, kc_res: requests.Response, aid: str = None):    
     print("Saving KERI CESR to hby")
     hby.psr.parse(ims=bytearray(kc_res.content))
+    if(aid):
+        assert aid in hby.kevers, "KERI CESR parsing failed, KERI AID not found in habery"
 
 def compare(hby: habbing.Habery, did: str, aid: str, dd_res: requests.Response, kc_res: requests.Response, oobi=None, resq: queue.Queue = None):
     dd = didding.generateDIDDoc(hby, did=did, aid=aid, oobi=None, metadata=True)
-    dd['didDocumentMetadata']['didDocUrl'] = dd_res.url
-    dd['didDocumentMetadata']['keriCesrUrl'] = kc_res.url
+    dd[didding.DD_META_FIELD]['didDocUrl'] = dd_res.url
+    dd[didding.DD_META_FIELD]['keriCesrUrl'] = kc_res.url
 
     dd_actual = didding.fromDidWeb(json.loads(dd_res.content.decode("utf-8")))
     print(f"Got DID Doc: {dd_actual}")
@@ -59,15 +61,18 @@ def compare(hby: habbing.Habery, did: str, aid: str, dd_res: requests.Response, 
     return dd, dd_actual
 
 def verify(dd, dd_actual, metadata: bool = False):
-    dd_expected = dd['didDocument']
-    verified = verifyDidDocs(dd_expected, dd_actual)
+    dd_exp = dd
+    if didding.DD_FIELD in dd_exp:
+        dd_exp = dd[didding.DD_FIELD]
+    # TODO verify more than verificationMethod
+    verified = verifyDidDocs(dd_exp[didding.VMETH_FIELD], dd_actual[didding.VMETH_FIELD])
     
     result = None
     if verified:
-        result = dd if metadata else dd['didDocument']
+        result = dd if metadata else dd[didding.DD_FIELD]
     else:
         didresult = dict()
-        didresult['didDocument'] = None
+        didresult[didding.DD_FIELD] = None
         if didding.DID_RES_META not in didresult:
             didresult[didding.DID_RES_META] = dict()
         didresult[didding.DID_RES_META]['error'] = 'notVerified'
@@ -77,6 +82,7 @@ def verify(dd, dd_actual, metadata: bool = False):
     return result
         
 def verifyDidDocs(expected, actual):
+    # TODO determine what to do with BADA RUN things like services (witnesses) etc.
     if expected != actual:
         print("DID Doc does not verify", file=sys.stderr)
         compare_dicts(expected, actual)

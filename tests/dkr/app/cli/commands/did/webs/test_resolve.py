@@ -251,10 +251,10 @@ def test_resolver():
         dd, dd_actual = resolving.compare(vhby, did_webs, aid, rdd, rkc)    
         vresult = resolving.verify(dd, dd_actual, False)
         
-        if didding.DID_RES_META in vresult:
-            if vresult[didding.DID_RES_META]['error'] == 'notVerified':
+        if didding.DID_RES_META_FIELD in vresult:
+            if vresult[didding.DID_RES_META_FIELD]['error'] == 'notVerified':
                 assert False, "DID verification failed"
-        assert vresult == dd["didDocument"]
+        assert vresult == dd[didding.DD_FIELD]
 
         doist.exit()
 

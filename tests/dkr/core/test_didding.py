@@ -272,7 +272,7 @@ def test_gen_did_doc(setup_habs):
         == "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
     )
 
-    assert didDoc["verificationMethod"] == [
+    assert didDoc[didding.VMETH_FIELD] == [
         {
             "id": "#DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp",
             "type": "JsonWebKey",
@@ -313,11 +313,11 @@ def test_gen_did_doc_with_metadata(setup_habs):
     hby, hab, wesHby, wesHab, did = setup_habs
     didDoc = didding.generateDIDDoc(hby, did, hab.pre, oobi=None, metadata=True)
     assert (
-        didDoc["didDocument"]["id"]
+        didDoc[didding.DD_FIELD]["id"]
         == "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
     )
 
-    assert didDoc["didDocument"]["verificationMethod"] == [
+    assert didDoc[didding.DD_FIELD][didding.VMETH_FIELD] == [
         {
             "id": "#DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp",
             "type": "JsonWebKey",
@@ -331,23 +331,23 @@ def test_gen_did_doc_with_metadata(setup_habs):
         }
     ]
 
-    assert len(didDoc["didDocument"]["service"]) == 4
-    assert didDoc["didDocument"]["service"][0] == {
+    assert len(didDoc[didding.DD_FIELD]["service"]) == 4
+    assert didDoc[didding.DD_FIELD]["service"][0] == {
         "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
         "type": "controller",
         "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
     }
-    assert didDoc["didDocument"]["service"][1] == {
+    assert didDoc[didding.DD_FIELD]["service"][1] == {
         "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox",
         "type": "mailbox",
         "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
     }
-    assert didDoc["didDocument"]["service"][2] == {
+    assert didDoc[didding.DD_FIELD]["service"][2] == {
         "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/registrar",
         "type": "registrar",
         "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
     }
-    assert didDoc["didDocument"]["service"][3] == {
+    assert didDoc[didding.DD_FIELD]["service"][3] == {
         "id": "#BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr/witness",
         "type": "witness",
         "serviceEndpoint": {"http": "http://127.0.0.1:8888"},
@@ -378,7 +378,7 @@ def test_gen_did_doc_no_hab(setup_habs):
     assert (didDoc["id"] == expected["id"])
     assert (didDoc["id"].startswith("did:web:"))
     assert (didDoc["id"].endswith(f"{aid}"))
-    assert didDoc["verificationMethod"] == expected["verificationMethod"]
+    assert didDoc[didding.VMETH_FIELD] == expected[didding.VMETH_FIELD]
 
     assert len(didDoc["service"]) == 0
 
@@ -596,11 +596,11 @@ def test_gen_desig_aliases(setup_habs, seeder):
         hby, did, hab.pre, oobi=None, metadata=True, reg_name=crdntler.rgy.name
     )
     assert (
-        didDoc["didDocument"]["id"]
+        didDoc[didding.DD_FIELD]["id"]
         == "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
     )
 
-    assert didDoc["didDocument"]["verificationMethod"] == [
+    assert didDoc[didding.DD_FIELD][didding.VMETH_FIELD] == [
         {
             "id": "#DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp",
             "type": "JsonWebKey",
@@ -614,32 +614,32 @@ def test_gen_desig_aliases(setup_habs, seeder):
         }
     ]
 
-    assert len(didDoc["didDocument"]["service"]) == 4
-    assert didDoc["didDocument"]["service"][0] == {
+    assert len(didDoc[didding.DD_FIELD]["service"]) == 4
+    assert didDoc[didding.DD_FIELD]["service"][0] == {
         "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
         "type": "controller",
         "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
     }
-    assert didDoc["didDocument"]["service"][1] == {
+    assert didDoc[didding.DD_FIELD]["service"][1] == {
         "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox",
         "type": "mailbox",
         "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
     }
-    assert didDoc["didDocument"]["service"][2] == {
+    assert didDoc[didding.DD_FIELD]["service"][2] == {
         "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/registrar",
         "type": "registrar",
         "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
     }
-    assert didDoc["didDocument"]["service"][3] == {
+    assert didDoc[didding.DD_FIELD]["service"][3] == {
         "id": "#BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr/witness",
         "type": "witness",
         "serviceEndpoint": {"http": "http://127.0.0.1:8888"},
     }
 
-    assert didDoc["didDocumentMetadata"]["equivalentId"] == [
+    assert didDoc[didding.DD_META_FIELD]["equivalentId"] == [
         "did:webs:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
     ]
-    assert didDoc["didDocument"]["alsoKnownAs"] == [
+    assert didDoc[didding.DD_FIELD]["alsoKnownAs"] == [
         "did:web:example.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
     ]
 
@@ -669,11 +669,11 @@ def test_gen_desig_aliases_revoked(setup_habs, seeder):
         hby, did, hab.pre, oobi=None, metadata=True
     )
     assert (
-        didDoc["didDocument"]["id"]
+        didDoc[didding.DD_FIELD]["id"]
         == "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
     )
 
-    assert didDoc["didDocument"]["verificationMethod"] == [
+    assert didDoc[didding.DD_FIELD][didding.VMETH_FIELD] == [
         {
             "id": "#DCQbRBx58zbRPs8R9cXl-MMbPaxH1EPHdWp3ICSdQSyp",
             "type": "JsonWebKey",
@@ -687,30 +687,30 @@ def test_gen_desig_aliases_revoked(setup_habs, seeder):
         }
     ]
 
-    assert len(didDoc["didDocument"]["service"]) == 4
-    assert didDoc["didDocument"]["service"][0] == {
+    assert len(didDoc[didding.DD_FIELD]["service"]) == 4
+    assert didDoc[didding.DD_FIELD]["service"][0] == {
         "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
         "type": "controller",
         "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
     }
-    assert didDoc["didDocument"]["service"][1] == {
+    assert didDoc[didding.DD_FIELD]["service"][1] == {
         "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox",
         "type": "mailbox",
         "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
     }
-    assert didDoc["didDocument"]["service"][2] == {
+    assert didDoc[didding.DD_FIELD]["service"][2] == {
         "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/registrar",
         "type": "registrar",
         "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
     }
-    assert didDoc["didDocument"]["service"][3] == {
+    assert didDoc[didding.DD_FIELD]["service"][3] == {
         "id": "#BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr/witness",
         "type": "witness",
         "serviceEndpoint": {"http": "http://127.0.0.1:8888"},
     }
 
-    assert didDoc["didDocumentMetadata"]["equivalentId"] == []
-    assert didDoc["didDocument"]["alsoKnownAs"] == []
+    assert didDoc[didding.DD_META_FIELD]["equivalentId"] == []
+    assert didDoc[didding.DD_FIELD]["alsoKnownAs"] == []
 
     assert (
         re.match(didding.DID_TIME_PATTERN, didDoc[didding.DID_RES_META]["retrieved"])

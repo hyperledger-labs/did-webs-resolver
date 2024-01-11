@@ -53,7 +53,7 @@ class WebsResolver(doing.DoDoer):
 
         aid, dd_res, kc_res = resolving.resolve(hby=self.hby, did=self.did, metadata=self.metadata)
         ddoc = resolving.generate(hby=self.hby, did=self.did, aid=aid, dd_res=dd_res, kc_res=kc_res, oobi=None, metadata=self.metadata)
-        resolving.parse(self.hby, kc_res)    
+        resolving.parse(self.hby, kc_res, aid)
         dd, dd_actual = resolving.compare(self.hby, self.did, aid, dd_res, kc_res)
         resolving.verify(dd, dd_actual, self.metadata)
         

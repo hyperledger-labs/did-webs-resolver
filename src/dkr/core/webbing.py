@@ -205,6 +205,8 @@ class KeriCesrWebResourceEnd():
         # kvy = eventing.Kevery(db=ahab.db, lax=False, local=False)
         with open(fPath, 'rb') as file:
             self.hby.psr.parse(ims=bytearray(file.read()))
+            if(aid):
+                assert aid in self.hby.kevers, "KERI CESR parsing failed, KERI AID not found in habery"
             
     def on_get(self, req, rep, aid):
         """ GET endpoint for acessing {KERI_CESR} stream for AID
