@@ -241,4 +241,4 @@ class KeriCesrWebResourceEnd():
 
         rep.status = falcon.HTTP_200
         rep.content_type = CESR_MIME
-        rep.data = json.dumps(content, indent=2).encode("utf-8")
+        rep.data = content.encode("utf-8")

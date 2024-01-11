@@ -354,7 +354,7 @@ def test_gen_did_doc_with_metadata(setup_habs):
     }
 
     assert (
-        re.match(didding.DID_TIME_PATTERN, didDoc["didResolutionMetadata"]["retrieved"])
+        re.match(didding.DID_TIME_PATTERN, didDoc[didding.DID_RES_META]["retrieved"])
         != None
     )
 
@@ -644,7 +644,7 @@ def test_gen_desig_aliases(setup_habs, seeder):
     ]
 
     assert (
-        re.match(didding.DID_TIME_PATTERN, didDoc["didResolutionMetadata"]["retrieved"])
+        re.match(didding.DID_TIME_PATTERN, didDoc[didding.DID_RES_META]["retrieved"])
         != None
     )
     
@@ -713,6 +713,6 @@ def test_gen_desig_aliases_revoked(setup_habs, seeder):
     assert didDoc["didDocument"]["alsoKnownAs"] == []
 
     assert (
-        re.match(didding.DID_TIME_PATTERN, didDoc["didResolutionMetadata"]["retrieved"])
+        re.match(didding.DID_TIME_PATTERN, didDoc[didding.DID_RES_META]["retrieved"])
         != None
     )

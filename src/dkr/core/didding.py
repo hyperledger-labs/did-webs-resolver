@@ -19,6 +19,7 @@ from keri.help import helping
 from keri.vdr import credentialing, verifying
 
 DID_KERI_RE = re.compile(r'\Adid:keri:(?P<aid>[^:]+)\Z', re.IGNORECASE)
+DID_RES_META='didResolutionMetadata'
 DID_WEBS_RE = re.compile(r'\Adid:web(s)?:(?P<domain>[^%:]+)(?:%3a(?P<port>\d+))?(?::(?P<path>.+?))?(?::(?P<aid>[^:]+))\Z', re.IGNORECASE)
 DID_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DID_TIME_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")

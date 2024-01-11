@@ -45,9 +45,8 @@ def resolve(did: str, metadata: bool = False, resq: queue.Queue = None):
     return aid, dd_res, kc_res
 
 def save(hby: habbing.Habery, kc_res: requests.Response):    
+    print("Saving KERI CESR to hby")
     hby.psr.parse(ims=bytearray(kc_res.content))
-    print("Saving...waiting for KERI CESR to be processed...")
-    yield 3.0
 
 def compare(hby: habbing.Habery, did: str, aid: str, dd_res: requests.Response, kc_res: requests.Response, oobi=None, resq: queue.Queue = None):
     dd = didding.generateDIDDoc(hby, did=did, aid=aid, oobi=None, metadata=True)
@@ -69,8 +68,10 @@ def verify(dd, dd_actual, metadata: bool = False):
     else:
         didresult = dict()
         didresult['didDocument'] = None
-        didresult['didResolutionMetadata']['error'] = 'notVerified'
-        didresult['didResolutionMetadata']['errorMessage'] = 'The DID document could not be verified against the KERI event stream'
+        if didding.DID_RES_META not in didresult:
+            didresult[didding.DID_RES_META] = dict()
+        didresult[didding.DID_RES_META]['error'] = 'notVerified'
+        didresult[didding.DID_RES_META]['errorMessage'] = 'The DID document could not be verified against the KERI event stream'
         result = didresult
 
     return result
@@ -85,7 +86,7 @@ def verifyDidDocs(expected, actual):
         return True
         
 def compare_dicts(expected, actual, path=""):
-    print("Comparing dictionaries:\nexpected:\n{expected} \nand\n \nactual:\n{actual}", file=sys.stderr)
+    print(f"Comparing dictionaries:\nexpected:\n{expected}\n \nand\n \nactual:\n{actual}", file=sys.stderr)
     
     """Recursively compare two dictionaries and print differences."""
     for k in expected.keys():

@@ -8,7 +8,7 @@ from falcon import testing, media, http_status
 from hio.base import doing
 
 from dkr.app.cli.commands.did.webs import resolve
-from dkr.core import resolving, webbing
+from dkr.core import didding, resolving, webbing
 
 from hio.base import tyming
 from hio.core import http
@@ -96,13 +96,12 @@ class PingResource:
 #         rep.data = json.dumps(data).encode("utf-8")
 
 def test_resolver():
-    with habbing.openHby(name="verifier") as hby:
-        hab = hby.makeHab(name="verifier")
-        hbyDoer = habbing.HaberyDoer(habery=hby)  # setup doer
-        obl = oobiing.Oobiery(hby=hby)
+    with habbing.openHby(name="verifier") as vhby, habbing.openHby(name="service") as shby:
+        vhab = vhby.makeHab(name="verifier")
+        shab = shby.makeHab(name="service")
+        # hbyDoer = habbing.HaberyDoer(habery=shby)  # setup doer
+        # obl = oobiing.Oobiery(hby=shby)
         aid = "ELCUOZXs-0xn3jOihm0AJ-L8XTFVT8SnIpmEDhFF9Kz_"
-        did = f"did:web:127.0.0.1%3a7676:{aid}"
-        # resDoer = resolve.WebsResolver(hby,hbyDoer,obl,did,False)
 
         # Configure the did doc and keri cesr URL
         ddurl = f'http://127.0.0.1:7676/{aid}/did.json'
@@ -129,10 +128,10 @@ def test_resolver():
                         temp=False,
                         reopen=True,
                         clear=False)
-
-        # app.add_route('/example', ExampleEnd())
         app.add_route('/ping', PingResource())
-        webbing.setup(app, hby, cf)
+        webbing.setup(app, shby, cf)
+        
+        # app.add_route('/example', ExampleEnd())
         # app.add_route('/{aid}/did.json', DidWebsEnd())
         # app.add_route('/{aid}/keri.cesr', KeriCesrEnd(aid=aid))
 
@@ -154,31 +153,30 @@ def test_resolver():
         doist.enter()
         tymer = tyming.Tymer(tymth=doist.tymen(), duration=doist.limit)
 
+        # time.sleep(1)
+        # doist.recur()
+
         pstat = None
         ptres = queue.Queue()
         pt = threading.Thread(target=resolving.loadUrl, args=(purl,ptres))
         pt.start()
         
+        # time.sleep(2)
+        # doist.recur()
+        
         ddstat = None
         ddtres = queue.Queue()
         ddt = threading.Thread(target=resolving.loadUrl, args=(ddurl,ddtres))
         ddt.start()
+
+        time.sleep(1)
+        doist.recur()
         
         kcstat = None
         kctres = queue.Queue()
         kct = threading.Thread(target=resolving.loadUrl, args=(kcurl,kctres))
         kct.start()
         
-        rstat = None
-        rtres = queue.Queue()
-        rt = threading.Thread(target=resolving.resolve, args=(did, False, rtres))
-        rt.start()
-        
-        # while estat == None or ddtres == None or kctres == None:
-            # resp = resDoer.loadUrl(ddurl)
-            # status = asyncio.run(call(eurl))
-            # resDoer.loadUrl(kcurl)
-            # resDoer.resolve(tymth=doist.tymen(), tock=doist.tock)
         time.sleep(2)
         doist.recur()
 
@@ -187,30 +185,40 @@ def test_resolver():
         assert pstat == 200
         print("Got example response content", resp.content)
         
-        # time.sleep(2)
-        # doist.recur()
-        
         resp = ddtres.get()
         ddstat = resp.status_code
         assert ddstat == 200
         print("Got dd response content", resp.content)
-        
-        # time.sleep(2)
-        # doist.recur()
         
         resp = kctres.get()
         kcstat = resp.status_code
         assert kcstat == 200
         print("Got kc response content", resp.content)
 
-        time.sleep(1)
+        time.sleep(2)
+        doist.recur()
+
+        did_web = f"did:web:127.0.0.1%3a7676:{aid}"
+        did_webs = f"did:webs:127.0.0.1%3a7676:{aid}"
+        rstat = None
+        rtres = queue.Queue()
+        rt = threading.Thread(target=resolving.resolve, args=(did_webs, False, rtres))
+        rt.start()
+
+        time.sleep(2)
         doist.recur()
         
-        rdd = rtres.get()
-        print("\nGot resolve dd response",rdd)
+        mid_dd = rtres.get()
+        print("\nGot resolve dd response",mid_dd)
+
+        time.sleep(2)
+        doist.recur()
         
-        rkc = rtres.get()
-        print("\nGot resolve kc response",rkc)
+        mid_kc = rtres.get()
+        print("\nGot resolve kc response",mid_kc)
+
+        time.sleep(2)
+        doist.recur()
         
         raid = rtres.get()
         print("\nGot resolve aid response",raid)
@@ -228,15 +236,25 @@ def test_resolver():
         print("\nGot resolve kc response",rkc)
         str_no_sig, sig = resolving.splitCesr(rkc.content.decode(), '}')
         # double the json.loads calls to compensate for the quote escaping?
-        json_no_sig = json.loads(json.loads(str_no_sig))
+        json_no_sig = json.loads(str_no_sig)
         assert json_no_sig == rkc_exp_json
         
         while not rtres.empty():
             assert False, "Expected no more responses"
-            # time.sleep(1)
-            # doist.recur()
-            # res = rtres.get()
-            # print("Got resolve response",res)
+            
+        assert aid not in vhby.kevers
+        resolving.save(hby=vhby,kc_res=rkc)
+        time.sleep(2)
+        doist.recur()
+        assert aid in vhby.kevers
+        
+        dd, dd_actual = resolving.compare(vhby, did_webs, aid, rdd, rkc)    
+        vresult = resolving.verify(dd, dd_actual, False)
+        
+        if didding.DID_RES_META in vresult:
+            if vresult[didding.DID_RES_META]['error'] == 'notVerified':
+                assert False, "DID verification failed"
+        assert vresult == dd["didDocument"]
 
         doist.exit()
 
@@ -250,13 +268,3 @@ class HandleCORS(object):
         resp.set_header('Access-Control-Max-Age', 1728000)  # 20 days
         if req.method == 'OPTIONS':
             raise http_status.HTTPStatus(falcon.HTTP_200, text='\n')
-        
-# async def fetch(session, url):
-#     async with session.get(url) as response:
-#         return response.status
-
-# async def call(url):
-#     async with aiohttp.ClientSession() as session:
-#         status = await fetch(session, url)
-#         print(status)
-#         return status
