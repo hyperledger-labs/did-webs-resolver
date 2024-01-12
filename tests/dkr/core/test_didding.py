@@ -354,7 +354,7 @@ def test_gen_did_doc_with_metadata(setup_habs):
     }
 
     assert (
-        re.match(didding.DID_TIME_PATTERN, didDoc[didding.DID_RES_META]["retrieved"])
+        re.match(didding.DID_TIME_PATTERN, didDoc[didding.DID_RES_META_FIELD]["retrieved"])
         != None
     )
 
@@ -640,11 +640,12 @@ def test_gen_desig_aliases(setup_habs, seeder):
         "did:webs:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
     ]
     assert didDoc[didding.DD_FIELD]["alsoKnownAs"] == [
+        "did:webs:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
         "did:web:example.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
     ]
 
     assert (
-        re.match(didding.DID_TIME_PATTERN, didDoc[didding.DID_RES_META]["retrieved"])
+        re.match(didding.DID_TIME_PATTERN, didDoc[didding.DID_RES_META_FIELD]["retrieved"])
         != None
     )
     
@@ -713,6 +714,6 @@ def test_gen_desig_aliases_revoked(setup_habs, seeder):
     assert didDoc[didding.DD_FIELD]["alsoKnownAs"] == []
 
     assert (
-        re.match(didding.DID_TIME_PATTERN, didDoc[didding.DID_RES_META]["retrieved"])
+        re.match(didding.DID_TIME_PATTERN, didDoc[didding.DID_RES_META_FIELD]["retrieved"])
         != None
     )

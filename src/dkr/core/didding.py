@@ -157,7 +157,7 @@ def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=None, reg_
         eq_ids = [s for s in da_ids if s.startswith(dws_pre)]
         print(f"Equivalent DIDs: {eq_ids}")
         
-        aka_ids = [s for s in da_ids if not s.startswith(dws_pre)]
+        aka_ids = [s for s in da_ids]
         print(f"Also Known As DIDs: {aka_ids}")
             
     didResolutionMetadata = dict(
