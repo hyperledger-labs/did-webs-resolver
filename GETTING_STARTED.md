@@ -82,6 +82,11 @@ Your AID is ```ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe``` and your current 
 The AID config-file in the container is at ./my-scripts/keri/cf/config-docker.json and contains the KERI OOBIs of the witnesses that we'll use:
 In this case they are available from the witness network that we started in the docker-compose. If you `cat` the config at `/usr/local/var/webs/volume/dkr/examples/my-scripts/keri/cf/config-docker.json` you should see:
 
+`command`
+```
+cat /usr/local/var/webs/volume/dkr/examples/my-scripts/keri/cf/config-docker.json
+```
+
 `config:`
 ```json
 {
@@ -107,8 +112,14 @@ Find a web address (host, optional port, optional path) that you control.
 
 Example web address with host `labs.hyperledger.org`, no optional port, and optional path `pages`:
 
+`web example url`
 ```
 https://labs.hyperledger.org/did-webs-resolver/pages/
+```
+
+`docker example url`
+```
+http://did-webs-service%3a7676
 ```
 
 ## Generate your did:webs identifier files using your KERI AID
@@ -156,16 +167,30 @@ You can access these files either from within your Docker container or on your l
 - `<local path on computer to did-webs-resolver>/volume/dkr/examples/<your AID>` (local path on your computer)
 - `/usr/local/var/webs/volume/dkr/examples/<your AID>` (local path in the Docker container)
 
+`command:`
+```
+cat ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/did.json
+```
 
-## Upload did.json and keri.cesr to the web address (host, optional port, optional path) that corresponds to the 
+`output:`
+```
+{"id": "did:web:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe", "verificationMethod": [{"id": "#DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr", "type": "JsonWebKey", "controller": "did:web:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe", "publicKeyJwk": {"kid": "DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr", "kty": "OKP", "crv": "Ed25519", "x": "evT4j6Yw3uHpwsw5NEmSR8-4x3S-BA-s6Thjd51oeOs"}}], "service": [], "alsoKnownAs": []}
+```
+
+## Upload did.json and keri.cesr to the web address (host, optional port, optional path) that you chose
 
 E.g. using git, Github pages, FTP, SCP, etc.
 
 ## Example: serve from docker
 You can run the docker example service to serve the did.json and keri.cesr files for the other docker containers:
 
-First, lets copy our generated files to the directory we'll serve from. On your local machine (or within the container) you can copy `volume/dkr/examples/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe` to `volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe`:
+First, lets copy our generated files to the directory we'll serve from. On your `LOCAL` machine (or within the container) you can copy `volume/dkr/examples/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe` to `volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe`:
 
+```
+cp -R volume/dkr/examples/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
+```
+
+Now lets go into our did-webs-service docker container:
 ```
 docker compose exec did-webs-service /bin/bash
 ```

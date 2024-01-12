@@ -40,7 +40,7 @@ services:
         volumes:
             - ~/VSCode/did-keri-resolver/volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
             - ~/VSCode/did-keri-resolver/volume/dkr/pages:/usr/local/var/webs/volume/dkr/pages
-        entrypoint: dkr did webs service --name webserve --config-dir /usr/local/var/webs/volume/dkr/examples/my-scripts --config-file config-docker
+        # entrypoint: dkr did webs service --name webserve --config-dir /usr/local/var/webs/volume/dkr/examples/my-scripts --config-file config-docker
 
     did-webs-resolver:
         container_name: did-webs-resolver
