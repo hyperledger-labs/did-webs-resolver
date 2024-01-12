@@ -202,7 +202,7 @@ def test_resolver():
         did_webs = f"did:webs:127.0.0.1%3a7676:{aid}"
         rstat = None
         rtres = queue.Queue()
-        rt = threading.Thread(target=resolving.resolve, args=(did_webs, False, rtres))
+        rt = threading.Thread(target=resolving.getSrcs, args=(did_webs, rtres))
         rt.start()
 
         time.sleep(2)
@@ -224,10 +224,10 @@ def test_resolver():
         print("\nGot resolve aid response",raid)
         assert raid == aid
         
-        rdd_expected = resolving.loadJsonFile(f"./volume/dkr/pages/{aid}/did.json")
+        did_web_dd = resolving.loadJsonFile(f"./volume/dkr/pages/{aid}/did.json")
         rdd = rtres.get()
         print("\nGot resolve dd response",rdd)
-        assert json.loads(rdd.content) == rdd_expected
+        assert json.loads(rdd.content) == did_web_dd
         
         rkc_expected = resolving.loadFile(f"./volume/dkr/pages/{aid}/keri.cesr")
         rkc_expected, sig_exp = resolving.splitCesr(rkc_expected.decode(), '}')
@@ -239,22 +239,31 @@ def test_resolver():
         json_no_sig = json.loads(str_no_sig)
         assert json_no_sig == rkc_exp_json
         
-        while not rtres.empty():
+        if not rtres.empty():
             assert False, "Expected no more responses"
-            
+        
         assert aid not in vhby.kevers
-        resolving.save(hby=vhby,kc_res=rkc)
-        time.sleep(2)
-        doist.recur()
+        resolving.saveCesr(hby=vhby,kc_res=rkc, aid=aid)
         assert aid in vhby.kevers
+
+        dd, dd_actual = resolving.getComp(hby=vhby, did=did_webs, aid=aid, dd_res=rdd, kc_res=rkc)    
+        assert dd[didding.DD_FIELD][didding.VMETH_FIELD] != did_web_dd[didding.VMETH_FIELD]
+        assert dd[didding.DD_FIELD][didding.VMETH_FIELD] == dd_actual[didding.VMETH_FIELD]
+
+        # no metadata
+        vresult = resolving.verify(dd, dd_actual, metadata=False)
+        assert vresult[didding.VMETH_FIELD] == dd[didding.DD_FIELD][didding.VMETH_FIELD]
+
+        # metadata
+        vresult = resolving.verify(dd, dd_actual, metadata=True)
+        assert vresult[didding.DD_FIELD][didding.VMETH_FIELD] == dd[didding.DD_FIELD][didding.VMETH_FIELD]
         
-        dd, dd_actual = resolving.compare(vhby, did_webs, aid, rdd, rkc)    
-        vresult = resolving.verify(dd, dd_actual, False)
-        
-        if didding.DID_RES_META_FIELD in vresult:
-            if vresult[didding.DID_RES_META_FIELD]['error'] == 'notVerified':
-                assert False, "DID verification failed"
-        assert vresult == dd[didding.DD_FIELD]
+        # TODO test services, alsoKnownAs, etc.
+
+        # TODO test a resolution failure
+        # if didding.DID_RES_META_FIELD in vresult:
+        #     if vresult[didding.DID_RES_META_FIELD]['error'] == 'notVerified':
+        #         assert False, "DID verification failed"
 
         doist.exit()
 

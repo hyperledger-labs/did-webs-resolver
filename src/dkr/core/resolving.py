@@ -19,9 +19,9 @@ import queue
 import requests
 import sys
 
-def resolve(did: str, metadata: bool = False, resq: queue.Queue = None):
+def getSrcs(did: str, resq: queue.Queue = None):
     print(f"Parsing DID {did}")
-    domain, port, path, aid = didding.parseDIDWebs(did)
+    domain, port, path, aid = didding.parseDIDWebs(did=did)
 
     opt_port = (f':{port}' if port is not None else '')
     opt_path = (f"/{path.replace(':', '/')}" if path is not None else '')
@@ -39,18 +39,20 @@ def resolve(did: str, metadata: bool = False, resq: queue.Queue = None):
     kc_res = loadUrl(kc_url, resq=resq)
     print(f"Got KERI CESR: {kc_res.content.decode('utf-8')}")
     
-    resq.put(aid)
-    resq.put(dd_res)
-    resq.put(kc_res)
+    if resq is not None:
+        resq.put(aid)
+        resq.put(dd_res)
+        resq.put(kc_res)
     return aid, dd_res, kc_res
 
-def save(hby: habbing.Habery, kc_res: requests.Response, aid: str = None):    
-    print("Saving KERI CESR to hby")
+def saveCesr(hby: habbing.Habery, kc_res: requests.Response, aid: str = None):    
+    print("Saving KERI CESR to hby", kc_res.content.decode('utf-8'))
     hby.psr.parse(ims=bytearray(kc_res.content))
     if(aid):
+        
         assert aid in hby.kevers, "KERI CESR parsing failed, KERI AID not found in habery"
 
-def compare(hby: habbing.Habery, did: str, aid: str, dd_res: requests.Response, kc_res: requests.Response, oobi=None, resq: queue.Queue = None):
+def getComp(hby: habbing.Habery, did: str, aid: str, dd_res: requests.Response, kc_res: requests.Response):
     dd = didding.generateDIDDoc(hby, did=did, aid=aid, oobi=None, metadata=True)
     dd[didding.DD_META_FIELD]['didDocUrl'] = dd_res.url
     dd[didding.DD_META_FIELD]['keriCesrUrl'] = kc_res.url
@@ -65,11 +67,12 @@ def verify(dd, dd_actual, metadata: bool = False):
     if didding.DD_FIELD in dd_exp:
         dd_exp = dd[didding.DD_FIELD]
     # TODO verify more than verificationMethod
-    verified = verifyDidDocs(dd_exp[didding.VMETH_FIELD], dd_actual[didding.VMETH_FIELD])
+    verified = _verifyDidDocs(dd_exp[didding.VMETH_FIELD], dd_actual[didding.VMETH_FIELD])
     
     result = None
     if verified:
         result = dd if metadata else dd[didding.DD_FIELD]
+        print(f"DID verified")
     else:
         didresult = dict()
         didresult[didding.DD_FIELD] = None
@@ -78,20 +81,21 @@ def verify(dd, dd_actual, metadata: bool = False):
         didresult[didding.DID_RES_META]['error'] = 'notVerified'
         didresult[didding.DID_RES_META]['errorMessage'] = 'The DID document could not be verified against the KERI event stream'
         result = didresult
+        print(f"DID verification failed")
 
     return result
         
-def verifyDidDocs(expected, actual):
+def _verifyDidDocs(expected, actual):
     # TODO determine what to do with BADA RUN things like services (witnesses) etc.
     if expected != actual:
         print("DID Doc does not verify", file=sys.stderr)
-        compare_dicts(expected, actual)
+        _compare_dicts(expected, actual)
         return False
     else:
         print("DID Doc verified", file=sys.stderr)
         return True
         
-def compare_dicts(expected, actual, path=""):
+def _compare_dicts(expected, actual, path=""):
     print(f"Comparing dictionaries:\nexpected:\n{expected}\n \nand\n \nactual:\n{actual}", file=sys.stderr)
     
     """Recursively compare two dictionaries and print differences."""
@@ -117,7 +121,7 @@ def compare_dicts(expected, actual, path=""):
 
         # If value is another dictionary, recurse
         if isinstance(expected[k], dict) and isinstance(actual[k], dict):
-            compare_dicts(expected[k], actual[k], current_path)
+            _compare_dicts(expected[k], actual[k], current_path)
         # Compare non-dict values
         elif expected[k] != actual[k]:
             print(f"Different values for key {current_path}: {expected[k]} (expected) vs. {actual[k]} (actual)", file=sys.stderr)
@@ -127,6 +131,14 @@ def compare_dicts(expected, actual, path=""):
         current_path = f"{path}.{k}" if path else k
         if k not in expected:
             print(f"Key {current_path} not found in the expected dictionary", file=sys.stderr)
+
+def resolve(hby, did, metadata=False, resq: queue.Queue = None):
+    aid, dd_res, kc_res = getSrcs(did=did, resq=resq)
+    saveCesr(hby=hby,kc_res=kc_res, aid=aid)
+    dd, dd_actual = getComp(hby=hby, did=did, aid=aid, dd_res=dd_res, kc_res=kc_res)    
+    vresult = verify(dd, dd_actual, metadata=metadata)
+    print("Resolution result: ", vresult)    
+    return vresult
 
 # # Test with the provided dictionaries
 # expected_dict = {
