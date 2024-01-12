@@ -69,7 +69,7 @@ class KeriResolver(doing.DoDoer):
             _ = yield tock
 
         didresult = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi, metadata=True)
-        dd = didresult['didDocument']
+        dd = didresult[didding.DD_FIELD]
         result = didresult if self.metadata else dd
         data = json.dumps(result, indent=2)
 

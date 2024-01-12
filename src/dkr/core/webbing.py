@@ -34,12 +34,12 @@ def setup(app, hby, cf):
 
     """
     data = dict(cf.get())
-    if "did:web" not in data:
-        web = "/"
-    else:
-        web = data["did:web"]
+    # if "did:web" not in data:
+    #     web = "/"
+    # else:
+    #     web = data["did:web"]
 
-    loadEnds(app, hby, web)
+    # loadEnds(app, hby, web)
     if DD_DIR_CFG in data:
         print(f"Using config property {DD_DIR_CFG} to look for {DID_JSON} files: {data[DD_DIR_CFG]}")
     default_did_dir = data[DD_DIR_CFG] if DD_DIR_CFG in data else DD_DEFAULT_DIR
@@ -50,33 +50,33 @@ def setup(app, hby, cf):
     print(f"Using keri cesr dir {default_cesr_dir}")
     loadFileEnds(app, KeriCesrWebResourceEnd(hby), KERI_CESR, default_cesr_dir)
 
-def loadEnds(app, hby, web):
-    """ Load endpoints for all AIDs or configured AIDs only
+# def loadEnds(app, hby, web):
+#     """ Load endpoints for all AIDs or configured AIDs only
 
-    Parameters:
-        app (App): Falcon app to register endpoints against
-        hby (Habery): Database environment for exposed KERI AIDs
-        web (Optional[str|dict]): configuration information for exposing AIDs
+#     Parameters:
+#         app (App): Falcon app to register endpoints against
+#         hby (Habery): Database environment for exposed KERI AIDs
+#         web (Optional[str|dict]): configuration information for exposing AIDs
 
 
-    """
-    res = DIDWebResourceEnd(hby)
+#     """
+#     res = DIDWebResourceEnd(hby)
 
-    if isinstance(web, dict):
-        for k, v in web.items():
-            prefix = k if k.startswith("/") else f"/{k}"
-            path = f"{prefix}/{v}/{DID_JSON}"
-            print(f"Added route {path}")
-            app.add_route(path, res)
-    else:
-        if web in ("", "/"):
-            prefix = ""
-        else:
-            prefix = f"/{web.lstrip('/').rstrip('/')}/"
+#     if isinstance(web, dict):
+#         for k, v in web.items():
+#             prefix = k if k.startswith("/") else f"/{k}"
+#             path = "/{aid}/" + {DID_JSON}
+#             print(f"Added route {path}")
+#             app.add_route(path, res)
+#     else:
+#         if web in ("", "/"):
+#             prefix = ""
+#         else:
+#             prefix = f"/{web.lstrip('/').rstrip('/')}/"
 
-        path = f"{prefix}/{DID_JSON}"
-        print(f"Added route {path}")
-        app.add_route(path, res)
+#         path = f"{prefix}/{DID_JSON}"
+#         print(f"Added route {path}")
+#         app.add_route(path, res)
 
 def loadFileEnds(app, res, file_end, dirPath):
 
@@ -89,56 +89,56 @@ def loadFileEnds(app, res, file_end, dirPath):
         if os.path.isfile(fPath):
             path=f"/{aid}/{file_end}"
             print(f"registering {path}")
-            app.add_route(f"{path}", res)
-            res.add_lookup(path,fPath,aid)
+            app.add_route(f"/{{aid}}/" + file_end, res)
+            res.add_lookup(aid, fPath)
         else:
             print(f"Skipping {fPath} as it is not a file")
 
-class DIDWebResourceEnd:
+# class DIDWebResourceEnd:
 
-    def __init__(self, hby):
-        """
-        Parameters:
-            hby (Habery): Database environment for AIDs to expose
+#     def __init__(self, hby):
+#         """
+#         Parameters:
+#             hby (Habery): Database environment for AIDs to expose
 
-        """
+#         """
 
-        self.hby = hby
+#         self.hby = hby
 
-    def on_get(self, req, rep, aid=None):
-        """ GET endpoint for resolving KERI AIDs as did:web DIDs
+#     def on_get(self, req, rep, aid):
+#         """ GET endpoint for resolving KERI AIDs as did:web DIDs
 
-        Parameters:
-            req (Request) Falcon HTTP Request object:
-            rep (Response) Falcon HTTP Response object:
-            aid (str): AID to resolve, or path used if None
+#         Parameters:
+#             req (Request) Falcon HTTP Request object:
+#             rep (Response) Falcon HTTP Response object:
+#             aid (str): AID to resolve, or path used if None
 
-        """
-        # Read the DID from the parameter extracted from path or manually extract
-        if not req.path.endswith(f"/{DID_JSON}"):
-            raise falcon.HTTPBadRequest(description=f"invalid did:web DID URL {req.path}")
+#         """
+#         # Read the DID from the parameter extracted from path or manually extract
+#         if not req.path.endswith(f"/{DID_JSON}"):
+#             raise falcon.HTTPBadRequest(description=f"invalid did:web DID URL {req.path}")
 
-        if aid is None:
-            aid = os.path.basename(os.path.normpath(req.path.rstrip(f"/{DID_JSON}")))
+#         # if aid is None:
+#         #     aid = os.path.basename(os.path.normpath(req.path.rstrip(f"/{DID_JSON}")))
 
-        # 404 if AID not recognized
-        if aid not in self.hby.kevers:
-            raise falcon.HTTPNotFound(description="KERI AID {aid} not found")
+#         # 404 if AID not recognized
+#         if aid not in self.hby.kevers:
+#             raise falcon.HTTPNotFound(description="KERI AID {aid} not found")
 
-        # Create the actual DID from the request info
-        path = os.path.normpath(req.path).rstrip(f"/{DID_JSON}").replace("/", ":")
-        port = ""
-        if req.port != 80 and req.port != 443:
-            port = f"%3A{req.port}"
+#         # Create the actual DID from the request info
+#         path = os.path.normpath(req.path).rstrip(f"/{DID_JSON}").replace("/", ":")
+#         port = ""
+#         if req.port != 80 and req.port != 443:
+#             port = f"%3A{req.port}"
 
-        did = f"did:web:{req.host}{port}{path}"
+#         did = f"did:web:{req.host}{port}{path}"
 
-        # Generate the DID Doc and return
-        result = didding.generateDIDDoc(self.hby, did, aid)
+#         # Generate the DID Doc and return
+#         result = didding.generateDIDDoc(self.hby, did, aid)
 
-        rep.status = falcon.HTTP_200
-        rep.content_type = "application/json"
-        rep.data = json.dumps(result, indent=2).encode("utf-8")
+#         rep.status = falcon.HTTP_200
+#         rep.content_type = "application/json"
+#         rep.data = json.dumps(result, indent=2).encode("utf-8")
 
 class DidJsonResourceEnd():
     
@@ -148,10 +148,10 @@ class DidJsonResourceEnd():
         """
         self.lookup = {}
         
-    def add_lookup(self, path, fPath, aid=None):
-        self.lookup[path] = fPath
+    def add_lookup(self, aid, fPath):
+        self.lookup[aid] = fPath
         
-    def on_get(self, req, rep, aid=None):
+    def on_get(self, req, rep, aid):
         """ GET endpoint for acessing {DID_JSON} stream for AID
 
         Parameters:
@@ -164,21 +164,21 @@ class DidJsonResourceEnd():
         if not req.path.endswith(f"/{DID_JSON}"):
             raise falcon.HTTPBadRequest(description=f"invalid {DID_JSON} DID URL {req.path}")
 
-        if aid is None:
-            aid = os.path.basename(os.path.normpath(req.path.rstrip(f"/{DID_JSON}")))
+        # if aid is None:
+        #     aid = os.path.basename(os.path.normpath(req.path.rstrip(f"/{DID_JSON}")))
 
-        if not req.path in self.lookup:
+        if not aid in self.lookup:
             raise falcon.HTTPNotFound(description=f"{DID_JSON} for KERI AID {aid} not found")
 
-        print(f"Serving data for {aid}")
+        print("Serving DID Doc data for", aid)
         port = ""
         if req.port != 80 and req.port != 443:
             port = f"%3A{req.port}"
 
         # Open the file in read mode
-        with open(f"{self.lookup[req.path]}", "r", encoding="utf-8") as f:
+        with open(f"{self.lookup[aid]}", "r", encoding="utf-8") as f:
             content = json.load(f)
-        print(f"Got did.json content {content}")
+        print("Got did.json content for aid", aid, content)
 
         rep.status = falcon.HTTP_200
         rep.content_type = ending.Mimes.json
@@ -196,17 +196,19 @@ class KeriCesrWebResourceEnd():
         self.hby = hby
         self.lookup = {}
         
-    def add_lookup(self, path, fPath, aid=None):
-        self.lookup[path] = fPath
+    def add_lookup(self, aid, fPath):
+        self.lookup[aid] = fPath
         
-        if aid is None:
-            aid = os.path.basename(os.path.normpath(path.rstrip(f"/{KERI_CESR}")))
+        # if aid is None:
+        #     aid = os.path.basename(os.path.normpath(path.rstrip(f"/{KERI_CESR}")))
         # ahab = habbing..makeHab(name=aid, temp=True)
         # kvy = eventing.Kevery(db=ahab.db, lax=False, local=False)
         with open(fPath, 'rb') as file:
             self.hby.psr.parse(ims=bytearray(file.read()))
+            if(aid):
+                assert aid in self.hby.kevers, "KERI CESR parsing failed, KERI AID not found in habery"
             
-    def on_get(self, req, rep, aid=None):
+    def on_get(self, req, rep, aid):
         """ GET endpoint for acessing {KERI_CESR} stream for AID
 
         Parameters:
@@ -219,26 +221,26 @@ class KeriCesrWebResourceEnd():
         if not req.path.endswith(f"/{KERI_CESR}"):
             raise falcon.HTTPBadRequest(description=f"invalid {KERI_CESR} DID URL {req.path}")
 
-        if aid is None:
-            aid = os.path.basename(os.path.normpath(req.path.rstrip(f"/{KERI_CESR}")))
+        # if aid is None:
+        #     aid = os.path.basename(os.path.normpath(req.path.rstrip(f"/{KERI_CESR}")))
 
-        if not req.path in self.lookup:
+        if not aid in self.lookup:
             raise falcon.HTTPNotFound(description=f"keri.cesr for KERI AID {aid} not found")
 
         # 404 if AID not recognized
         # if aid not in self.hby.kevers:
         #     raise falcon.HTTPNotFound(description=f"KERI AID {aid} not found")
 
-        print(f"Serving KERI CESR data for {aid}")
+        print("Serving KERI CESR data for", aid)
         port = ""
         if req.port != 80 and req.port != 443:
             port = f"%3A{req.port}"
 
         # Open the file in read mode
-        with open(f"{self.lookup[req.path]}", "r", encoding="utf-8") as f:
+        with open(f"{self.lookup[aid]}", "r", encoding="utf-8") as f:
             content = f.read()
-        print(content)
+        print("KERI CESR content for",aid,content)
 
         rep.status = falcon.HTTP_200
         rep.content_type = CESR_MIME
-        rep.data = json.dumps(content, indent=2).encode("utf-8")
+        rep.data = content.encode("utf-8")

@@ -33,14 +33,16 @@ services:
             dockerfile: ./images/did-webs-service.dockerfile
         depends_on:
             - webs
+        image: did-webs-service:latest
         ports:
             - 7676:7676
         tty: true
         volumes:
             - ~/VSCode/did-keri-resolver/volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
             - ~/VSCode/did-keri-resolver/volume/dkr/pages:/usr/local/var/webs/volume/dkr/pages
+        # entrypoint: dkr did webs service --name webserve --config-dir /usr/local/var/webs/volume/dkr/examples/my-scripts --config-file config-docker
 
-    did-webs-resolver-service:
+    did-webs-resolver:
         container_name: did-webs-resolver
         hostname: did-webs-resolver
         build:
