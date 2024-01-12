@@ -70,9 +70,8 @@ http://witnesshost:5644/oobi/BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX/contro
 kli incept --name controller --alias controller --file /usr/local/var/webs/volume/dkr/examples/my-scripts/incept.json
 ```
 
-```output:```
+`output:`
 ```
-bash-5.1# kli incept --name controller --alias controller --file ./my-scripts/incept.json 
 Prefix  ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
         Public key 1:  DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr
 ```
@@ -334,14 +333,46 @@ Credential #1: EOl140-N7hN8qp-LViRfXYNV5RhUO-0n_RPsbMkqm3SJ
 
 To see the the raw ACDC attestation, you can use the following command:
 
-`command:`
+`command (Note replace <YOUR_REGISTRY>, for example with EOl140-N7hN8qp-LViRfXYNV5RhUO-0n_RPsbMkqm3SJ):`
 ```
-kli vc export --name controller --alias controller --said EOl140-N7hN8qp-LViRfXYNV5RhUO-0n_RPsbMkqm3SJ --chain
+kli vc export --name controller --alias controller --said <YOUR_REGISTRY> --chain
 ```
 
 `output:`
 ```json
-{"v":"ACDC10JSON000514_","d":"EOl140-N7hN8qp-LViRfXYNV5RhUO-0n_RPsbMkqm3SJ","i":"ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe","ri":"EIHt7YgiLNzFCZ4k4LxdZ7ASJcFo1-vkoZERMHzq87HL","s":"EN6Oh5XSD5_q2Hgu-aqpdfbVepdpYpFlgz6zvJL5b_r5","a":{"d":"EHQgqNNSueVmVjlErrGtzjl-HJya9rMUiNadDSkZQ1kV","dt":"2023-11-13T17:41:37.710691+00:00","ids":["did:webs:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe","did:web:example.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"]},"r":{"d":"EEVTx0jLLZDQq8a5bXrXgVP0JDP7j8iDym9Avfo8luLw","aliasDesignation":{"l":"The issuer of this ACDC designates the identifiers in the ids field as the only allowed namespaced aliases of the issuer's AID."},"usageDisclaimer":{"l":"This attestation only asserts designated aliases of the controller of the AID, that the AID controlled namespaced alias has been designated by the controller. It does not assert that the controller of this AID has control over the infrastructure or anything else related to the namespace other than the included AID."},"issuanceDisclaimer":{"l":"All information in a valid and non-revoked alias designation assertion is accurate as of the date specified."},"termsOfUse":{"l":"Designated aliases of the AID must only be used in a manner consistent with the expressed intent of the AID controller."}}}
+{
+    "v": "ACDC10JSON0005f2_",
+    "d": "EFDyKtexrWI2-omP6oSKxcssDAtC-fsCFsxp0B7TgHhB",
+    "i": "ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+    "ri": "EO0BjjT__dWwnO86tCJ2_MG3_7PUqG1RD_ZaY5hM2k6U",
+    "s": "EN6Oh5XSD5_q2Hgu-aqpdfbVepdpYpFlgz6zvJL5b_r5",
+    "a": {
+        "d": "EJJjtYa6D4LWe_fqtm1p78wz-8jNAzNX6aPDkrQcz27Q",
+        "dt": "2023-11-13T17:41:37.710691+00:00",
+        "ids": [
+            "did:web:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+            "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+            "did:web:example.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+            "did:web:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+            "did:webs:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+        ]
+    },
+    "r": {
+        "d": "EEVTx0jLLZDQq8a5bXrXgVP0JDP7j8iDym9Avfo8luLw",
+        "aliasDesignation": {
+            "l": "The issuer of this ACDC designates the identifiers in the ids field as the only allowed namespaced aliases of the issuer's AID."
+        },
+        "usageDisclaimer": {
+            "l": "This attestation only asserts designated aliases of the controller of the AID, that the AID controlled namespaced alias has been designated by the controller. It does not assert that the controller of this AID has control over the infrastructure or anything else related to the namespace other than the included AID."
+        },
+        "issuanceDisclaimer": {
+            "l": "All information in a valid and non-revoked alias designation assertion is accurate as of the date specified."
+        },
+        "termsOfUse": {
+            "l": "Designated aliases of the AID must only be used in a manner consistent with the expressed intent of the AID controller."
+        }
+    }
+}
 ```
 
 Now if we re-generate our did:webs identifier the did.json and keri.cesr files will include the attestation information:
@@ -355,72 +386,72 @@ dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:
 ```
 Generating CESR event stream data from hab
 Generating ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe KEL CESR events
-Generating EIHt7YgiLNzFCZ4k4LxdZ7ASJcFo1-vkoZERMHzq87HL TEL CESR events
-Generating EOl140-N7hN8qp-LViRfXYNV5RhUO-0n_RPsbMkqm3SJ TEL CESR events
-Generating EOl140-N7hN8qp-LViRfXYNV5RhUO-0n_RPsbMkqm3SJ ACDC CESR events, issued by ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
+Generating EO0BjjT__dWwnO86tCJ2_MG3_7PUqG1RD_ZaY5hM2k6U TEL CESR events
+Generating EFDyKtexrWI2-omP6oSKxcssDAtC-fsCFsxp0B7TgHhB TEL CESR events
+Generating EFDyKtexrWI2-omP6oSKxcssDAtC-fsCFsxp0B7TgHhB ACDC CESR events, issued by ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
 Writing CESR events to ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr....
 ```
 
 The KERI CESR output has our original `icp` inception event with our AID and current/next key:
 
 ```json
-      {
-        "v": "KERI10JSON00012b_",
-        "t": "icp",
-        "d": "ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
-        "i": "ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
-        "s": "0",
-        "kt": "1",
-        "k": [
-          "DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr"
-        ],
-        "nt": "1",
-        "n": [
-          "ELa775aLyane1vdiJEuexP8zrueiIoG995pZPGJiBzGX"
-        ],
-        "bt": "0",
-        "b": [],
-        "c": [],
-        "a": []
-      }
+{
+  "v": "KERI10JSON00012b_",
+  "t": "icp",
+  "d": "ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+  "i": "ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+  "s": "0",
+  "kt": "1",
+  "k": [
+    "DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr"
+  ],
+  "nt": "1",
+  "n": [
+    "ELa775aLyane1vdiJEuexP8zrueiIoG995pZPGJiBzGX"
+  ],
+  "bt": "0",
+  "b": [],
+  "c": [],
+  "a": []
+}
 ```
 
 And the new interaction `ixn` event for the registry:
 ```json
-      { 
-        "v": "KERI10JSON00013a_",
-        "t": "ixn",
-        "d": "EL-g0526QJTIIUXmFkgE_Qsi-xD71jUFb15H5arW6FCJ",
-        "i": "ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
-        "s": "1",
-        "p": "ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
-        "a": [
-          {
-            "i": "EIHt7YgiLNzFCZ4k4LxdZ7ASJcFo1-vkoZERMHzq87HL",
-            "s": "0",
-            "d": "EIHt7YgiLNzFCZ4k4LxdZ7ASJcFo1-vkoZERMHzq87HL"
-          }
-        ]
-      }
+{ 
+  "v": "KERI10JSON00013a_",
+  "t": "ixn",
+  "d": "EL-g0526QJTIIUXmFkgE_Qsi-xD71jUFb15H5arW6FCJ",
+  "i": "ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+  "s": "1",
+  "p": "ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+  "a": [
+    {
+      "i": "EIHt7YgiLNzFCZ4k4LxdZ7ASJcFo1-vkoZERMHzq87HL",
+      "s": "0",
+      "d": "EIHt7YgiLNzFCZ4k4LxdZ7ASJcFo1-vkoZERMHzq87HL"
+    }
+  ]
+}
 ```
 
 And the new interaction `ixn` event for the attestation:
 ```json
-      {
-        "v": "KERI10JSON00013a_",
-        "t": "ixn",
-        "d": "EMRPgyPi_v_Spq211aSBGbVUgisiX-GL-mhWWMGxx8hv",
-        "i": "ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
-        "s": "2",
-        "p": "EL-g0526QJTIIUXmFkgE_Qsi-xD71jUFb15H5arW6FCJ",
-        "a": [
-          {
-            "i": "EOl140-N7hN8qp-LViRfXYNV5RhUO-0n_RPsbMkqm3SJ",
-            "s": "0",
-            "d": "EIxW8nKRpp9iAZ1IRT8hWOBGBNXoufWfMWVPUPWscPnA"
-          }
-        ]
-      }
+{
+  "v": "KERI10JSON00013a_",
+  "t": "ixn",
+  "d": "EMRPgyPi_v_Spq211aSBGbVUgisiX-GL-mhWWMGxx8hv",
+  "i": "ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+  "s": "2",
+  "p": "EL-g0526QJTIIUXmFkgE_Qsi-xD71jUFb15H5arW6FCJ",
+  "a": [
+    {
+      "i": "EOl140-N7hN8qp-LViRfXYNV5RhUO-0n_RPsbMkqm3SJ",
+      "s": "0",
+      "d": "EIxW8nKRpp9iAZ1IRT8hWOBGBNXoufWfMWVPUPWscPnA"
+    }
+  ]
+}
 ```
 
 Inception statement for the Registry
@@ -491,13 +522,13 @@ The ACDC attestation anchored to the TEL:
 `The DID document output calls out the equivalentIds and alsoKnownAs identifiers:`
 ```
 Generating DID document for did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe with aid ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe using oobi None and metadata None registry name for creds None
-Credential #1: EOl140-N7hN8qp-LViRfXYNV5RhUO-0n_RPsbMkqm3SJ
+Credential #1: EFDyKtexrWI2-omP6oSKxcssDAtC-fsCFsxp0B7TgHhB
     Type: Designated Aliases Public Attestation
     Status: Issued ✔
     Issued by ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
     Issued on 2023-11-13T17:41:37.710691+00:00
-Equivalent DIDs: ['did:webs:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe']
-Also Known As DIDs: ['did:web:example.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe']
+Equivalent DIDs: ['did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe', 'did:webs:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe']
+Also Known As DIDs: ['did:web:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe', 'did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe', 'did:web:example.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe', 'did:web:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe', 'did:webs:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe']
 ```
 
 And the DID document is now:
@@ -520,7 +551,11 @@ And the DID document is now:
     ],
     "service": [],
     "alsoKnownAs": [
-      "did:web:example.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+      "did:web:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+      "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+      "did:web:example.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+      "did:web:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe",
+      "did:webs:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
     ]
   }
 }
