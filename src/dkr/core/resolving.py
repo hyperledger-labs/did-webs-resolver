@@ -76,10 +76,10 @@ def verify(dd, dd_actual, metadata: bool = False):
     else:
         didresult = dict()
         didresult[didding.DD_FIELD] = None
-        if didding.DID_RES_META not in didresult:
-            didresult[didding.DID_RES_META] = dict()
-        didresult[didding.DID_RES_META]['error'] = 'notVerified'
-        didresult[didding.DID_RES_META]['errorMessage'] = 'The DID document could not be verified against the KERI event stream'
+        if didding.DID_RES_META_FIELD not in didresult:
+            didresult[didding.DID_RES_META_FIELD] = dict()
+        didresult[didding.DID_RES_META_FIELD]['error'] = 'notVerified'
+        didresult[didding.DID_RES_META_FIELD]['errorMessage'] = 'The DID document could not be verified against the KERI event stream'
         result = didresult
         print(f"DID verification failed")
 
@@ -99,38 +99,51 @@ def _compare_dicts(expected, actual, path=""):
     print(f"Comparing dictionaries:\nexpected:\n{expected}\n \nand\n \nactual:\n{actual}", file=sys.stderr)
     
     """Recursively compare two dictionaries and print differences."""
-    for k in expected.keys():
-        # Construct current path
-        current_path = f"{path}.{k}" if path else k
-        print(f"Comparing key {current_path}", file=sys.stderr)
+    if isinstance(expected,dict):
+        for k in expected.keys():
+            # Construct current path
+            current_path = f"{path}.{k}" if path else k
+            print(f"Comparing key {current_path}", file=sys.stderr)
 
-        # Key not present in the actual dictionary
-        if k not in actual:
-            print(f"Key {current_path} not found in the actual dictionary", file=sys.stderr)
-            continue
+            # Key not present in the actual dictionary
+            if k not in actual:
+                print(f"Key {current_path} not found in the actual dictionary", file=sys.stderr)
+                continue
 
-        # If value in expected is a dictionary but not in actual
-        if isinstance(expected[k], dict) and not isinstance(actual[k], dict):
-            print(f"{current_path} is a dictionary in expected, but not in actual", file=sys.stderr)
-            continue
+            # If value in expected is a dictionary but not in actual
+            if isinstance(expected[k], dict) and not isinstance(actual[k], dict):
+                print(f"{current_path} is a dictionary in expected, but not in actual", file=sys.stderr)
+                continue
 
-        # If value in actual is a dictionary but not in expected
-        if isinstance(actual[k], dict) and not isinstance(expected[k], dict):
-            print(f"{current_path} is a dictionary in actual, but not in expected", file=sys.stderr)
-            continue
+            # If value in actual is a dictionary but not in expected
+            if isinstance(actual[k], dict) and not isinstance(expected[k], dict):
+                print(f"{current_path} is a dictionary in actual, but not in expected", file=sys.stderr)
+                continue
 
-        # If value is another dictionary, recurse
-        if isinstance(expected[k], dict) and isinstance(actual[k], dict):
-            _compare_dicts(expected[k], actual[k], current_path)
-        # Compare non-dict values
-        elif expected[k] != actual[k]:
-            print(f"Different values for key {current_path}: {expected[k]} (expected) vs. {actual[k]} (actual)", file=sys.stderr)
+            # If value is another dictionary, recurse
+            if isinstance(expected[k], dict) and isinstance(actual[k], dict):
+                _compare_dicts(expected[k], actual[k], current_path)
+            # Compare non-dict values
+            elif expected[k] != actual[k]:
+                print(f"Different values for key {current_path}: {expected[k]} (expected) vs. {actual[k]} (actual)", file=sys.stderr)
 
-    # Check for keys in actual that are not present in expected
-    for k in actual.keys():
-        current_path = f"{path}.{k}" if path else k
-        if k not in expected:
-            print(f"Key {current_path} not found in the expected dictionary", file=sys.stderr)
+        if isinstance(actual,dict):
+            # Check for keys in actual that are not present in expected
+            for k in actual.keys():
+                current_path = f"{path}.{k}" if path else k
+                if k not in expected:
+                    print(f"Key {current_path} not found in the expected dictionary", file=sys.stderr)
+        else:
+            print(f"Expecting actual did document to contain dictionary {expected}", file=sys.stderr)
+    elif isinstance(expected,list):
+        if len(expected) != len(actual):
+            print(f"Expected list {expected} and actual list {actual} are not the same length", file=sys.stderr)
+        else:
+            for i in range(len(expected)):
+                _compare_dicts(expected[i], actual[i], path)
+    else:
+        if expected != actual:
+            print(f"Different values for key {path}: {expected} (expected) vs. {actual} (actual)", file=sys.stderr)
 
 def resolve(hby, did, metadata=False, resq: queue.Queue = None):
     aid, dd_res, kc_res = getSrcs(did=did, resq=resq)

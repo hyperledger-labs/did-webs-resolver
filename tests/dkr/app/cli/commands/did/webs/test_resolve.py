@@ -257,6 +257,13 @@ def test_resolver():
         # metadata
         vresult = resolving.verify(dd, dd_actual, metadata=True)
         assert vresult[didding.DD_FIELD][didding.VMETH_FIELD] == dd[didding.DD_FIELD][didding.VMETH_FIELD]
+
+        # should not verify
+        dd_actual_bad = dd_actual
+        # remove the last character of the id
+        dd_actual_bad[didding.VMETH_FIELD][0]["id"] = dd_actual_bad[didding.VMETH_FIELD][0]["id"][:-1]
+        vresult = resolving.verify(dd, dd_actual_bad, metadata=True)
+        assert vresult[didding.DID_RES_META_FIELD]['error'] == 'notVerified'
         
         # TODO test services, alsoKnownAs, etc.
 

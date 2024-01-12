@@ -253,13 +253,9 @@ curl -GET http://did-webs-service:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6g
 
 Back in the webs docker container, you can resolve the DID from the did-webs-service:
 
-Initialize a `verifier` environment:
-```
-kli init --name verifier --nopasscode
-```
 Resolve the did:webs for the `controller` did:
 ```
-dkr did webs resolve --name verifier --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
 ```
 
 ### Example: Add designated aliases attestation
@@ -559,6 +555,11 @@ And the DID document is now:
     ]
   }
 }
+```
+
+Now you can copy the `did.json` and `keri.cesr` files to the pages directory again.
+```
+cp -R volume/dkr/examples/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
 ```
 
 ## Example: WOT-terms install using GIT
