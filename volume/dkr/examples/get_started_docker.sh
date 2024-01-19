@@ -7,22 +7,23 @@ kli init --name controller --salt 0AAQmsjh-C7kAJZQEzdrzwB7 --nopasscode --config
 kli incept --name controller --alias controller --file /usr/local/var/webs/volume/dkr/examples/my-scripts/incept.json
 
 echo ""
-read -p "Press enter to generate did:webs"
+read -p "Press enter to generate did:webs..."
 
 dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
 
 echo ""
-read -p "Press enter to copy to pages"
+read -p "Press enter to copy to pages..."
 
 cp -R ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe ../pages/
 
 echo ""
-read -p "Press enter to resolve did:webs"
+echo "ATTENTION: In your did-webs-service, start the webs server first, see the GETTING_STARTED.md for those instructions"
+read -p "Press enter to resolve did:webs..."
 
 dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
 
 echo ""
-read -p "Press enter to create designated aliases"
+read -p "Press enter to create designated aliases..."
 
 kli vc registry incept --name controller --alias controller --registry-name dAliases
 
@@ -37,13 +38,13 @@ SAID=$(kli vc list --name controller --alias controller --issued --said --schema
 kli vc export --name controller --alias controller --said "$SAID" --chain
 
 echo ""
-read -p "Press enter generate did:webs with designated aliases"
+read -p "Press enter generate did:webs with designated aliases..."
 
 dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
 
 cp -R ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe ../pages/
 
 echo ""
-read -p "Press enter to resolve did:webs with designated aliases"
+read -p "Press enter to resolve did:webs with designated aliases..."
 
 dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
