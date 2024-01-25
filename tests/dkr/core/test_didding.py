@@ -152,15 +152,22 @@ def test_parse_web_did():
 def setup_habs():
     with habbing.openHby(name="test", temp=True) as hby, habbing.openHby(
         name="wes", salt=coring.Salter(raw=b"wess-the-witness").qb64, temp=True
-    ) as wesHby, habbing.openHab(name="agent", temp=True) as (agentHby, agentHab):
+    ) as wesHby, habbing.openHby(
+        name="wis", salt=coring.Salter(raw=b"wiss-the-witness").qb64, temp=True
+    ) as wisHby, habbing.openHab(name="agent", temp=True) as (agentHby, agentHab):
         print()
 
         wesHab = wesHby.makeHab(name="wes", isith="1", icount=1, transferable=False)
         assert not wesHab.kever.prefixer.transferable
         # create non-local kevery for Wes to process nonlocal msgs
         wesKvy = eventing.Kevery(db=wesHab.db, lax=False, local=False)
+        
+        wisHab = wisHby.makeHab(name="wis", isith="1", icount=1, transferable=False)
+        assert not wisHab.kever.prefixer.transferable
+        # create non-local kevery for Wes to process nonlocal msgs
+        wisKvy = eventing.Kevery(db=wisHab.db, lax=False, local=False)
 
-        wits = [wesHab.pre]
+        wits = [wesHab.pre, wisHab.pre]
 
         hab = hby.makeHab(
             name="cam", isith="1", nsith="1", icount=1, ncount=1, toad=1, wits=wits
@@ -186,6 +193,18 @@ def setup_habs():
         for msg in rctMsgs:  # process rct msgs from all witnesses
             parsing.Parser().parse(ims=bytearray(msg), kvy=kvy)
             assert wesHab.pre in kvy.kevers
+        
+        rctMsgs = []    
+        parsing.Parser().parse(ims=bytearray(icpMsg), kvy=wisKvy)
+        assert wisKvy.kevers[hab.pre].sn == 0  # accepted event
+        assert len(wisKvy.cues) == 1  # queued receipt cue
+        rctMsg = wisHab.processCues(wisKvy.cues)  # process cue returns rct msg
+        assert len(rctMsg) == 626
+        rctMsgs.append(rctMsg)
+
+        for msg in rctMsgs:  # process rct msgs from all witnesses
+            parsing.Parser().parse(ims=bytearray(msg), kvy=kvy)
+            assert wisHab.pre in kvy.kevers
 
         agentIcpMsg = agentHab.makeOwnInception()
         parsing.Parser().parse(ims=bytearray(agentIcpMsg), kvy=kvy)
@@ -206,6 +225,21 @@ def setup_habs():
             )
         )
         wesHab.psr.parse(ims=bytearray(msgs))
+
+        msgs.extend(
+            wisHab.makeEndRole(
+                eid=wisHab.pre, role=kering.Roles.controller, stamp=helping.nowIso8601()
+            )
+        )
+
+        msgs.extend(
+            wisHab.makeLocScheme(
+                url="http://127.0.0.1:9999",
+                scheme=kering.Schemes.http,
+                stamp=helping.nowIso8601(),
+            )
+        )
+        wisHab.psr.parse(ims=bytearray(msgs))
 
         # Set up
         msgs.extend(
@@ -255,10 +289,20 @@ def setup_habs():
         agentHab.psr.parse(ims=bytearray(msgs))
         hab.psr.parse(ims=bytearray(msgs))
 
-        assert hab.fetchRoleUrls(hab.pre).get("controller").get("EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre").get("http") == "http://127.0.0.1:7777"
-        assert hab.fetchRoleUrls(hab.pre).get("registrar").get("EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ").get("http") == "http://127.0.0.1:6666"
-        assert hab.fetchRoleUrls(hab.pre).get("mailbox").get("EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ").get("http") == "http://127.0.0.1:6666"
-        assert hab.fetchWitnessUrls(hab.pre).get("witness").get("BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr").get("http") == "http://127.0.0.1:8888"
+        rurls = hab.fetchRoleUrls(hab.pre)
+        ctlr = rurls.get("controller")
+        ctlr1 = ctlr.get(hab.pre)
+        ctlrHttp = ctlr1.get("http")
+        assert ctlrHttp == "http://127.0.0.1:7777"
+        assert rurls.get("registrar").get("EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ").get("http") == "http://127.0.0.1:6666"
+        assert rurls.get("mailbox").get("EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ").get("http") == "http://127.0.0.1:6666"
+        wurls = hab.fetchWitnessUrls(hab.pre)
+        wwits = wurls.getall("witness")
+        wwit1 = wwits[0].get("BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr")
+        assert wwit1.get("http") == "http://127.0.0.1:8888"
+        wwit2 = wwits[1]
+        wse2 = wwit2.get("BAjTuhnzPDB0oU0qHXACnvzachJpYjUAtH1N9Tsb_MdE")
+        assert wse2.get("http") == "http://127.0.0.1:9999"
 
         did = "did:webs:127.0.0.1:BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha"
         yield hby, hab, wesHby, wesHab, did
@@ -286,9 +330,9 @@ def test_gen_did_doc(setup_habs):
         }
     ]
 
-    assert len(didDoc["service"]) == 4
+    assert len(didDoc["service"]) == 5
     assert didDoc["service"][0] == {
-        "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
+        "id": f"#{hab.pre}/controller",
         "type": "controller",
         "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
     }
@@ -306,6 +350,11 @@ def test_gen_did_doc(setup_habs):
         "id": "#BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr/witness",
         "type": "witness",
         "serviceEndpoint": {"http": "http://127.0.0.1:8888"},
+    }
+    assert didDoc["service"][4] == {
+        "id": "#BAjTuhnzPDB0oU0qHXACnvzachJpYjUAtH1N9Tsb_MdE/witness",
+        "type": "witness",
+        "serviceEndpoint": {"http": "http://127.0.0.1:9999"},
     }
 
 
@@ -331,7 +380,7 @@ def test_gen_did_doc_with_metadata(setup_habs):
         }
     ]
 
-    assert len(didDoc[didding.DD_FIELD]["service"]) == 4
+    assert len(didDoc[didding.DD_FIELD]["service"]) == 5
     assert didDoc[didding.DD_FIELD]["service"][0] == {
         "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
         "type": "controller",
