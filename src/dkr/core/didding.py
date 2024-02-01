@@ -238,16 +238,29 @@ def desAliases(hby: habbing.Habery, aid: str, reg_name: str=None):
     return da_ids
 
 def addEnds(ends):
-    sEnds=[]
+    # wurls = hab.fetchWitnessUrls(hab.pre)
+    #     wwits = wurls.getall("witness")
+    #     wwit1 = wwits[0].get("BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr")
+    #     assert wwit1.get("http") == "http://127.0.0.1:8888"
+    #     wwit2 = wwits[1]
+    #     wse2 = wwit2.get("BAjTuhnzPDB0oU0qHXACnvzachJpYjUAtH1N9Tsb_MdE")
+    #     assert wse2.get("http") == "http://127.0.0.1:9999"
+    
+    sEnds=list()
     for role in ends:
-        eDict = ends[role]
-        for eid in eDict:
-            sDict = dict()
-            for proto in eDict[eid]:
-                sDict[proto]=f"{eDict[eid][proto]}"
-            sEnds.append(dict(
-                    id=f"#{eid}/{role}",
-                    type=role,
-                    serviceEndpoint=sDict
-                ))
+        rList = ends.getall(role)
+        for eList in rList:
+            for eid in eList:
+                val = eList[eid]
+                for proto in val:
+                    host = val[proto]
+                    sDict = dict()
+                    sDict[proto]=f"{host}"
+                    v = dict(
+                        id=f"#{eid}/{role}",
+                        type=role,
+                        serviceEndpoint=sDict
+                    )
+                    if v not in sEnds:
+                        sEnds.append(v)
     return sEnds

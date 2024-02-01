@@ -382,7 +382,7 @@ def test_gen_did_doc_with_metadata(setup_habs):
 
     assert len(didDoc[didding.DD_FIELD]["service"]) == 5
     assert didDoc[didding.DD_FIELD]["service"][0] == {
-        "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
+        "id": f"#{hab.pre}/controller",
         "type": "controller",
         "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
     }
@@ -400,6 +400,11 @@ def test_gen_did_doc_with_metadata(setup_habs):
         "id": "#BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr/witness",
         "type": "witness",
         "serviceEndpoint": {"http": "http://127.0.0.1:8888"},
+    }
+    assert didDoc[didding.DD_FIELD]["service"][4] == {
+        "id": "#BAjTuhnzPDB0oU0qHXACnvzachJpYjUAtH1N9Tsb_MdE/witness",
+        "type": "witness",
+        "serviceEndpoint": {"http": "http://127.0.0.1:9999"},
     }
 
     assert (
@@ -494,9 +499,9 @@ def setup_rgy(hby, hab, reg_name="cam"):
         v=actual.get("v"),
         t="ixn",
         d=actual.get("d"),
-        i="EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre",
+        i=f"{hab.pre}",
         s="1",
-        p="EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre",
+        p=f"{hab.pre}",
         a=[
             dict(
                 i=f"{registry.regk}",
@@ -614,7 +619,7 @@ def revoke_cred(hab, regery, registry: credentialing.Registry, creder):
 
 def issue_desig_aliases(seeder, hby, hab, whby, whab, registryName="cam"):
     seeder.seedSchema(db=hby.db)
-    assert hab.pre == "EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre"
+    assert hab.pre == "ECCoHcHP1jTAW8Dr44rI2kWzfF71_U0sZwvV-J_q4YE7"
 
     # kli vc registry incept --name "$alias" --alias "$alias" --registry-name "$reg_name"
     regery, registry, reg_anc = setup_rgy(hby, hab, registryName)
@@ -662,28 +667,6 @@ def test_gen_desig_aliases(setup_habs, seeder):
             },
         }
     ]
-
-    assert len(didDoc[didding.DD_FIELD]["service"]) == 4
-    assert didDoc[didding.DD_FIELD]["service"][0] == {
-        "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
-        "type": "controller",
-        "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
-    }
-    assert didDoc[didding.DD_FIELD]["service"][1] == {
-        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox",
-        "type": "mailbox",
-        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
-    }
-    assert didDoc[didding.DD_FIELD]["service"][2] == {
-        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/registrar",
-        "type": "registrar",
-        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
-    }
-    assert didDoc[didding.DD_FIELD]["service"][3] == {
-        "id": "#BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr/witness",
-        "type": "witness",
-        "serviceEndpoint": {"http": "http://127.0.0.1:8888"},
-    }
 
     assert didDoc[didding.DD_META_FIELD]["equivalentId"] == [
         "did:webs:foo.com:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
@@ -736,28 +719,6 @@ def test_gen_desig_aliases_revoked(setup_habs, seeder):
             },
         }
     ]
-
-    assert len(didDoc[didding.DD_FIELD]["service"]) == 4
-    assert didDoc[didding.DD_FIELD]["service"][0] == {
-        "id": "#EGadHcyW9IfVIPrFUAa_I0z4dF8QzQAvUvfaUTJk8Jre/controller",
-        "type": "controller",
-        "serviceEndpoint": {"http": "http://127.0.0.1:7777"},
-    }
-    assert didDoc[didding.DD_FIELD]["service"][1] == {
-        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/mailbox",
-        "type": "mailbox",
-        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
-    }
-    assert didDoc[didding.DD_FIELD]["service"][2] == {
-        "id": "#EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ/registrar",
-        "type": "registrar",
-        "serviceEndpoint": {"http": "http://127.0.0.1:6666"},
-    }
-    assert didDoc[didding.DD_FIELD]["service"][3] == {
-        "id": "#BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr/witness",
-        "type": "witness",
-        "serviceEndpoint": {"http": "http://127.0.0.1:8888"},
-    }
 
     assert didDoc[didding.DD_META_FIELD]["equivalentId"] == []
     assert didDoc[didding.DD_FIELD]["alsoKnownAs"] == []
