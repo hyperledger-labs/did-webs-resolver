@@ -50,7 +50,7 @@ def saveCesr(hby: habbing.Habery, kc_res: requests.Response, aid: str = None):
     hby.psr.parse(ims=bytearray(kc_res.content))
     if(aid):
         
-        assert aid in hby.kevers, "KERI CESR parsing failed, KERI AID not found in habery"
+        assert aid in hby.kevers, f"KERI CESR parsing failed, KERI AID {aid} not found in habery"
 
 def getComp(hby: habbing.Habery, did: str, aid: str, dd_res: requests.Response, kc_res: requests.Response):
     dd = didding.generateDIDDoc(hby, did=did, aid=aid, oobi=None, metadata=True)

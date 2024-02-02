@@ -252,9 +252,9 @@ def addEnds(ends):
         for eList in rList:
             for eid in eList:
                 val = eList[eid]
+                sDict = dict()
                 for proto in val:
                     host = val[proto]
-                    sDict = dict()
                     sDict[proto]=f"{host}"
                     v = dict(
                         id=f"#{eid}/{role}",

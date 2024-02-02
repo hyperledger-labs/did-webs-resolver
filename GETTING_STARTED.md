@@ -562,32 +562,170 @@ Now you can copy the `did.json` and `keri.cesr` files to the pages directory aga
 cp -R volume/dkr/examples/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
 ```
 
-## Example: WOT-terms install using GIT
+## Example: Using Witnesses
 
-We choose `WOT-terms` as our [DESTINATION LOCAL REPO]
+In order to use witnesses we run through the same steps as above but we use a different configuration that assigns witnesses to the AID. Witnesses are a special service endpoint because they are in the inception event (and can be updated in the rotation events).
+
+To execute all of the above quickly we can use the script from the `webs` container you can:
 
 ```
-cd [PATH TO LOCAL SOURCE REPO did-webs-iiw37-tutorial]/volume/dkr/did_json/ENbWS51Pw1rmxz5QIfK5kp3ODaEeQcZjqQNrLpc6mMQq
-cp did.json ~/apps/WOT-terms/
-cd ../../keri_cesr/ENbWS51Pw1rmxz5QIfK5kp3ODaEeQcZjqQNrLpc6mMQq
-cp keri.cesr ~/apps/WOT-terms/
+cd volume/dkr/examples/ 
+```
+and execute the following script:
+
+```
+./get_started_docker_wits.sh
 ```
 
-Result in local WOT-terms repo
+The notable differences now that we are using witnesses:
+* The AID is different now `EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP`, because the inception event contians the witness information which modifies the data used to generate the AID.
+* The DID Document now lists the witnesses in the service endpoints:
+```json
+Got DID doc: {
+  "id": "did:web:did-webs-service%3a7676:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
+  "verificationMethod": [
+    {
+      "id": "#DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr",
+      "type": "JsonWebKey",
+      "controller": "did:web:did-webs-service%3a7676:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
+      "publicKeyJwk": {
+        "kid": "DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr",
+        "kty": "OKP",
+        "crv": "Ed25519",
+        "x": "evT4j6Yw3uHpwsw5NEmSR8-4x3S-BA-s6Thjd51oeOs"
+      }
+    }
+  ],
+  "service": [
+    {
+      "id": "#BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha/witness",
+      "type": "witness",
+      "serviceEndpoint": {
+        "http": "http://witnesshost:5642/",
+        "tcp": "tcp://witnesshost:5632/"
+      }
+    },
+    {
+      "id": "#BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM/witness",
+      "type": "witness",
+      "serviceEndpoint": {
+        "http": "http://witnesshost:5643/",
+        "tcp": "tcp://witnesshost:5633/"
+      }
+    },
+    {
+      "id": "#BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX/witness",
+      "type": "witness",
+      "serviceEndpoint": {
+        "http": "http://witnesshost:5644/",
+        "tcp": "tcp://witnesshost:5634/"
+      }
+    },
+    {
+      "id": "#BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha/witness",
+      "type": "witness",
+      "serviceEndpoint": {
+        "http": "http://witnesshost:5642/",
+        "tcp": "tcp://witnesshost:5632/"
+      }
+    },
+    {
+      "id": "#BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM/witness",
+      "type": "witness",
+      "serviceEndpoint": {
+        "http": "http://witnesshost:5643/",
+        "tcp": "tcp://witnesshost:5633/"
+      }
+    },
+    {
+      "id": "#BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX/witness",
+      "type": "witness",
+      "serviceEndpoint": {
+        "http": "http://witnesshost:5644/",
+        "tcp": "tcp://witnesshost:5634/"
+      }
+    },
+    {
+      "id": "#BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha/witness",
+      "type": "witness",
+      "serviceEndpoint": {
+        "http": "http://witnesshost:5642/",
+        "tcp": "tcp://witnesshost:5632/"
+      }
+    },
+    {
+      "id": "#BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM/witness",
+      "type": "witness",
+      "serviceEndpoint": {
+        "http": "http://witnesshost:5643/",
+        "tcp": "tcp://witnesshost:5633/"
+      }
+    },
+    {
+      "id": "#BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX/witness",
+      "type": "witness",
+      "serviceEndpoint": {
+        "http": "http://witnesshost:5644/",
+        "tcp": "tcp://witnesshost:5634/"
+      }
+    }
+  ],
+  "alsoKnownAs": []
+}
 ```
-[DESTINATION LOCAL REPO]: git status
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-	did.json
-	keri.cesr
-
-git add .
-git commit -m "prepare upload did:webs documents to WOT-terms"  
-git push upstream main
+* The KERI Event Stream shows the witnesses in the `b` field of the inception event:
+```json
+Loading KERI CESR from http://did-webs-service:7676/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/keri.cesr
+Got KERI CESR:
+{
+    "v": "KERI10JSON0001b7_",
+    "t": "icp",
+    "d": "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
+    "i": "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
+    "s": "0",
+    "kt": "1",
+    "k": [
+        "DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr"
+    ],
+    "nt": "1",
+    "n": [
+        "ELa775aLyane1vdiJEuexP8zrueiIoG995pZPGJiBzGX"
+    ],
+    "bt": "3",
+    "b": [
+        "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
+        "BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM",
+        "BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX"
+    ],
+    "c": [],
+    "a": []
+}-VBq-AABAABv33lz0MENsIaM2J1hsbl_8awkJlVT7M1Cnzix0JQSEEwhfSsOt5Wqvuw27wUUKZLCScKoT01FV4WfowFrh_MN-BADAAC_SiZWJFOCuIB_py4gqaMFQtTVWtFCpPfP2LgyqqUS2naTh0nZNlH6MPHSbQNRoImkHnMFrUiBr5ZtwvQ-tNwIABBazaCrt7WQD5Dj1U3KqlZhgOPh7-ca2S0BnRRSEHxW5yoECaC04nyTxYh_wU9TH2WLr14hP-mLHHJDM-wM2esOACA2lyZPmqv2mefIL3orZNm8vb7pyLO5R4zOhHqqXkS1utJrKndiNd4Yu4c6xJnVkc-l6DABB9qe-otLGCkoWDEI-EAB0AAAAAAAAAAAAAAAAAAAAAAA1AAG2024-02-02T14c44c12d081323p00c00
+Saving KERI CESR to hby {
+    "v": "KERI10JSON0001b7_",
+    "t": "icp",
+    "d": "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
+    "i": "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
+    "s": "0",
+    "kt": "1",
+    "k": [
+        "DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr"
+    ],
+    "nt": "1",
+    "n": [
+        "ELa775aLyane1vdiJEuexP8zrueiIoG995pZPGJiBzGX"
+    ],
+    "bt": "3",
+    "b": [
+        "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
+        "BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM",
+        "BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX"
+    ],
+    "c": [],
+    "a": []
+}-VBq-AABAABv33lz0MENsIaM2J1hsbl_8awkJlVT7M1Cnzix0JQSEEwhfSsOt5Wqvuw27wUUKZLCScKoT01FV4WfowFrh_MN-BADAAC_SiZWJFOCuIB_py4gqaMFQtTVWtFCpPfP2LgyqqUS2naTh0nZNlH6MPHSbQNRoImkHnMFrUiBr5ZtwvQ-tNwIABBazaCrt7WQD5Dj1U3KqlZhgOPh7-ca2S0BnRRSEHxW5yoECaC04nyTxYh_wU9TH2WLr14hP-mLHHJDM-wM2esOACA2lyZPmqv2mefIL3orZNm8vb7pyLO5R4zOhHqqXkS1utJrKndiNd4Yu4c6xJnVkc-l6DABB9qe-otLGCkoWDEI-EAB0AAAAAAAAAAAAAAAAAAAAAAA1AAG2024-02-02T14c44c12d081323p00c00
 ```
-If you get the expected output of the push action, the files are on the controlled webserver.
 
+## Older example info to remove
 ### Check if files are available on your server
 
 Note: Replace with your actual web address and AID

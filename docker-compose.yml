@@ -1,5 +1,8 @@
 version: "3"
 
+networks:
+    websnet:
+
 services:
     witnesshost:
         container_name: witnesshost
@@ -7,11 +10,15 @@ services:
         image: gleif/keri:latest
         platform: linux/amd64
         tty: true
+        volumes:
+            - ./volume/witnesshost/keripy/scripts/keri/cf/main/:/keripy/scripts/keri/cf/main/
         ports:
             - 5642:5642  # witness
             - 5643:5643  # witness
             - 5644:5644  # witness
         entrypoint: kli witness demo
+        # networks:
+        #     - websnet
 
     webs:
         container_name: webs
@@ -24,6 +31,8 @@ services:
         volumes:
             - ./volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
             - ./volume/dkr/pages:/usr/local/var/webs/volume/dkr/pages
+        # networks:
+        #     - websnet
 
     did-webs-service:
         container_name: did-webs-service
@@ -40,6 +49,8 @@ services:
         volumes:
             - ./volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
             - ./volume/dkr/pages:/usr/local/var/webs/volume/dkr/pages
+        # networks:
+        #     - websnet
         # entrypoint: dkr did webs service --name webserve --config-dir /usr/local/var/webs/volume/dkr/examples/my-scripts --config-file config-docker
 
     did-webs-resolver:
@@ -54,3 +65,5 @@ services:
         tty: true
         depends_on:
             - webs
+        # networks:
+        #     - websnet
