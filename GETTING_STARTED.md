@@ -81,7 +81,7 @@ Your AID is ```ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe``` and your current 
 
 #### Additional info
 The AID config-file in the container is at ./my-scripts/keri/cf/config-docker.json and contains the KERI OOBIs of the witnesses that we'll use:
-In this case they are available from the witness network that we started in the docker-compose. If you `cat` the config at `/usr/local/var/webs/volume/dkr/examples/my-scripts/keri/cf/config-docker.json` you should see:
+In this case they are available from the witness network that we started with the docker-compose [command](#run-docker-containers-for-the-keri-witness-network-and-the-didwebs-generator-and-resolver-environment) above. If you `cat` the config at `/usr/local/var/webs/volume/dkr/examples/my-scripts/keri/cf/config-docker.json` you should see:
 
 `command`
 ```
