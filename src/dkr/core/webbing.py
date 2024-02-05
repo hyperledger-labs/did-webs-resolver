@@ -196,17 +196,18 @@ class KeriCesrWebResourceEnd():
         self.hby = hby
         self.lookup = {}
         
-    def add_lookup(self, aid, fPath):
-        self.lookup[aid] = fPath
-        
+    def add_lookup(self, aid, fpath):
         # if aid is None:
         #     aid = os.path.basename(os.path.normpath(path.rstrip(f"/{KERI_CESR}")))
         # ahab = habbing..makeHab(name=aid, temp=True)
         # kvy = eventing.Kevery(db=ahab.db, lax=False, local=False)
-        with open(fPath, 'rb') as file:
+        with open(fpath, 'rb') as file:
             self.hby.psr.parse(ims=bytearray(file.read()))
-            if(aid):
-                assert aid in self.hby.kevers, "KERI CESR parsing failed, KERI AID not found in habery"
+            if(aid and aid in self.hby.kevers):
+                print(f"KERI CESR parsing {fpath} succeeded, KERI AID {aid} found in habery")
+                self.lookup[aid] = fpath
+            else:
+                print(f"FAILED: KERI CESR parsing {fpath} failed, KERI AID {aid} not found in habery")
             
     def on_get(self, req, rep, aid):
         """ GET endpoint for acessing {KERI_CESR} stream for AID

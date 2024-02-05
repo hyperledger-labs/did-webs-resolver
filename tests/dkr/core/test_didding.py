@@ -239,6 +239,15 @@ def setup_habs():
                 stamp=helping.nowIso8601(),
             )
         )
+
+        msgs.extend(
+            wisHab.makeLocScheme(
+                url="tcp://127.0.0.1:9991",
+                scheme=kering.Schemes.tcp,
+                stamp=helping.nowIso8601(),
+            )
+        )
+        
         wisHab.psr.parse(ims=bytearray(msgs))
 
         # Set up
@@ -330,7 +339,7 @@ def test_gen_did_doc(setup_habs):
         }
     ]
 
-    assert len(didDoc["service"]) == 5
+    assert len(didDoc["service"]) == 6
     assert didDoc["service"][0] == {
         "id": f"#{hab.pre}/controller",
         "type": "controller",
@@ -354,7 +363,7 @@ def test_gen_did_doc(setup_habs):
     assert didDoc["service"][4] == {
         "id": "#BAjTuhnzPDB0oU0qHXACnvzachJpYjUAtH1N9Tsb_MdE/witness",
         "type": "witness",
-        "serviceEndpoint": {"http": "http://127.0.0.1:9999"},
+        "serviceEndpoint": {"http": "http://127.0.0.1:9999", "tcp": "tcp://127.0.0.1:9991"},
     }
 
 
@@ -380,7 +389,7 @@ def test_gen_did_doc_with_metadata(setup_habs):
         }
     ]
 
-    assert len(didDoc[didding.DD_FIELD]["service"]) == 5
+    assert len(didDoc[didding.DD_FIELD]["service"]) == 6
     assert didDoc[didding.DD_FIELD]["service"][0] == {
         "id": f"#{hab.pre}/controller",
         "type": "controller",
@@ -404,7 +413,7 @@ def test_gen_did_doc_with_metadata(setup_habs):
     assert didDoc[didding.DD_FIELD]["service"][4] == {
         "id": "#BAjTuhnzPDB0oU0qHXACnvzachJpYjUAtH1N9Tsb_MdE/witness",
         "type": "witness",
-        "serviceEndpoint": {"http": "http://127.0.0.1:9999"},
+        "serviceEndpoint": {"http": "http://127.0.0.1:9999", "tcp": "tcp://127.0.0.1:9991"},
     }
 
     assert (
