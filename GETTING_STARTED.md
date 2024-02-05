@@ -216,6 +216,10 @@ It will serve it at a URL that you can CURL from any of our docker containers (f
 ```
 curl -GET http://did-webs-service:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/did.json
 ```
+OR from your browser navigate to:
+```
+http://127.0.0.1:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/did.json
+```
 
 `output:`
 ```
@@ -243,9 +247,13 @@ curl -GET http://did-webs-service:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6g
 ```
 curl -GET http://did-webs-service:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr
 ```
+OR from your browser navigate to:
+```
+http://127.0.0.1:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr
+```
 
 `KERI CESR output:`
-```
+```json
 "{\"v\":\"KERI10JSON00012b_\",\"t\":\"icp\",\"d\":\"ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe\",\"i\":\"ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe\",\"s\":\"0\",\"kt\":\"1\",\"k\":[\"DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr\"],\"nt\":\"1\",\"n\":[\"ELa775aLyane1vdiJEuexP8zrueiIoG995pZPGJiBzGX\"],\"bt\":\"0\",\"b\":[],\"c\":[],\"a\":[]}-VAn-AABAADjfOjbPu9OWce59OQIc-y3Su4kvfC2BAd_e_NLHbXcOK8-3s6do5vBfrxQ1kDyvFGCPMcSl620dLMZ4QDYlvME-EAB0AAAAAAAAAAAAAAAAAAAAAAA1AAG2024-01-02T14c12c15d456835p00c00"
 ```
 
@@ -562,9 +570,9 @@ Now you can copy the `did.json` and `keri.cesr` files to the pages directory aga
 cp -R volume/dkr/examples/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
 ```
 
-## Example: Using Witnesses
+### Example in docker: Using Witnesses
 
-In order to use witnesses we run through the same steps as above but we use a different configuration that assigns witnesses to the AID. Witnesses are a special service endpoint because they are in the inception event (and can be updated in the rotation events).
+In order to use witnesses we run through the same steps as above but we use a different configuration file `incept-wits.json` that assigns witnesses to the AID. Witnesses are a special service endpoint because they are in the inception event (and can be updated in the rotation events).
 
 To execute all of the above quickly we can use the script from the `webs` container you can:
 
@@ -700,30 +708,144 @@ Got KERI CESR:
     "c": [],
     "a": []
 }-VBq-AABAABv33lz0MENsIaM2J1hsbl_8awkJlVT7M1Cnzix0JQSEEwhfSsOt5Wqvuw27wUUKZLCScKoT01FV4WfowFrh_MN-BADAAC_SiZWJFOCuIB_py4gqaMFQtTVWtFCpPfP2LgyqqUS2naTh0nZNlH6MPHSbQNRoImkHnMFrUiBr5ZtwvQ-tNwIABBazaCrt7WQD5Dj1U3KqlZhgOPh7-ca2S0BnRRSEHxW5yoECaC04nyTxYh_wU9TH2WLr14hP-mLHHJDM-wM2esOACA2lyZPmqv2mefIL3orZNm8vb7pyLO5R4zOhHqqXkS1utJrKndiNd4Yu4c6xJnVkc-l6DABB9qe-otLGCkoWDEI-EAB0AAAAAAAAAAAAAAAAAAAAAAA1AAG2024-02-02T14c44c12d081323p00c00
-Saving KERI CESR to hby {
-    "v": "KERI10JSON0001b7_",
-    "t": "icp",
-    "d": "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
-    "i": "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
-    "s": "0",
-    "kt": "1",
-    "k": [
-        "DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr"
-    ],
-    "nt": "1",
-    "n": [
-        "ELa775aLyane1vdiJEuexP8zrueiIoG995pZPGJiBzGX"
-    ],
-    "bt": "3",
-    "b": [
-        "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
-        "BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM",
-        "BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX"
-    ],
-    "c": [],
-    "a": []
-}-VBq-AABAABv33lz0MENsIaM2J1hsbl_8awkJlVT7M1Cnzix0JQSEEwhfSsOt5Wqvuw27wUUKZLCScKoT01FV4WfowFrh_MN-BADAAC_SiZWJFOCuIB_py4gqaMFQtTVWtFCpPfP2LgyqqUS2naTh0nZNlH6MPHSbQNRoImkHnMFrUiBr5ZtwvQ-tNwIABBazaCrt7WQD5Dj1U3KqlZhgOPh7-ca2S0BnRRSEHxW5yoECaC04nyTxYh_wU9TH2WLr14hP-mLHHJDM-wM2esOACA2lyZPmqv2mefIL3orZNm8vb7pyLO5R4zOhHqqXkS1utJrKndiNd4Yu4c6xJnVkc-l6DABB9qe-otLGCkoWDEI-EAB0AAAAAAAAAAAAAAAAAAAAAAA1AAG2024-02-02T14c44c12d081323p00c00
 ```
+
+* The KEL is witnessed (witness signatures/receipts) and available as an OOBI from the witness endpoints:
+```
+curl -GET http://witnesshost:5643/oobi/EKYGGh-FtAphGmSZbsuBs_t4qpsj
+YJ2ZqvMKluq9OxmP
+```
+* The response for the OOBI includes:
+  1. ALL of the Witness endpoints for your AID.
+  1. The KEL (Key Event Log) matching the KERI event stream, including the CESR signature from your AID current public key state. You can compare that entry/signature to what is in you KERI event stream
+      1. Note: you can access the WITNESS AID key state (this is different than YOUR AID KEL) at it's own OOBI:
+      ```
+      curl -GET http://witnesshost:5643/oobi/BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM/controller
+      ```
+
+* YOUR AID OOBI response:
+  ```json
+  {
+      "v": "KERI10JSON0000fc_",
+      "t": "rpy",
+      "d": "EMXzf2wWhjfCuxk-XumSLA9xW9IMq0RzvN5esKXGjUvX",
+      "dt": "2024-02-02T14:44:06.626201+00:00",
+      "r": "/loc/scheme",
+      "a": {
+          "eid": "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
+          "scheme": "http",
+          "url": "http://witnesshost:5642/"
+      }
+  }-VAi-CABBBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha0BDl24St2gdWqsh9Ap76rhyWLDC6ThFZTwfFxo2fJmmVdXij9nMEV9kVC8ZidQdyrFXuag9ZLsAi9vZ_nXS8W8AP
+  {
+      "v": "KERI10JSON0000fa_",
+      "t": "rpy",
+      "d": "EBMJT4_3ry9ez_Xsd4JzkBph7zpFa_lcA3vwD2JRAF39",
+      "dt": "2024-02-02T14:44:06.635611+00:00",
+      "r": "/loc/scheme",
+      "a": {
+          "eid": "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
+          "scheme": "tcp",
+          "url": "tcp://witnesshost:5632/"
+      }
+  }-VAi-CABBBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha0BCUAXbBIVs__oNF4I5KYG9H_V10qmcdcYRmHrlDUr7m0Pit4P-_D9yl7hgxRjz0PIx8t-lP-cBEqZVw0WimF64N
+  {
+      "v": "KERI10JSON0000fc_",
+      "t": "rpy",
+      "d": "ELWDsH3QHEVyMlL3Ti4hKSDZd1_3AQHDrnqiuff3GG0q",
+      "dt": "2024-02-02T17:28:28.016820+00:00",
+      "r": "/loc/scheme",
+      "a": {
+          "eid": "BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM",
+          "scheme": "http",
+          "url": "http://witnesshost:5643/"
+      }
+  }-VAi-CABBLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM0BDdgBypeLFbF3Sd9PPerGriYLw9kErOcAsKwn562ywm2u6WhNm7JneRCcNm974uO07DPmqhXf2WlTkUZFclAxQC
+  {
+      "v": "KERI10JSON0000fa_",
+      "t": "rpy",
+      "d": "EE4jqs_PSGqQi-mZ08mzwIUslfHnlbDti3riFM0c8syT",
+      "dt": "2024-02-02T17:28:28.019220+00:00",
+      "r": "/loc/scheme",
+      "a": {
+          "eid": "BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM",
+          "scheme": "tcp",
+          "url": "tcp://witnesshost:5633/"
+      }
+  }-VAi-CABBLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM0BBPGhpZHub-y831q7CrvJrrmjOvLFs14pu1Swx6r4y3QXPnBdm-15CKuU4aYz9w9DCtpEvBE91ynBlpWlfzOJYF
+  {
+      "v": "KERI10JSON0000fc_",
+      "t": "rpy",
+      "d": "EO0YYQ2uvQ-PjaBYCqsMkurLZ7fQgPeDvZD0660qA8bs",
+      "dt": "2024-02-02T14:44:06.655410+00:00",
+      "r": "/loc/scheme",
+      "a": {
+          "eid": "BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX",
+          "scheme": "http",
+          "url": "http://witnesshost:5644/"
+      }
+  }-VAi-CABBIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX0BC99ez6JA1eTK_GmDhgh5PWbguhcmpb-JsrfR2m1-a-XAv0ggaea9FXyWvZEglsZc-THl1kDeYGLK5j4EjnwKIM
+  {
+      "v": "KERI10JSON0000fa_",
+      "t": "rpy",
+      "d": "EI1tYYidtszrJzBLQt3pvrt07bYgBFzyXtD0b3wOcZbO",
+      "dt": "2024-02-02T14:44:06.658282+00:00",
+      "r": "/loc/scheme",
+      "a": {
+          "eid": "BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX",
+          "scheme": "tcp",
+          "url": "tcp://witnesshost:5634/"
+      }
+  }-VAi-CABBIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX0BBKQGUPQokOvqxOa9yewZDbJhu4k-tbrXIbn3WgtrLTPNILtdkTnlKYbfv9HFLNVuXzKOlcWpVriWi8GMQk5ycJ
+  {
+      "v": "KERI10JSON0001b7_",
+      "t": "icp",
+      "d": "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
+      "i": "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
+      "s": "0",
+      "kt": "1",
+      "k": [
+          "DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr"
+      ],
+      "nt": "1",
+      "n": [
+          "ELa775aLyane1vdiJEuexP8zrueiIoG995pZPGJiBzGX"
+      ],
+      "bt": "3",
+      "b": [
+          "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
+          "BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM",
+          "BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX"
+      ],
+      "c": [],
+      "a": []
+  }-VBq-AABAABv33lz0MENsIaM2J1hsbl_8awkJlVT7M1Cnzix0JQSEEwhfSsOt5Wqvuw27wUUKZLCScKoT01FV4WfowFrh_MN-BADAAC_SiZWJFOCuIB_py4gqaMFQtTVWtFCpPfP2LgyqqUS2naTh0nZNlH6MPHSbQNRoImkHnMFrUiBr5ZtwvQ-tNwIABBazaCrt7WQD5Dj1U3KqlZhgOPh7-ca2S0BnRRSEHxW5yoECaC04nyTxYh_wU9TH2WLr14hP-mLHHJDM-wM2esOACA2lyZPmqv2mefIL3orZNm8vb7pyLO5R4zOhHqqXkS1utJrKndiNd4Yu4c6xJnVkc-l6DABB9qe-otLGCkoWDEI-EAB0AAAAAAAAAAAAAAAAAAAAAAA1AAG2024-02-02T14c44c12d174141p00c00
+  {
+      "v": "KERI10JSON0001b7_",
+      "t": "icp",
+      "d": "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
+      "i": "EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
+      "s": "0",
+      "kt": "1",
+      "k": [
+          "DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr"
+      ],
+      "nt": "1",
+      "n": [
+          "ELa775aLyane1vdiJEuexP8zrueiIoG995pZPGJiBzGX"
+      ],
+      "bt": "3",
+      "b": [
+          "BBilc4-L3tFUnfM_wJr4S4OJanAv_VmF_dJNN6vkf2Ha",
+          "BLskRTInXnMxWaGqcpSyMgo0nYbalW99cGZESrz3zapM",
+          "BIKKuvBwpmDVA4Ds-EpL5bt9OqPzWPja2LigFYZN2YfX"
+      ],
+      "c": [],
+      "a": []
+  }-VBq-AABAABv33lz0MENsIaM2J1hsbl_8awkJlVT7M1Cnzix0JQSEEwhfSsOt5Wqvuw27wUUKZLCScKoT01FV4WfowFrh_MN-BADAAC_SiZWJFOCuIB_py4gqaMFQtTVWtFCpPfP2LgyqqUS2naTh0nZNlH6MPHSbQNRoImkHnMFrUiBr5ZtwvQ-tNwIABBazaCrt7WQD5Dj1U3KqlZhgOPh7-ca2S0BnRRSEHxW5yoECaC04nyTxYh_wU9TH2WLr14hP-mLHHJDM-wM2esOACA2lyZPmqv2mefIL3orZNm8vb7pyLO5R4zOhHqqXkS1utJrKndiNd4Yu4c6xJnVkc-l6DABB9qe-otLGCkoWDEI-EAB0AAAAAAAAAAAAAAAAAAAAAAA1AAG2024-02-02T14c44c12d174141p00c00
+  ```
+
+Congratulations you have demonstrated how to setup witnesses to serve/provide distributed receipts of your KEL events. They are an effective/secure discovery mechanism for your AID current key state and service endpoints.
 
 ## Older example info to remove
 ### Check if files are available on your server
