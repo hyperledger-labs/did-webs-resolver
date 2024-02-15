@@ -1,26 +1,21 @@
-import aiohttp
-import asyncio
-
 import json
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__)))
+from common import setup_habs
+from dkr.core import didding, resolving, webbing
 
 import falcon
-from falcon import testing, media, http_status
+from falcon import media, http_status
 from hio.base import doing
-
-from dkr.core import resolving, webbing
 
 from hio.base import tyming
 from hio.core import http
 
-from keri import help, kering
-from keri.app import configing, habbing, oobiing
-from keri.core import coring
-from keri.db import basing
-from keri.end import ending
-from keri.help import helping
+from keri.app import configing, habbing
 
-import os
 import queue
+
 import threading
 import time
         
@@ -33,11 +28,11 @@ class PingResource:
          'Pong'
       )
 
-def test_service():
+def test_service(setup_habs):
     port = 7676
     
-    with habbing.openHby(name="service") as hby:
-        hab = hby.makeHab(name="service")
+    with habbing.openHby(name="service") as shby:
+        hab = shby.makeHab(name="service")
         aid = "ELCUOZXs-0xn3jOihm0AJ-L8XTFVT8SnIpmEDhFF9Kz_"
         did = f"did:web:127.0.0.1%3a{port}:{aid}"
         
@@ -67,7 +62,7 @@ def test_service():
         # falcon.App instances are callable WSGI apps
 
         app.add_route('/ping', PingResource())
-        webbing.setup(app, hby, cf)
+        webbing.setup(app, shby, cf)
         # app.add_route('/{aid}/did.json', DidWebsEnd())
         # app.add_route('/{aid}/keri.cesr', KeriCesrEnd(aid=aid))
 
@@ -125,6 +120,39 @@ def test_service():
             kcstat = resp.status_code
             assert kcstat == 200
             print("Got kc response content", resp.content)
+            
+        ohby, ohab, wesHby, wesHab = setup_habs
+        odid = f"did:web:127.0.0.1%3a{port}:{ohab.pre}"
+        didDoc = didding.generateDIDDoc(ohby, odid, ohab.pre, oobi=None, metadata=False)
+        conf = dict(cf.get())
+        ddir = conf[webbing.DD_DIR_CFG]
+        if not os.path.exists(ddir):
+            os.makedirs(ddir)
+        apath = os.path.join(ddir, ohab.pre)
+        if not os.path.exists(apath):
+            os.makedirs(apath)
+        print(f"Writing test did:webs for {webbing.DID_JSON} to file {apath}")
+        fpath = os.path.join(apath, webbing.DID_JSON)
+        json.dump(didDoc, open(f"{fpath}", "w"))
+        
+        ddnew = queue.Queue()
+        ddnurl = f'http://127.0.0.1:{port}/{ohab.pre}/did.json'
+        ddnt = threading.Thread(target=resolving.loadUrl, args=(ddnurl,ddnew))
+        ddnt.start()
+        
+        while ddnew == None:
+            # resp = resDoer.loadUrl(ddurl)
+            # status = asyncio.run(call(eurl))
+            # resDoer.loadUrl(kcurl)
+            # resDoer.resolve(tymth=doist.tymen(), tock=doist.tock)
+            time.sleep(2)
+            doist.recur()
+            
+            resp = ddtres.get()
+            ddstat = resp.status_code
+            assert ddstat == 200
+            print("Got dd new response content", resp.content)
+        
         doist.exit()
 
         

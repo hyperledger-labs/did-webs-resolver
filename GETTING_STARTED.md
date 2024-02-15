@@ -29,11 +29,8 @@ docker compose exec webs /bin/bash
 ```
 
 ## Create your KERI identifier
-Execute the following commands to create your KERI identifier that secures your did:webs DID:
-* From the dkr Docker container shell, go to the `examples` dir
-```
-cd volume/dkr/examples
-```
+* You can manually execute the following commands to create your KERI identifier that secures your did:webs DID.
+* OR you can run the script `./get_started_docker.sh` will run the commands for you.
 
 ### Create a cryptographic salt to secure your KERI identifier
 ```
@@ -259,16 +256,27 @@ http://127.0.0.1:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr
 "{\"v\":\"KERI10JSON00012b_\",\"t\":\"icp\",\"d\":\"ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe\",\"i\":\"ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe\",\"s\":\"0\",\"kt\":\"1\",\"k\":[\"DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr\"],\"nt\":\"1\",\"n\":[\"ELa775aLyane1vdiJEuexP8zrueiIoG995pZPGJiBzGX\"],\"bt\":\"0\",\"b\":[],\"c\":[],\"a\":[]}-VAn-AABAADjfOjbPu9OWce59OQIc-y3Su4kvfC2BAd_e_NLHbXcOK8-3s6do5vBfrxQ1kDyvFGCPMcSl620dLMZ4QDYlvME-EAB0AAAAAAAAAAAAAAAAAAAAAAA1AAG2024-01-02T14c12c15d456835p00c00"
 ```
 
-### Example: Resolve AID as did:webs using local resolver
+### Example: Resolve AID as did:webs using local or remote resolver
 
 In the webs docker container, you can resolve the DID from the did-webs-service:
 
-Resolve the did:webs for the `controller` did:
+Resolve the did:webs for the DID:
 ```
 dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
 ```
 
 If you want to resolve the did:webs for the `controller` did from a 'remote' machine, you can use the resolver container:
+
+In a separate terminal open the did-webs-resolver container:
+```
+docker compose exec did-webs-resolver /bin/bash
+```
+
+From the `volume/dkr/examples/` directory, execute the resolver script:
+```
+./get_started_docker_resolve.sh
+```
+
 
 ```
 dkr did webs resolve --name resolver --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"

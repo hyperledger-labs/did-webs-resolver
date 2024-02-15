@@ -23,35 +23,8 @@ vaid="EKK9_Aau-htVcu8HyAZCIUkTFMqyVB6I2LCa_GhMYWm2"
 
 KERI_BRANCH="main"
 # KERI_TAG="c3a6fc455b5fac194aa9c264e48ea2c52328d4c5"
-KERI_PRIMARY_STORAGE="/usr/local/var/keri/"
-KERI_FALLBACK_STORAGE="${HOME}/.keri/"
-db_files=()
-db_names=("$controller" "$verifier" wan wes wil wit wub wyz)
-for db_name in "${db_names[@]}"; do
-    path="${KERI_PRIMARY_STORAGE}*/${db_name}*"
-    db_files+=( $path )
-    path="${KERI_FALLBACK_STORAGE}*/${db_name}*"
-    db_files+=( $path )
-done
 
 prompt="y"
-
-function cleanKeri() {
-    echo "Cleaning KERI data"
-    #clean up any old KERI data
-    default_clean_keri="y"
-    if [ "${prompt}" == "y" ]; then
-        read -p "Clean keri dbs ${db_files[*]} (y/n)? [${default_clean_keri}]: " cleanKeriInput
-    fi
-    clean_keri_data=${cleanKeriInput:-$default_clean_keri}
-    if [ "${clean_keri_data}" == "n" ]; then
-        echo "Skipping clean KERI data"
-    else
-        echo "Running clean KERI data"
-        for db_file in "${db_files[@]}"; do rm -R "$db_file";done
-        echo "Cleaned KERI data"
-    fi
-}
 
 function genDidWebs() {
     default_gen_webs="y"
@@ -68,35 +41,6 @@ function genDidWebs() {
     fi
 }
 
-function getKeripyDir() {
-    # Check if the environment variable is set
-    if [ -z "$KERIPY_DIR" ]; then
-        # Prompt the user for input with a default value
-        default_keri_dir="../keripy"
-        if [ "${prompt}" == "y" ]; then
-            read -p "Set keripy dir [${default_keri_dir}]: " keriDirInput
-        fi
-        # Set the value to the user input or the default value
-        KERIPY_DIR=${keriDirInput:-$default_keri_dir}
-    fi
-    # Use the value of the environment variable
-    echo "$KERIPY_DIR"
-}
-
-function installPythonUpdates() {
-    name=$1
-    if [ "${prompt}" == "y" ]; then
-        read -p "Install $name?, [n]: " installInput
-    fi
-    install=${installInput:-"n"}
-    if [ "${install}" == "n" ]; then
-        echo "Skipping install of $name"
-    else
-        echo "Installing python module updates..."
-        python -m pip install -e .
-    fi
-}
-
 function intro() {
     echo "Welcome to the docker test setup/run/teardown script"
     read -p "Enable prompts?, [y]: " enablePrompts
@@ -108,92 +52,19 @@ function intro() {
     fi
 }
 
-function createKeriIds() {
-    cd ${ORIG_CUR_DIR} || exit
-    kloadPid=-1
-    default_kload="y"
-    if [ "${prompt}" == "y" ]; then
-        default_kload="n"
-        read -p "Run create keri id (y/n)? [${default_kload}]: " run_kload_input
-    fi
-    create_keri_id=${run_kload_input:-$default_kload}
-    if [ "${create_keri_id}" == "n" ]; then
-        echo "Skipping create KERI id"
-    else
-        echo "Running create KERI id"
-        create_aid_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_create_id.sh"
-        if [ -f "${create_aid_script}" ]; then
-            echo "Found get started create id script"
-            source "${create_aid_script}" "${controller}"  "${csalt}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts/incept-wits.json"
-            sleep 3
-            source "${create_aid_script}" "${verifier}"  "${vsalt}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local-verifier" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts/incept.json"
-            sleep 3
-            echo "Completed creating KERI identity"
-        else
-            echo "Couldn't find get started keri script"
-        fi
-    fi
-    cd "${ORIG_CUR_DIR}" || exit
-    echo ""
-}
-
 function resolveDIDAndKeriEvents() {
     default_res_webs="y"
     if [ "${prompt}" == "y" ]; then
         default_res_webs="n"
-        read -p "Resolve did:webs and keri events (y/n)? [${default_res_webs}]: " res_webs_input
+        read -p "Resolve did:webs and keri events from docker (y/n)? [${default_res_webs}]: " res_webs_input
     fi
     res_webs=${res_webs_input:-$default_res_webs}
     if [ "${res_webs}" == "n" ]; then
-        echo "Skipping resolving did:webs DID Document and Keri Events"
+        echo "Skipping resolving did:webs DID Document and Keri Events from docker"
     else
-        echo "Resolving did:webs DID Document and Keri Events"
-        res_webs_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_resolve.sh"
-        if [ -f "${res_webs_script}" ]; then
-            echo "Found get started resolve script"
-            # kli init --name "${verifier}" --salt 0ABPTOtI5Qy8dCYNSs3uoCHe --nopasscode
-            # kli incept --name "${verifier}" --alias "${verifier}" --file "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts/incept.json"
-            did="did:webs:${host}%3a7676:${caid}"
-            source "${res_webs_script}" "${verifier}" "${did}"
-            sleep 3
-            echo "Resolved did:webs identity"
-        else
-            echo "Couldn't find get started keri script"
-        fi
+        echo "Resolving did:webs DID Document and Keri Events from docker"
+        docker compose exec did-webs-resolver /bin/bash -c ./get_started_docker_resolve.sh
     fi
-}
-
-function runKeri() {
-    cd ${ORIG_CUR_DIR} || exit
-    witPid=-1
-    keriDir=$(getKeripyDir)
-    echo "Keripy dir set to: ${keriDir}"
-
-    default_wit="y"
-    if [ "${prompt}" == "y" ]; then
-        default_wit="n"
-        read -p "Run witness network (y/n)? [${default_wit}]: " runWitNet
-    fi
-    runWit=${runWitNet:-$default_wit}
-    if [ "${runWit}" == "y" ]; then
-        if [ -d  "${keriDir}" ]; then
-            #run a clean witness network
-            echo "Launching a clean witness network"
-            cd "${keriDir}" || exit
-            updateFromGit ${KERI_BRANCH}
-            installPythonUpdates "keri"
-            kli witness demo &
-            witPid=$!
-            sleep 5
-            echo "Clean witness network launched"
-        else
-            echo "KERIPY dir missing ${keriDir}"
-            exit 1
-        fi
-    else
-        echo "Skipping witness network"
-    fi
-    echo ""
 }
 
 function serveDidAndKeriEvents() {
@@ -206,8 +77,8 @@ function serveDidAndKeriEvents() {
     if [ "${serve_webs}" == "n" ]; then
         echo "Skipping serving did:webs DID Document and Keri Events from docker"
     else
-        docker compose exec did-webs-service /bin/bash -c ./get_started_docker_serve.sh
         echo "Serving did:webs and keri events from docker"
+        docker compose exec did-webs-service /bin/bash -c './get_started_docker_serve.sh'
         echo "DID doc served at http://${host}:7676/${caid}/did.json"
         echo "KERI CESR at http://${host}:7676/${caid}/keri.cesr"
     fi
@@ -282,7 +153,7 @@ do
 
     serveDidAndKeriEvents
 
-    # resolveDIDAndKeriEvents
+    resolveDIDAndKeriEvents
 
     # runMultisig
 

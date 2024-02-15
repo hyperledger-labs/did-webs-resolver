@@ -191,7 +191,7 @@ class DbSeed:
             "type": "object",
         }
 
-        _, sad = coring.Saider.saidify(sad, label=coring.Ids.dollar)
+        _, sad = coring.Saider.saidify(sad, label=coring.Saids.dollar)
         schemer = scheming.Schemer(sed=sad)
         db.schema.pin(schemer.said, schemer)
 
@@ -232,7 +232,7 @@ class DbSeed:
             "type": "object",
         }
 
-        _, sad = coring.Saider.saidify(sad, label=coring.Ids.dollar)
+        _, sad = coring.Saider.saidify(sad, label=coring.Saids.dollar)
         schemer = scheming.Schemer(sed=sad)
         # NEW: "ENTAoj2oNBFpaniRswwPcca9W1ElEeH2V7ahw68HV4G5
         db.schema.pin(schemer.said, schemer)
@@ -272,7 +272,7 @@ class DbSeed:
             "additionalProperties": False,
             "required": ["d", "i", "ri"],
         }
-        _, sad = coring.Saider.saidify(sad, label=coring.Ids.dollar)
+        _, sad = coring.Saider.saidify(sad, label=coring.Saids.dollar)
         schemer = scheming.Schemer(sed=sad)
         # NEW: EMQWEcCnVRk1hatTNyK3sIykYSrrFvafX3bHQ9Gkk1kC
         db.schema.pin(schemer.said, schemer)
@@ -333,7 +333,7 @@ class DbSeed:
             "required": ["i", "ri", "s", "d", "e", "r"],
             "type": "object",
         }
-        _, sad = coring.Saider.saidify(sad, label=coring.Ids.dollar)
+        _, sad = coring.Saider.saidify(sad, label=coring.Saids.dollar)
         schemer = scheming.Schemer(sed=sad)
         # NEW: ED892b40P_GcESs3wOcc2zFvL_GVi2Ybzp9isNTZKqP0
         db.schema.pin(schemer.said, schemer)
@@ -377,7 +377,7 @@ class DbSeed:
             "type": "object",
         }
 
-        _, sad = coring.Saider.saidify(sad, label=coring.Ids.dollar)
+        _, sad = coring.Saider.saidify(sad, label=coring.Saids.dollar)
         schemer = scheming.Schemer(sed=sad)
         # NEW: EFgnk_c08WmZGgv9_mpldibRuqFMTQN-rAgtD-TCOwbs
         db.schema.pin(schemer.said, schemer)
@@ -441,7 +441,7 @@ class DbSeed:
             ],
         }
 
-        _, sad = coring.Saider.saidify(sad, label=coring.Ids.dollar)
+        _, sad = coring.Saider.saidify(sad, label=coring.Saids.dollar)
         schemer = scheming.Schemer(sed=sad)
         db.schema.pin(schemer.said, schemer)
 
@@ -466,7 +466,7 @@ class DbSeed:
             "required": ["d", "dt", "ids"],
         }
         
-        _, sad = coring.Saider.saidify(sad, label=coring.Ids.dollar)
+        _, sad = coring.Saider.saidify(sad, label=coring.Saids.dollar)
         schemer = scheming.Schemer(sed=sad)
         db.schema.pin(schemer.said, schemer)
 
@@ -589,7 +589,7 @@ class DbSeed:
             "required": ["v", "d", "i", "ri", "s", "a", "r"],
         }
 
-        _, sad = coring.Saider.saidify(sad, label=coring.Ids.dollar)
+        _, sad = coring.Saider.saidify(sad, label=coring.Saids.dollar)
         schemer = scheming.Schemer(sed=sad)
         # NEW: EFgnk_c08WmZGgv9_mpldibRuqFMTQN-rAgtD-TCOwbs
         db.schema.pin(schemer.said, schemer)
