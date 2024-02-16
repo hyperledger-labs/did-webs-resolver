@@ -6,9 +6,11 @@ Thank you to Markus Sabadello @peacekeeper from DanubeTech who created the origi
 
 If you're running into trouble in the process below, be sure to check the section [Trouble Shooting](#trouble-shooting) below. 
 
-Let's get started! We'll use docker to setup and run in a simple environment.
+Let's get started! We'll use docker to setup and run in a simple environment. If you haven't installed docker on your system yet, first [get it](https://docs.docker.com/get-docker/)
 
 ## Run Docker build
+Go the root of did-webs-resolver reference implementation repo on your local machine. Then:
+
 ```
 docker compose build --no-cache
 ```
@@ -27,11 +29,8 @@ docker compose exec webs /bin/bash
 ```
 
 ## Create your KERI identifier
-Execute the following commands to create your KERI identifier that secures your did:webs DID:
-* From the dkr Docker container shell, go to the `examples` dir
-```
-cd volume/dkr/examples
-```
+* You can manually execute the following commands to create your KERI identifier that secures your did:webs DID.
+* OR you can run the script `./get_started_docker.sh` will run the commands for you.
 
 ### Create a cryptographic salt to secure your KERI identifier
 ```
@@ -79,7 +78,7 @@ Your AID is ```ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe``` and your current 
 
 #### Additional info
 The AID config-file in the container is at ./my-scripts/keri/cf/config-docker.json and contains the KERI OOBIs of the witnesses that we'll use:
-In this case they are available from the witness network that we started in the docker-compose. If you `cat` the config at `/usr/local/var/webs/volume/dkr/examples/my-scripts/keri/cf/config-docker.json` you should see:
+In this case they are available from the witness network that we started with the docker-compose [command](#run-docker-containers-for-the-keri-witness-network-and-the-didwebs-generator-and-resolver-environment) above. If you `cat` the config at `/usr/local/var/webs/volume/dkr/examples/my-scripts/keri/cf/config-docker.json` you should see:
 
 `command`
 ```
@@ -257,13 +256,30 @@ http://127.0.0.1:7676/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/keri.cesr
 "{\"v\":\"KERI10JSON00012b_\",\"t\":\"icp\",\"d\":\"ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe\",\"i\":\"ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe\",\"s\":\"0\",\"kt\":\"1\",\"k\":[\"DHr0-I-mMN7h6cLMOTRJkkfPuMd0vgQPrOk4Y3edaHjr\"],\"nt\":\"1\",\"n\":[\"ELa775aLyane1vdiJEuexP8zrueiIoG995pZPGJiBzGX\"],\"bt\":\"0\",\"b\":[],\"c\":[],\"a\":[]}-VAn-AABAADjfOjbPu9OWce59OQIc-y3Su4kvfC2BAd_e_NLHbXcOK8-3s6do5vBfrxQ1kDyvFGCPMcSl620dLMZ4QDYlvME-EAB0AAAAAAAAAAAAAAAAAAAAAAA1AAG2024-01-02T14c12c15d456835p00c00"
 ```
 
-### Example: Resolve AID as did:webs using local resolver
+### Example: Resolve AID as did:webs using local or remote resolver
 
-Back in the webs docker container, you can resolve the DID from the did-webs-service:
+In the webs docker container, you can resolve the DID from the did-webs-service:
 
-Resolve the did:webs for the `controller` did:
+Resolve the did:webs for the DID:
 ```
 dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+```
+
+If you want to resolve the did:webs for the `controller` did from a 'remote' machine, you can use the resolver container:
+
+In a separate terminal open the did-webs-resolver container:
+```
+docker compose exec did-webs-resolver /bin/bash
+```
+
+From the `volume/dkr/examples/` directory, execute the resolver script:
+```
+./get_started_docker_resolve.sh
+```
+
+
+```
+dkr did webs resolve --name resolver --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
 ```
 
 ### Example: Add designated aliases attestation
@@ -570,7 +586,7 @@ Now you can copy the `did.json` and `keri.cesr` files to the pages directory aga
 cp -R volume/dkr/examples/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
 ```
 
-### Example in docker: Using Witnesses
+### (OPTIONAL) Example in docker: Using Witnesses
 
 In order to use witnesses we run through the same steps as above but we use a different configuration file `incept-wits.json` that assigns witnesses to the AID. Witnesses are a special service endpoint because they are in the inception event (and can be updated in the rotation events).
 
@@ -587,7 +603,7 @@ and execute the following script:
 
 The notable differences now that we are using witnesses:
 * The AID is different now `EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP`, because the inception event contians the witness information which modifies the data used to generate the AID.
-* The DID Document now lists the witnesses in the service endpoints:
+* The DID Document now lists the witnesses in the service endpoints. Note: if you set the metadata flag to true KERI related service endpoints will be in the did document metadata instead of the did document.:
 ```json
 Got DID doc: {
   "id": "did:web:did-webs-service%3a7676:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
@@ -845,16 +861,10 @@ YJ2ZqvMKluq9OxmP
   }-VBq-AABAABv33lz0MENsIaM2J1hsbl_8awkJlVT7M1Cnzix0JQSEEwhfSsOt5Wqvuw27wUUKZLCScKoT01FV4WfowFrh_MN-BADAAC_SiZWJFOCuIB_py4gqaMFQtTVWtFCpPfP2LgyqqUS2naTh0nZNlH6MPHSbQNRoImkHnMFrUiBr5ZtwvQ-tNwIABBazaCrt7WQD5Dj1U3KqlZhgOPh7-ca2S0BnRRSEHxW5yoECaC04nyTxYh_wU9TH2WLr14hP-mLHHJDM-wM2esOACA2lyZPmqv2mefIL3orZNm8vb7pyLO5R4zOhHqqXkS1utJrKndiNd4Yu4c6xJnVkc-l6DABB9qe-otLGCkoWDEI-EAB0AAAAAAAAAAAAAAAAAAAAAAA1AAG2024-02-02T14c44c12d174141p00c00
   ```
 
-Congratulations you have demonstrated how to setup witnesses to serve/provide distributed receipts of your KEL events. They are an effective/secure discovery mechanism for your AID current key state and service endpoints.
+Congratulations you have demonstrated how to setup witnesses to add the security of duplicity detection via distributed receipts of your KEL events. They are an effective and secure discovery mechanism for your AID current key state and service endpoints.
 
-## Older example info to remove
-### Check if files are available on your server
-
-Note: Replace with your actual web address and AID
-
-https://peacekeeper.github.io/did-webs-iiw37-tutorial/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/did.json
-
-https://peacekeeper.github.io/did-webs-iiw37-tutorial/EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP/keri.cesr
+### (Optional) Add arbitrary data, like service endpoints, to your KEL
+Although your KEL is meant for key state, credentials, etc. a did:webs resolvers can locate did document data like service endpoints in your KEL if you choose to anchor data there.
 
 
 ### (Optional) Resolve AID as did:keri using local resolver

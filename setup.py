@@ -73,7 +73,7 @@ setup(
                         'cbor2>=5.4.3',
                         'multidict>=6.0.2',
                         'ordered-set>=4.1.0',
-                        'keri @ git+https://git@github.com/WebOfTrust/keripy.git@main',
+                        'keri>=1.1.0',
                         'hio>=0.6.9',
                         'multicommand>=1.0.0',
                         'jsonschema>=4.17.0',

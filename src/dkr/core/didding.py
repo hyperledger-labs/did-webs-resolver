@@ -61,6 +61,8 @@ def parseDIDWebs(did):
 
 
 def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=None, reg_name=None):
+    if (did and aid) and not did.endswith(aid):
+        raise ValueError(f"{did} does not end with {aid}")
     print("Generating DID document for", did, "with aid", aid, "using oobi", oobi, "and metadata", metadata, "registry name for creds", reg_name)
     
     hab = None
@@ -212,10 +214,10 @@ def desAliases(hby: habbing.Habery, aid: str, reg_name: str=None):
         saids = rgy.reger.issus.get(keys=aid)
         scads = rgy.reger.schms.get(keys=DES_ALIASES_SCHEMA.encode("utf-8"))
         # self-attested, there is no issuee, and schmea is designated aliases
-        saiders = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
+        saids = [saider for saider in saids if saider.qb64 in [saider.qb64 for saider in scads]]
 
         # for saider in saiders:
-        creds = rgy.reger.cloneCreds(saiders)
+        creds = rgy.reger.cloneCreds(saids,hby.habs[aid].db)
 
         for idx, cred in enumerate(creds):
             sad = cred['sad']

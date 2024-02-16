@@ -162,7 +162,8 @@ function resolveDIDAndKeriEvents() {
             echo "Found get started resolve script"
             # kli init --name "${verifier}" --salt 0ABPTOtI5Qy8dCYNSs3uoCHe --nopasscode
             # kli incept --name "${verifier}" --alias "${verifier}" --file "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts/incept.json"
-            source "${res_webs_script}" "${verifier}" "${host}%3a7676" "${caid}"
+            did="did:webs:${host}%3a7676:${caid}"
+            source "${res_webs_script}" "${verifier}" "${did}"
             sleep 3
             echo "Resolved did:webs identity"
         else
@@ -217,8 +218,9 @@ function serveDidAndKeriEvents() {
         srv_webs_script="${ORIG_CUR_DIR}/volume/dkr/examples/get_started_webs_serve.sh"
         if [ -f "${srv_webs_script}" ]; then
             echo "Found get started serve script"
-            source "${srv_webs_script}" "${controller}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local"
+            source "${srv_webs_script}" "${controller}" "${ORIG_CUR_DIR}/volume/dkr/examples/my-scripts" "config-local" &
             servePid=$!
+            sleep 5
             echo "Serving did:webs and keri events @pid ${servePid}"
             echo "DID doc served at http://${host}:7676/${caid}/did.json"
             echo "KERI CESR at http://${host}:7676/${caid}/keri.cesr"

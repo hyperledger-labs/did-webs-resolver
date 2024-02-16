@@ -42,13 +42,14 @@ def setup(app, hby, cf):
     # loadEnds(app, hby, web)
     if DD_DIR_CFG in data:
         print(f"Using config property {DD_DIR_CFG} to look for {DID_JSON} files: {data[DD_DIR_CFG]}")
-    default_did_dir = data[DD_DIR_CFG] if DD_DIR_CFG in data else DD_DEFAULT_DIR
-    loadFileEnds(app, DidJsonResourceEnd(), DID_JSON, default_did_dir)
+    ddir = data[DD_DIR_CFG] if DD_DIR_CFG in data else DD_DEFAULT_DIR
+    dend = DidJsonResourceEnd(app,ddir)
+    
     if KC_DIR_CFG in data:
         print(f"Using config property {KC_DIR_CFG} to look for {KERI_CESR} files: {data[KC_DIR_CFG]}")
-    default_cesr_dir = data[KC_DIR_CFG] if KC_DIR_CFG in data else KC_DEFAULT_DIR
-    print(f"Using keri cesr dir {default_cesr_dir}")
-    loadFileEnds(app, KeriCesrWebResourceEnd(hby), KERI_CESR, default_cesr_dir)
+    cdir = data[KC_DIR_CFG] if KC_DIR_CFG in data else KC_DEFAULT_DIR
+    print(f"Using keri cesr dir {cdir}")
+    kend = KeriCesrWebResourceEnd(app,cdir,hby)
 
 # def loadEnds(app, hby, web):
 #     """ Load endpoints for all AIDs or configured AIDs only
@@ -78,21 +79,32 @@ def setup(app, hby, cf):
 #         print(f"Added route {path}")
 #         app.add_route(path, res)
 
-def loadFileEnds(app, res, file_end, dirPath):
+class DIDWebResourceEnd() :
+    def __init__(self, app, dpath, ftype):
+        self.lookup = {}
+        self.app = app
+        self.dpath=dpath
+        self.ftype = ftype
+        self.loadFileEnds()
 
-    print(f"Loading {file_end} files from directory {dirPath}")
-    for aid in os.listdir(dirPath):
-        # Full path to the file
-        aPath = os.path.join(dirPath, aid)
-        print(f"Looking for {file_end} file {aPath}")
-        fPath = os.path.join(aPath, file_end)
-        if os.path.isfile(fPath):
-            path=f"/{aid}/{file_end}"
-            print(f"registering {path}")
-            app.add_route(f"/{{aid}}/" + file_end, res)
-            res.add_lookup(aid, fPath)
-        else:
-            print(f"Skipping {fPath} as it is not a file")
+    def add_lookup(self, aid, fpath):
+        self.lookup[aid] = fpath        
+    
+    def loadFileEnds(self):
+
+        print(f"Loading {self.ftype} files from directory {self.dpath}")
+        for aid in os.listdir(self.dpath):
+            # Full path to the file
+            aPath = os.path.join(self.dpath, aid)
+            print(f"Looking for {self.ftype} file {aPath}")
+            fpath = os.path.join(aPath, self.ftype)
+            if os.path.isfile(fpath):
+                path=f"/{aid}/{self.ftype}"
+                print(f"registering {path}")
+                self.app.add_route(f"/{{aid}}/" + self.ftype, self)
+                self.add_lookup(aid, fpath)
+            else:
+                print(f"Skipping {fpath} as it is not a file")
 
 # class DIDWebResourceEnd:
 
@@ -140,16 +152,13 @@ def loadFileEnds(app, res, file_end, dirPath):
 #         rep.content_type = "application/json"
 #         rep.data = json.dumps(result, indent=2).encode("utf-8")
 
-class DidJsonResourceEnd():
+class DidJsonResourceEnd(DIDWebResourceEnd):
     
-    def __init__(self):
+    def __init__(self,app,ddir):
         """
         Parameters:
         """
-        self.lookup = {}
-        
-    def add_lookup(self, aid, fPath):
-        self.lookup[aid] = fPath
+        super().__init__(app,ddir,DID_JSON)
         
     def on_get(self, req, rep, aid):
         """ GET endpoint for acessing {DID_JSON} stream for AID
@@ -164,8 +173,7 @@ class DidJsonResourceEnd():
         if not req.path.endswith(f"/{DID_JSON}"):
             raise falcon.HTTPBadRequest(description=f"invalid {DID_JSON} DID URL {req.path}")
 
-        # if aid is None:
-        #     aid = os.path.basename(os.path.normpath(req.path.rstrip(f"/{DID_JSON}")))
+        self.loadFileEnds()
 
         if not aid in self.lookup:
             raise falcon.HTTPNotFound(description=f"{DID_JSON} for KERI AID {aid} not found")
@@ -184,17 +192,16 @@ class DidJsonResourceEnd():
         rep.content_type = ending.Mimes.json
         rep.data = json.dumps(content, indent=2).encode("utf-8")
 
-class KeriCesrWebResourceEnd():
+class KeriCesrWebResourceEnd(DIDWebResourceEnd):
     
-    def __init__(self, hby):
+    def __init__(self, app, cdir, hby):
         """
         Parameters:
             hby (Habery): Database environment for AIDs to expose
 
         """
-
         self.hby = hby
-        self.lookup = {}
+        super().__init__(app,cdir,KERI_CESR)
         
     def add_lookup(self, aid, fpath):
         # if aid is None:
@@ -222,8 +229,7 @@ class KeriCesrWebResourceEnd():
         if not req.path.endswith(f"/{KERI_CESR}"):
             raise falcon.HTTPBadRequest(description=f"invalid {KERI_CESR} DID URL {req.path}")
 
-        # if aid is None:
-        #     aid = os.path.basename(os.path.normpath(req.path.rstrip(f"/{KERI_CESR}")))
+        self.loadFileEnds()
 
         if not aid in self.lookup:
             raise falcon.HTTPNotFound(description=f"keri.cesr for KERI AID {aid} not found")

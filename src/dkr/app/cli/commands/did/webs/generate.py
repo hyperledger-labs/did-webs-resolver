@@ -148,12 +148,11 @@ class Generator(doing.DoDoer):
                 kel.append(eventing.loadEvent(self.hby.db, pre, edig))
             except ValueError as e:
                 raise e
-
-
+        state = kever.state()._asdict()
         result = dict(
             didDocument=diddoc,
             pre=pre,
-            state=kever.state().ked,
+            state=state,
             kel=kel
         )
         didData = json.dumps(result, indent=2)
@@ -172,7 +171,7 @@ class Generator(doing.DoDoer):
         for msg in reger.clonePreIter(pre=regk):
             msgs.extend(msg)
                 
-    def genAcdcCesr(self, aid, creder: proving.Creder, msgs: bytearray):
+    def genAcdcCesr(self, aid, creder, msgs: bytearray):
         print(f"Generating {creder.crd['d']} ACDC CESR events, issued by {creder.crd['i']}")
         cmsg = self.hby.habs[aid].endorse(creder)
         msgs.extend(cmsg)

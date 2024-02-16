@@ -7,7 +7,7 @@ services:
     witnesshost:
         container_name: witnesshost
         hostname: witnesshost
-        image: gleif/keri:latest
+        image: gleif/keri:1.1.0
         platform: linux/amd64
         tty: true
         volumes:
@@ -63,6 +63,8 @@ services:
         ports:
             - 7677:7677
         tty: true
+        volumes:
+            - ./volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
         depends_on:
             - webs
         # networks:

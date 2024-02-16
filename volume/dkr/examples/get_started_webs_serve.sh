@@ -8,7 +8,7 @@ configDir=$2
 configFile=$3
 
 # serve controller did:webs for EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP at 127.0.0.1:
-dkr did webs service --name "${ctrlName}" --config-dir "${configDir}" --config-file "${configFile}" &
+dkr did webs service --name "${ctrlName}" --config-dir "${configDir}" --config-file "${configFile}"
 sleep 5
 
 pid=$!
