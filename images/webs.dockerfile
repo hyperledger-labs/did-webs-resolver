@@ -1,4 +1,4 @@
-FROM gleif/keri:1.1.0
+FROM gleif/keri:1.0.1
 
 WORKDIR /usr/local/var
 
