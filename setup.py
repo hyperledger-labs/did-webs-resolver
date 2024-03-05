@@ -86,13 +86,13 @@ setup(
                         'http_sfv>=0.9.8',
                         'cryptography>=39.0.2',
                         'requests>=2.28',
-                        'numpy>=1.26.0'
+                        'numpy>=1.26.0',
+                        'pytest>=6.2.5'
     ],
     extras_require={
     },
     tests_require=[
         'coverage>=5.5',
-        'pytest>=6.2.5',
     ],
     setup_requires=[
     ],
