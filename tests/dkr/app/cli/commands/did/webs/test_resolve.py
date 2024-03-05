@@ -1,25 +1,15 @@
-import aiohttp
-import asyncio
-
 import json
 
 import falcon
-from falcon import testing, media, http_status
+from falcon import media, http_status
 from hio.base import doing
 
-from dkr.app.cli.commands.did.webs import resolve
 from dkr.core import didding, resolving, webbing
 
 from hio.base import tyming
 from hio.core import http
 
-from keri import help, kering
-from keri.app import configing, habbing, oobiing
-from keri.core import coring
-from keri.db import basing
-from keri.end import ending
-from keri.help import helping
-
+from keri.app import configing, habbing
 
 import os
 import queue
