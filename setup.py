@@ -32,7 +32,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='dkr',
-    version='0.0.1',  # also change in src/did-webs-resolver/__init__.py
+    version='0.0.7',  # also change in src/did-webs-resolver/__init__.py
     license='Apache Software License 2.0',
     description='did:webs DID Method Resolver',
     long_description="did:webs DID Method Resolver.",
@@ -63,7 +63,7 @@ setup(
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
-    python_requires='>=3.10.4',
+    python_requires='>=3.10.13',
     install_requires=[
                         'aiohttp>=3.7.4',
                         'lmdb>=1.3.0',
@@ -73,7 +73,7 @@ setup(
                         'cbor2>=5.4.3',
                         'multidict>=6.0.2',
                         'ordered-set>=4.1.0',
-                        'keri>=1.1.1',
+                        'keri>=1.1.4',
                         'hio>=0.6.9',
                         'multicommand>=1.0.0',
                         'jsonschema>=4.17.0',
