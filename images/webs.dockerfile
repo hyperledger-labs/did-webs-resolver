@@ -1,4 +1,4 @@
-FROM gleif/keri:1.0.1
+FROM weboftrust/keri:1.1.4
 
 WORKDIR /usr/local/var
 

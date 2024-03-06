@@ -7,7 +7,7 @@ services:
     witnesshost:
         container_name: witnesshost
         hostname: witnesshost
-        image: gleif/keri:1.1.0
+        image: weboftrust/keri:1.1.4
         platform: linux/amd64
         tty: true
         volumes:
@@ -27,6 +27,7 @@ services:
             context: .
             dockerfile: ./images/webs.dockerfile
         image: 2byrds/webs:latest
+        entrypoint: tail -f /dev/null
         tty: true
         volumes:
             - ./volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
@@ -51,6 +52,7 @@ services:
             - ./volume/dkr/pages:/usr/local/var/webs/volume/dkr/pages
         # networks:
         #     - websnet
+        entrypoint: tail -f /dev/null
         # entrypoint: dkr did webs service --name webserve --config-dir /usr/local/var/webs/volume/dkr/examples/my-scripts --config-file config-docker
 
     did-webs-resolver:
@@ -67,5 +69,6 @@ services:
             - ./volume/dkr/examples:/usr/local/var/webs/volume/dkr/examples
         depends_on:
             - webs
+        entrypoint: tail -f /dev/null
         # networks:
         #     - websnet
