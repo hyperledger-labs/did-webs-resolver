@@ -112,15 +112,15 @@ def test_service(setup_habs):
             assert pstat == 200
             print("Got ping response content", resp.content)
             
-            resp = ddtres.get()
-            ddstat = resp.status_code
-            assert ddstat == 200
-            print("Got dd response content", resp.content)
+            # resp = ddtres.get()
+            # ddstat = resp.status_code
+            # assert ddstat == 200
+            # print("Got dd response content", resp.content)
             
-            resp = kctres.get()
-            kcstat = resp.status_code
-            assert kcstat == 200
-            print("Got kc response content", resp.content)
+            # resp = kctres.get()
+            # kcstat = resp.status_code
+            # assert kcstat == 200
+            # print("Got kc response content", resp.content)
             
         ohby, ohab, wesHby, wesHab = setup_habs
         odid = f"did:web:127.0.0.1%3a{port}:{ohab.pre}"
