@@ -12,6 +12,7 @@ from hio.core import http
 from keri.app import configing, habbing
 
 import os
+import pytest
 import queue
 import threading
 import time
@@ -85,6 +86,7 @@ class PingResource:
 #         data['reply'] = 1
 #         rep.data = json.dumps(data).encode("utf-8")
 
+@pytest.mark.timeout(60)
 def test_resolver():
     with habbing.openHby(name="verifier") as vhby, habbing.openHby(name="service") as shby:
         vhab = vhby.makeHab(name="verifier")

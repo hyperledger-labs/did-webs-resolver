@@ -87,7 +87,8 @@ setup(
                         'cryptography>=39.0.2',
                         'requests>=2.28',
                         'numpy>=1.26.0',
-                        'pytest>=6.2.5'
+                        'pytest>=6.2.5',
+                        'pytest-timeout>=2.3.1'
     ],
     extras_require={
     },

@@ -14,8 +14,8 @@ from hio.core import http
 
 from keri.app import configing, habbing
 
+import pytest
 import queue
-
 import threading
 import time
         
@@ -27,7 +27,8 @@ class PingResource:
       resp.text = (
          'Pong'
       )
-
+      
+@pytest.mark.timeout(60)
 def test_service(setup_habs):
     port = 7676
     
