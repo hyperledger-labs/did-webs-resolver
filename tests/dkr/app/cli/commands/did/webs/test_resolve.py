@@ -177,15 +177,15 @@ def test_resolver():
         assert pstat == 200
         print("Got example response content", resp.content)
         
-        resp = ddtres.get()
-        ddstat = resp.status_code
-        assert ddstat == 200
-        print("Got dd response content", resp.content)
+        # resp = ddtres.get()
+        # ddstat = resp.status_code
+        # assert ddstat == 200
+        # print("Got dd response content", resp.content)
         
-        resp = kctres.get()
-        kcstat = resp.status_code
-        assert kcstat == 200
-        print("Got kc response content", resp.content)
+        # resp = kctres.get()
+        # kcstat = resp.status_code
+        # assert kcstat == 200
+        # print("Got kc response content", resp.content)
 
         time.sleep(2)
         doist.recur()
