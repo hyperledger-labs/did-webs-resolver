@@ -60,7 +60,7 @@ def parseDIDWebs(did):
     return domain, port, path, aid
 
 
-def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=None, reg_name=None):
+def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=False, reg_name=None):
     if (did and aid) and not did.endswith(aid):
         raise ValueError(f"{did} does not end with {aid}")
     print("Generating DID document for", did, "with aid", aid, "using oobi", oobi, "and metadata", metadata, "registry name for creds", reg_name)

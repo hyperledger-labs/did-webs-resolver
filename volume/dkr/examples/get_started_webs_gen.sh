@@ -8,4 +8,4 @@ hostPath=$2
 aid=$3
 
 # generate controller did:webs for EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP at labs.hyperledger.org
-dkr did webs generate --name "${ctrlName}" --did "did:webs:${hostPath}:${aid}"
+dkr did webs generate --name "${ctrlName}" --did "did:webs:${hostPath}:${aid}" --meta True

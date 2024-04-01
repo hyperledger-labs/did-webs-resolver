@@ -40,7 +40,7 @@ kli vc export --name controller --alias controller --said "$SAID" --chain
 echo ""
 read -p "Press enter generate did:webs with designated aliases..."
 
-dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe" --meta True
 
 cp -R ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe ../pages/
 
