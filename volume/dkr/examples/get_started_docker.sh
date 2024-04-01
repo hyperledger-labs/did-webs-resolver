@@ -20,7 +20,7 @@ echo ""
 echo "ATTENTION: In your did-webs-service, start the webs server first, see the GETTING_STARTED.md for those instructions"
 read -p "Press enter to resolve did:webs..."
 
-dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe" --meta True
 
 echo ""
 read -p "Press enter to create designated aliases..."
@@ -40,11 +40,11 @@ kli vc export --name controller --alias controller --said "$SAID" --chain
 echo ""
 read -p "Press enter generate did:webs with designated aliases..."
 
-dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe" --meta True
 
 cp -R ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe ../pages/
 
 echo ""
 read -p "Press enter to resolve did:webs with designated aliases..."
 
-dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe" --meta True

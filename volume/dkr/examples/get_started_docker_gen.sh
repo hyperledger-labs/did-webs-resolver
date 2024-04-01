@@ -9,7 +9,7 @@ kli incept --name controller --alias controller --file /usr/local/var/webs/volum
 echo ""
 read -p "Press enter to generate did:webs..."
 
-dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe"
+dkr did webs generate --name controller --did "did:webs:did-webs-service%3a7676:ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe" --meta True
 
 echo ""
 read -p "Press enter to copy to pages..."
