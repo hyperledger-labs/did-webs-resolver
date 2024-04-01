@@ -4,7 +4,7 @@ dkr.core.didding module
 
 """
 
-from datetime import datetime
+import datetime
 import json
 import math
 import re
@@ -164,7 +164,7 @@ def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, meta=False, reg_nam
             
     didResolutionMetadata = dict(
         contentType="application/did+json",
-        retrieved=datetime.utcnow().strftime(DID_TIME_FORMAT)
+        retrieved=datetime.datetime.now(datetime.UTC).strftime(DID_TIME_FORMAT)
     )
     didDocumentMetadata = dict(
         witnesses=witnesses,
