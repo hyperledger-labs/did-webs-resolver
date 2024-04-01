@@ -108,7 +108,7 @@ class Generator(doing.DoDoer):
         kcf.write(tmsg)
 
         #generate did doc
-        result = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, reg_name=self.da_reg, metadata=self.meta)
+        result = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, reg_name=self.da_reg, meta=self.meta)
         
         diddoc = result
         if(self.meta):

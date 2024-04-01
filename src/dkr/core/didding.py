@@ -60,10 +60,10 @@ def parseDIDWebs(did):
     return domain, port, path, aid
 
 
-def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=False, reg_name=None):
+def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, meta=False, reg_name=None):
     if (did and aid) and not did.endswith(aid):
         raise ValueError(f"{did} does not end with {aid}")
-    print("Generating DID document for", did, "with aid", aid, "using oobi", oobi, "and metadata", metadata, "registry name for creds", reg_name)
+    print("Generating DID document for", did, "with aid", aid, "using oobi", oobi, "and metadata", meta, "registry name for creds", reg_name)
     
     hab = None
     if aid in hby.habs:
@@ -178,7 +178,7 @@ def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=False, reg
         alsoKnownAs=aka_ids
     )
 
-    if metadata is True:
+    if meta is True:
         resolutionResult = dict(
             didDocument=diddoc,
             didResolutionMetadata=didResolutionMetadata,

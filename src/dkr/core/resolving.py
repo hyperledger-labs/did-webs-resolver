@@ -53,7 +53,7 @@ def saveCesr(hby: habbing.Habery, kc_res: requests.Response, aid: str = None):
         assert aid in hby.kevers, f"KERI CESR parsing failed, KERI AID {aid} not found in habery"
 
 def getComp(hby: habbing.Habery, did: str, aid: str, dd_res: requests.Response, kc_res: requests.Response):
-    dd = didding.generateDIDDoc(hby, did=did, aid=aid, oobi=None, metadata=True)
+    dd = didding.generateDIDDoc(hby, did=did, aid=aid, oobi=None, meta=True)
     dd[didding.DD_META_FIELD]['didDocUrl'] = dd_res.url
     dd[didding.DD_META_FIELD]['keriCesrUrl'] = kc_res.url
 
@@ -62,7 +62,7 @@ def getComp(hby: habbing.Habery, did: str, aid: str, dd_res: requests.Response, 
 
     return dd, dd_actual
 
-def verify(dd, dd_actual, metadata: bool = False):
+def verify(dd, dd_actual, meta: bool = False):
     dd_exp = dd
     if didding.DD_FIELD in dd_exp:
         dd_exp = dd[didding.DD_FIELD]
@@ -71,7 +71,7 @@ def verify(dd, dd_actual, metadata: bool = False):
     
     result = None
     if verified:
-        result = dd if metadata else dd[didding.DD_FIELD]
+        result = dd if meta else dd[didding.DD_FIELD]
         print(f"DID verified")
     else:
         didresult = dict()
@@ -145,11 +145,11 @@ def _compare_dicts(expected, actual, path=""):
         if expected != actual:
             print(f"Different values for key {path}: {expected} (expected) vs. {actual} (actual)", file=sys.stderr)
 
-def resolve(hby, did, metadata=False, resq: queue.Queue = None):
+def resolve(hby, did, meta=False, resq: queue.Queue = None):
     aid, dd_res, kc_res = getSrcs(did=did, resq=resq)
     saveCesr(hby=hby,kc_res=kc_res, aid=aid)
     dd, dd_actual = getComp(hby=hby, did=did, aid=aid, dd_res=dd_res, kc_res=kc_res)    
-    vresult = verify(dd, dd_actual, metadata=metadata)
+    vresult = verify(dd, dd_actual, meta=meta)
     print("Resolution result: ", vresult)    
     return vresult
 
@@ -225,7 +225,7 @@ class ResolveResource(doing.DoDoer):
         super(ResolveResource, self).__init__(doers=[])
         print(f"Init resolver endpoint")
 
-    def on_get(self, req, rep, did):
+    def on_get(self, req, rep, did, meta=False):
         print(f"Request to resolve did: {did}")
 
         if did is None:
@@ -239,20 +239,18 @@ class ResolveResource(doing.DoDoer):
         else:
             oobi = None
 
-        metadata = False
-
         if did.startswith('did:webs:'):
             #res = WebsResolver(hby=self.hby, hbyDoer=self.hbyDoer, obl=self.obl, did=did)
             #tymth = None # ???
             #data = res.resolve(tymth)
-            cmd = f"dkr did webs resolve --name dkr --did {did} --metadata {metadata}"
+            cmd = f"dkr did webs resolve --name dkr --did {did} --meta {meta}"
             stream = os.popen(cmd)
             data = stream.read()
         elif did.startswith('did:keri'):
             #res = KeriResolver(hby=self.hby, hbyDoer=self.hbyDoer, obl=self.obl, did=did, oobi=oobi, metadata=False)
             #tymth = None # ???
             #data = res.resolve(tymth)
-            cmd = f"dkr did keri resolve --name dkr --did {did} --oobi {oobi} --metadata {metadata}"
+            cmd = f"dkr did keri resolve --name dkr --did {did} --oobi {oobi} --meta {meta}"
             stream = os.popen(cmd)
             data = stream.read()
         else:
