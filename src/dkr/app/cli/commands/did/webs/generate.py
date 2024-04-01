@@ -172,7 +172,7 @@ class Generator(doing.DoDoer):
             msgs.extend(msg)
                 
     def genAcdcCesr(self, aid, creder, msgs: bytearray):
-        print(f"Generating {creder.crd['d']} ACDC CESR events, issued by {creder.crd['i']}")
+        # print(f"Generating {creder.crd['d']} ACDC CESR events, issued by {creder.crd['i']}")
         cmsg = self.hby.habs[aid].endorse(creder)
         msgs.extend(cmsg)
                 
@@ -187,7 +187,7 @@ class Generator(doing.DoDoer):
             
             creder, *_ = rgy.reger.cloneCred(said=saider.qb64)
              
-            if creder.status is not None:
-                self.genTelCesr(rgy.reger, creder.status, msgs)
+            if creder.regi is not None:
+                self.genTelCesr(rgy.reger, creder.regi, msgs)
                 self.genTelCesr(rgy.reger, creder.said, msgs)
             self.genAcdcCesr(aid, creder, msgs)

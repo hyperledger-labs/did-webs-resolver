@@ -1,7 +1,7 @@
 version: "3"
 
-networks:
-    websnet:
+# networks:
+#     websnet:
 
 services:
     witnesshost:
