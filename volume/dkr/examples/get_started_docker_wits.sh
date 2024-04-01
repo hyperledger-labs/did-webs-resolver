@@ -25,7 +25,7 @@ echo ""
 echo "ATTENTION: In your did-webs-service, start the webs server first, see the GETTING_STARTED.md for those instructions"
 read -p "Press enter to resolve did:webs..."
 
-dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:$AID"
+dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:$AID" --meta True
 
 echo ""
 read -p "Press enter to create designated aliases..."
@@ -52,4 +52,4 @@ cp -R $AID ../pages/
 echo ""
 read -p "Press enter to resolve did:webs with designated aliases..."
 
-dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:$AID"
+dkr did webs resolve --name controller --did "did:webs:did-webs-service%3a7676:$AID" --meta True

@@ -28,25 +28,25 @@ parser.add_argument('--passcode', help='22 character encryption passcode for key
                     dest="bran", default=None)  # passcode => bran
 parser.add_argument("--did", "-d", help="DID to resolve (did:keri method)", required=True)
 parser.add_argument("--oobi", "-o", help="OOBI to use for resolving the DID", required=False)
-parser.add_argument("--metadata", "-m", help="Whether to include metadata (True), or only return the DID document (False)", type=bool, required=False, default=None)
+parser.add_argument("--meta", "-m", help="Whether to include metadata (True), or only return the DID document (False)", type=bool, required=False, default=None)
 
 
 def handler(args):
     hby = existing.setupHby(name=args.name, base=args.base, bran=args.bran)
     hbyDoer = habbing.HaberyDoer(habery=hby)  # setup doer
     obl = oobiing.Oobiery(hby=hby)
-    res = KeriResolver(hby=hby, hbyDoer=hbyDoer, obl=obl, did=args.did, oobi=args.oobi, metadata=args.metadata)
+    res = KeriResolver(hby=hby, hbyDoer=hbyDoer, obl=obl, did=args.did, oobi=args.oobi, meta=args.meta)
     return [res]
 
 
 class KeriResolver(doing.DoDoer):
 
-    def __init__(self, hby, hbyDoer, obl, did, oobi, metadata):
+    def __init__(self, hby, hbyDoer, obl, did, oobi, meta):
 
         self.hby = hby
         self.did = did
         self.oobi = oobi
-        self.metadata = metadata
+        self.meta = meta
 
         self.toRemove = [hbyDoer] + obl.doers
         doers = list(self.toRemove) + [doing.doify(self.resolve)]
@@ -68,9 +68,9 @@ class KeriResolver(doing.DoDoer):
         while self.hby.db.roobi.get(keys=(self.oobi,)) is None:
             _ = yield tock
 
-        didresult = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi, metadata=True)
+        didresult = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=self.oobi, meta=True)
         dd = didresult[didding.DD_FIELD]
-        result = didresult if self.metadata else dd
+        result = didresult if self.meta else dd
         data = json.dumps(result, indent=2)
 
         print(data)

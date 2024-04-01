@@ -32,6 +32,6 @@ fi
 DID="did:webs:did-webs-service%3a7676:$AID"
 
 echo "Resolving $AID did:webs $DID... "
-source "./get_started_webs_resolve.sh" "${NAME}" "${DID}"
+source "./get_started_webs_resolve.sh" "${NAME}" "${DID}" "True"
 
 

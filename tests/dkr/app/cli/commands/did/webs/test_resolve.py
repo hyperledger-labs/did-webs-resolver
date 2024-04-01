@@ -166,18 +166,18 @@ class PingResource:
 #         assert dd[didding.DD_FIELD][didding.VMETH_FIELD] == dd_actual[didding.VMETH_FIELD]
 
 #         # no metadata
-#         vresult = resolving.verify(dd, dd_actual, metadata=False)
+#         vresult = resolving.verify(dd, dd_actual, meta=False)
 #         assert vresult[didding.VMETH_FIELD] == dd[didding.DD_FIELD][didding.VMETH_FIELD]
 
 #         # metadata
-#         vresult = resolving.verify(dd, dd_actual, metadata=True)
+#         vresult = resolving.verify(dd, dd_actual, meta=True)
 #         assert vresult[didding.DD_FIELD][didding.VMETH_FIELD] == dd[didding.DD_FIELD][didding.VMETH_FIELD]
 
 #         # should not verify
 #         dd_actual_bad = dd_actual
 #         # remove the last character of the id
 #         dd_actual_bad[didding.VMETH_FIELD][0]["id"] = dd_actual_bad[didding.VMETH_FIELD][0]["id"][:-1]
-#         vresult = resolving.verify(dd, dd_actual_bad, metadata=True)
+#         vresult = resolving.verify(dd, dd_actual_bad, meta=True)
 #         assert vresult[didding.DID_RES_META_FIELD]['error'] == 'notVerified'
         
 #         # TODO test services, alsoKnownAs, etc.
