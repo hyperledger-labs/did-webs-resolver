@@ -37,14 +37,15 @@ parser.add_argument('-da', '--da_reg',
                     required=False,
                     default=None,
                     help="Name of regery to find designated aliases attestation. Default is None.")
+parser.add_argument("--meta", "-m", help="Whether to include metadata (True), or only return the DID document (False)", type=bool, required=False, default=False)
 
 def handler(args):
-    gen = Generator(name=args.name, base=args.base, bran=args.bran, did=args.did, oobi=None, da_reg=args.da_reg)
+    gen = Generator(name=args.name, base=args.base, bran=args.bran, did=args.did, oobi=None, da_reg=args.da_reg, meta=args.meta)
     return [gen]
 
 class Generator(doing.DoDoer):
 
-    def __init__(self, name, base, bran, did, oobi, da_reg):
+    def __init__(self, name, base, bran, did, oobi, da_reg, meta=False):
         self.name = name
         self.base = base
         self.bran = bran
@@ -55,6 +56,8 @@ class Generator(doing.DoDoer):
         self.did = did
         # self.oobi = oobi
         self.da_reg = da_reg
+        self.meta = meta
+        print("Generate DID document command", did, "using oobi", oobi, "and metadata", meta, "registry name for creds", da_reg)
 
         self.toRemove = [hbyDoer] + obl.doers
         doers = list(self.toRemove) + [doing.doify(self.generate)]
@@ -105,7 +108,12 @@ class Generator(doing.DoDoer):
         kcf.write(tmsg)
 
         #generate did doc
-        diddoc = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, reg_name=self.da_reg)
+        result = didding.generateDIDDoc(self.hby, did=self.did, aid=aid, oobi=None, reg_name=self.da_reg, meta=self.meta)
+        
+        diddoc = result
+        if(self.meta):
+            diddoc = result["didDocument"]
+            print("Generated metadata for DID document", result["didDocumentMetadata"])
         
         # Create the directory (and any intermediate directories in the given path) if it doesn't already exist
         dd_dir_path = f"{aid}"

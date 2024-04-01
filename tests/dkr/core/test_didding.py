@@ -156,7 +156,7 @@ def test_parse_web_did():
 
 def test_gen_did_doc(setup_habs):
     hby, hab, wesHby, wesHab = setup_habs
-    didDoc = didding.generateDIDDoc(hby, did, hab.pre, oobi=None, metadata=False)
+    didDoc = didding.generateDIDDoc(hby, did, hab.pre, oobi=None, meta=False)
     assert (
         didDoc["id"]
         == f"{did}"
@@ -204,9 +204,9 @@ def test_gen_did_doc(setup_habs):
     }
 
 
-def test_gen_did_doc_with_metadata(setup_habs):
+def test_gen_did_doc_with_meta(setup_habs):
     hby, hab, wesHby, wesHab = setup_habs
-    didDoc = didding.generateDIDDoc(hby, did, hab.pre, oobi=None, metadata=True)
+    didDoc = didding.generateDIDDoc(hby, did, hab.pre, oobi=None, meta=True)
     assert (
         didDoc[didding.DD_FIELD]["id"]
         == f"{did}"
@@ -264,14 +264,14 @@ def test_gen_did_doc_no_hab(setup_habs):
     did = f"did:web:did-webs-service%3a7676:{aid}"
 
     try:
-        didDoc = didding.generateDIDDoc(hby, did, aid, oobi=None, metadata=False)
+        didDoc = didding.generateDIDDoc(hby, did, aid, oobi=None, meta=False)
     except KeyError as e:
         assert str(e) == f"'{aid}'"
         
     msgs = resolving.loadFile(f"./volume/dkr/pages/{aid}/keri.cesr")
     hby.psr.parse(ims=msgs)
         
-    didDoc = didding.generateDIDDoc(hby, did, aid, oobi=None, metadata=False)
+    didDoc = didding.generateDIDDoc(hby, did, aid, oobi=None, meta=False)
     
     expected = resolving.loadJsonFile(f"./volume/dkr/pages/{aid}/did.json")
     
@@ -290,7 +290,7 @@ def test_gen_desig_aliases(setup_habs, seeder):
     )
 
     didDoc = didding.generateDIDDoc(
-        hby, did, hab.pre, oobi=None, metadata=True, reg_name=crdntler.rgy.name
+        hby, did, hab.pre, oobi=None, meta=True, reg_name=crdntler.rgy.name
     )
     assert (
         didDoc[didding.DD_FIELD]["id"]
@@ -339,7 +339,7 @@ def test_gen_desig_aliases_revoked(setup_habs, seeder):
     revoke_cred(hab, crdntler.rgy, crdntler.rgy.registryByName("dAliases"), creds[0])
 
     didDoc = didding.generateDIDDoc(
-        hby, did, hab.pre, oobi=None, metadata=True
+        hby, did, hab.pre, oobi=None, meta=True
     )
     assert (
         didDoc[didding.DD_FIELD]["id"]
