@@ -6,8 +6,8 @@ dkr.core.didding module
 
 from datetime import datetime
 import json
+import math
 import re
-import numpy as np
 
 from base64 import urlsafe_b64encode
 
@@ -112,7 +112,7 @@ def generateDIDDoc(hby: habbing.Habery, did, aid, oobi=None, metadata=None, reg_
                 conditionThreshold=conditions
             ))
     elif isinstance(kever.tholder.thold, list):
-        lcd = int(np.lcm.reduce([fr.denominator for fr in kever.tholder.thold[0]]))
+        lcd = int(math.lcm(*[fr.denominator for fr in kever.tholder.thold[0]]))
         threshold = float(lcd/2)
         numerators = [int(fr.numerator * lcd / fr.denominator) for fr in kever.tholder.thold[0]]
         conditions = []
