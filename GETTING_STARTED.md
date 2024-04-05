@@ -208,12 +208,6 @@ It will search for AID named directories and for the two files (`did.json` and `
     "did.doc.dir": "/usr/local/var/webs/volume/dkr/pages/"
 ```
 
-And when a file is found by the service, there will be logs like:
-```
-Looking for did.json file /usr/local/var/webs/volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
-registering /ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/did.json
-```
-
 It will serve it at a URL that you can CURL from any of our docker containers (for instance from the webs container) like:
 
 `command:`
