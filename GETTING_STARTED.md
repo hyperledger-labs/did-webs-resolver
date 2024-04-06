@@ -182,7 +182,12 @@ E.g. using git, Github pages, FTP, SCP, etc.
 ## Example: serve from docker
 You can run the docker example service to serve the did.json and keri.cesr files for the other docker containers:
 
-First, lets copy our generated files to the directory we'll serve from. On your `LOCAL` machine (or within the container) you can copy `volume/dkr/examples/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe` to `volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe`:
+First, lets copy our generated files to the directory we'll serve from. On your
+`LOCAL` machine (or within the container) you can copy
+`volume/dkr/examples/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe` to
+`volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe`:
+
+For this demo these files have been copied ahead of time for you.
 
 ```
 cp -R volume/dkr/examples/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
@@ -201,12 +206,6 @@ It will search for AID named directories and for the two files (`did.json` and `
 ```
     "keri.cesr.dir": "/usr/local/var/webs/volume/dkr/pages/",
     "did.doc.dir": "/usr/local/var/webs/volume/dkr/pages/"
-```
-
-And when a file is found by the service, there will be logs like:
-```
-Looking for did.json file /usr/local/var/webs/volume/dkr/pages/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe
-registering /ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe/did.json
 ```
 
 It will serve it at a URL that you can CURL from any of our docker containers (for instance from the webs container) like:
