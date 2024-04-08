@@ -284,7 +284,7 @@ dkr did webs resolve --name resolver --did "did:webs:did-webs-service%3a7676:ENr
 ### Example: Add designated aliases attestation
 
 Because your AID can be served as a did:webs, did:web, did:keri, etc. identifier you can specify these are designated aliases for verification and discovery purposes.
-To create this designated aliases attestation, you can the following:
+To create this designated aliases attestation, you can execute the following (on the controller docker image or locally with access to the controller's keystore):
 
 `create credential registry command:`
 ```
@@ -320,7 +320,7 @@ You can issue the attestation using the following command, supplying the registr
 
 `command:`
 ```
-kli vc issue --name controller --alias controller --registry-name dAliases --schema EN6Oh5XSD5_q2Hgu-aqpdfbVepdpYpFlgz6zvJL5b_r5 --data @desig-aliases-attr-public.json --rules @desig-aliases-rules-public.json
+kli vc create --name controller --alias controller --registry-name dAliases --schema EN6Oh5XSD5_q2Hgu-aqpdfbVepdpYpFlgz6zvJL5b_r5 --data @desig-aliases-attr-public.json --rules @desig-aliases-rules-public.json
 ```
 
 `output:`
@@ -601,8 +601,8 @@ and execute the following script:
 ```
 
 The notable differences now that we are using witnesses:
-* The AID is different now `EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP`, because the inception event contians the witness information which modifies the data used to generate the AID.
-* The DID Document now lists the witnesses in the service endpoints. Note: if you set the metadata flag to true KERI related service endpoints will be in the did document metadata instead of the did document.:
+* The AID is different now `EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP`, because the inception event contains the witness information which modifies the data used to generate the AID.
+* The DID Document now lists the witnesses in the service endpoints. Note, if you set the metadata flag to true, KERI related service endpoints will now be in the did document metadata instead of the did document, as so:
 ```json
 Got DID doc: {
   "id": "did:web:did-webs-service%3a7676:EKYGGh-FtAphGmSZbsuBs_t4qpsjYJ2ZqvMKluq9OxmP",
