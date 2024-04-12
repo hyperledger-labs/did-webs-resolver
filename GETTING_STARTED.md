@@ -589,6 +589,7 @@ cp -R volume/dkr/examples/ENro7uf0ePmiK3jdTo2YCdXLqW7z7xoP6qhhBou6gBLe volume/dk
 
 In order to use witnesses we run through the same steps as above but we use a different configuration file `incept-wits.json` that assigns witnesses to the AID. Witnesses are a special service endpoint because they are in the inception event (and can be updated in the rotation events).
 
+NOTE this section will recreate data from previous runs. You must restart your docker containers so that they are fresh if you already ran previous sections.
 To execute all of the above quickly we can use the script from the `webs` container you can:
 
 ```
