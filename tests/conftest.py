@@ -5,6 +5,7 @@ Use this module to configure pytest
 https://docs.pytest.org/en/latest/pythonpath.html
 
 """
+
 import os
 import shutil
 import multicommand
@@ -114,7 +115,7 @@ class DbSeed:
                 msgs.extend(
                     hab.makeLocScheme(url=url, scheme=scheme, stamp=help.nowIso8601())
                 )
-                psr.parse(ims=msgs)
+                psr.parse(ims=msgs, local=True)
 
     @staticmethod
     def seedWatcherEnds(db, protocols=None):
@@ -465,7 +466,7 @@ class DbSeed:
             "additionalProperties": False,
             "required": ["d", "dt", "ids"],
         }
-        
+
         _, sad = coring.Saider.saidify(sad, label=coring.Saids.dollar)
         schemer = scheming.Schemer(sed=sad)
         db.schema.pin(schemer.said, schemer)

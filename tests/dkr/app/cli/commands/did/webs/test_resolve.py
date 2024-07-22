@@ -16,15 +16,15 @@ import pytest
 import queue
 import threading
 import time
-        
+
+
 class PingResource:
-   def on_get(self, req, resp):
-      """Handles GET requests"""
-      resp.status = falcon.HTTP_200
-      resp.content_type = falcon.MEDIA_TEXT
-      resp.text = (
-         'Pong'
-      )
+    def on_get(self, req, resp):
+        """Handles GET requests"""
+        resp.status = falcon.HTTP_200
+        resp.content_type = falcon.MEDIA_TEXT
+        resp.text = "Pong"
+
 
 # @pytest.mark.timeout(60)
 # def test_resolver():
@@ -78,7 +78,7 @@ class PingResource:
 #         ptres = queue.Queue()
 #         pt = threading.Thread(target=resolving.loadUrl, args=(purl,ptres))
 #         pt.start()
-        
+
 #         ddstat = None
 #         ddtres = queue.Queue()
 #         ddt = threading.Thread(target=resolving.loadUrl, args=(ddurl,ddtres))
@@ -86,12 +86,12 @@ class PingResource:
 
 #         time.sleep(1)
 #         doist.recur()
-        
+
 #         kcstat = None
 #         kctres = queue.Queue()
 #         kct = threading.Thread(target=resolving.loadUrl, args=(kcurl,kctres))
 #         kct.start()
-        
+
 #         time.sleep(2)
 #         doist.recur()
 
@@ -99,12 +99,12 @@ class PingResource:
 #         pstat = resp.status_code
 #         assert pstat == 200
 #         print("Got example response content", resp.content)
-        
+
 #         resp = ddtres.get()
 #         ddstat = resp.status_code
 #         assert ddstat == 200
 #         print("Got dd response content", resp.content)
-        
+
 #         resp = kctres.get()
 #         kcstat = resp.status_code
 #         assert kcstat == 200
@@ -122,28 +122,28 @@ class PingResource:
 
 #         time.sleep(2)
 #         doist.recur()
-        
+
 #         mid_dd = rtres.get()
 #         print("\nGot resolve dd response",mid_dd)
 
 #         time.sleep(2)
 #         doist.recur()
-        
+
 #         mid_kc = rtres.get()
 #         print("\nGot resolve kc response",mid_kc)
 
 #         time.sleep(2)
 #         doist.recur()
-        
+
 #         raid = rtres.get()
 #         print("\nGot resolve aid response",raid)
 #         assert raid == aid
-        
+
 #         did_web_dd = resolving.loadJsonFile(f"./volume/dkr/pages/{aid}/did.json")
 #         rdd = rtres.get()
 #         print("\nGot resolve dd response",rdd)
 #         assert json.loads(rdd.content) == did_web_dd
-        
+
 #         rkc_expected = resolving.loadFile(f"./volume/dkr/pages/{aid}/keri.cesr")
 #         rkc_expected, sig_exp = resolving.splitCesr(rkc_expected.decode(), '}')
 #         rkc_exp_json = json.loads(rkc_expected)
@@ -153,15 +153,15 @@ class PingResource:
 #         # double the json.loads calls to compensate for the quote escaping?
 #         json_no_sig = json.loads(str_no_sig)
 #         assert json_no_sig == rkc_exp_json
-        
+
 #         if not rtres.empty():
 #             assert False, "Expected no more responses"
-        
+
 #         assert aid not in vhby.kevers
 #         resolving.saveCesr(hby=vhby,kc_res=rkc, aid=aid)
 #         assert aid in vhby.kevers
 
-#         dd, dd_actual = resolving.getComp(hby=vhby, did=did_webs, aid=aid, dd_res=rdd, kc_res=rkc)    
+#         dd, dd_actual = resolving.getComp(hby=vhby, did=did_webs, aid=aid, dd_res=rdd, kc_res=rkc)
 #         assert dd[didding.DD_FIELD][didding.VMETH_FIELD] != did_web_dd[didding.VMETH_FIELD]
 #         assert dd[didding.DD_FIELD][didding.VMETH_FIELD] == dd_actual[didding.VMETH_FIELD]
 
@@ -179,7 +179,7 @@ class PingResource:
 #         dd_actual_bad[didding.VMETH_FIELD][0]["id"] = dd_actual_bad[didding.VMETH_FIELD][0]["id"][:-1]
 #         vresult = resolving.verify(dd, dd_actual_bad, meta=True)
 #         assert vresult[didding.DID_RES_META_FIELD]['error'] == 'notVerified'
-        
+
 #         # TODO test services, alsoKnownAs, etc.
 
 #         # TODO test a resolution failure
@@ -190,12 +190,13 @@ class PingResource:
 #         doist.exit()
 
 #         """Done Test"""
-    
+
+
 class HandleCORS(object):
     def process_request(self, req, resp):
-        resp.set_header('Access-Control-Allow-Origin', '*')
-        resp.set_header('Access-Control-Allow-Methods', '*')
-        resp.set_header('Access-Control-Allow-Headers', '*')
-        resp.set_header('Access-Control-Max-Age', 1728000)  # 20 days
-        if req.method == 'OPTIONS':
-            raise http_status.HTTPStatus(falcon.HTTP_200, text='\n')
+        resp.set_header("Access-Control-Allow-Origin", "*")
+        resp.set_header("Access-Control-Allow-Methods", "*")
+        resp.set_header("Access-Control-Allow-Headers", "*")
+        resp.set_header("Access-Control-Max-Age", 1728000)  # 20 days
+        if req.method == "OPTIONS":
+            raise http_status.HTTPStatus(falcon.HTTP_200, text="\n")

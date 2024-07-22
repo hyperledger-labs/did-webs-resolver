@@ -20,7 +20,7 @@ def main():
     parser = multicommand.create_parser(commands)
     args = parser.parse_args()
 
-    if not hasattr(args, 'handler'):
+    if not hasattr(args, "handler"):
         parser.print_help()
         return
 

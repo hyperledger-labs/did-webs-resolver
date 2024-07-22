@@ -6,7 +6,7 @@ from dkr.core import didding
 
 from hio.core import http
 from keri.app import habbing, grouping, signing
-from keri.core import coring, eventing, parsing, scheming
+from keri.core import coring, eventing, parsing, scheming, signing
 from keri.db import basing
 from keri.end import ending
 from keri.help import helping
@@ -15,20 +15,26 @@ from keri.peer import exchanging
 from keri.vdr import credentialing, verifying
 from keri.vdr.credentialing import Credentialer, proving
 
+
 @pytest.fixture
 def setup_habs():
     with habbing.openHby(name="test", temp=True) as hby, habbing.openHby(
-        name="wes", salt=coring.Salter(raw=b"wess-the-witness").qb64, temp=True
+        name="wes", salt=signing.Salter(raw=b"wess-the-witness").qb64, temp=True
     ) as wesHby, habbing.openHby(
-        name="wis", salt=coring.Salter(raw=b"wiss-the-witness").qb64, temp=True
-    ) as wisHby, habbing.openHab(name="agent", temp=True) as (agentHby, agentHab):
+        name="wis", salt=signing.Salter(raw=b"wiss-the-witness").qb64, temp=True
+    ) as wisHby, habbing.openHab(
+        name="agent", temp=True
+    ) as (
+        agentHby,
+        agentHab,
+    ):
         print()
 
         wesHab = wesHby.makeHab(name="wes", isith="1", icount=1, transferable=False)
         assert not wesHab.kever.prefixer.transferable
         # create non-local kevery for Wes to process nonlocal msgs
         wesKvy = eventing.Kevery(db=wesHab.db, lax=False, local=False)
-        
+
         wisHab = wisHby.makeHab(name="wis", isith="1", icount=1, transferable=False)
         assert not wisHab.kever.prefixer.transferable
         # create non-local kevery for Wes to process nonlocal msgs
@@ -50,7 +56,7 @@ def setup_habs():
         kvy = eventing.Kevery(db=hab.db, lax=False, local=False)
         icpMsg = hab.makeOwnInception()
         rctMsgs = []  # list of receipts from each witness
-        parsing.Parser().parse(ims=bytearray(icpMsg), kvy=wesKvy)
+        parsing.Parser().parse(ims=bytearray(icpMsg), kvy=wesKvy, local=True)
         # assert wesKvy.kevers[hab.pre].sn == 0  # accepted event
         # assert len(wesKvy.cues) == 2  # queued receipt cue
         rctMsg = wesHab.processCues(wesKvy.cues)  # process cue returns rct msg
@@ -58,23 +64,23 @@ def setup_habs():
         rctMsgs.append(rctMsg)
 
         for msg in rctMsgs:  # process rct msgs from all witnesses
-            parsing.Parser().parse(ims=bytearray(msg), kvy=kvy)
+            parsing.Parser().parse(ims=bytearray(msg), kvy=kvy, local=True)
             assert wesHab.pre in kvy.kevers
-        
-        rctMsgs = []    
-        parsing.Parser().parse(ims=bytearray(icpMsg), kvy=wisKvy)
+
+        rctMsgs = []
+        parsing.Parser().parse(ims=bytearray(icpMsg), kvy=wisKvy, local=True)
         assert wisKvy.kevers[hab.pre].sn == 0  # accepted event
-        assert len(wisKvy.cues) == 2  # queued receipt cue
+        assert len(wisKvy.cues) == 1  # queued receipt cue
         rctMsg = wisHab.processCues(wisKvy.cues)  # process cue returns rct msg
         assert len(rctMsg) == 626
         rctMsgs.append(rctMsg)
 
         for msg in rctMsgs:  # process rct msgs from all witnesses
-            parsing.Parser().parse(ims=bytearray(msg), kvy=kvy)
+            parsing.Parser().parse(ims=bytearray(msg), kvy=kvy, local=True)
             assert wisHab.pre in kvy.kevers
 
         agentIcpMsg = agentHab.makeOwnInception()
-        parsing.Parser().parse(ims=bytearray(agentIcpMsg), kvy=kvy)
+        parsing.Parser().parse(ims=bytearray(agentIcpMsg), kvy=kvy, local=True)
         assert agentHab.pre in kvy.kevers
 
         msgs = bytearray()
@@ -91,7 +97,7 @@ def setup_habs():
                 stamp=helping.nowIso8601(),
             )
         )
-        wesHab.psr.parse(ims=bytearray(msgs))
+        wesHab.psr.parse(ims=bytearray(msgs), local=True)
 
         msgs.extend(
             wisHab.makeEndRole(
@@ -114,8 +120,8 @@ def setup_habs():
                 stamp=helping.nowIso8601(),
             )
         )
-        
-        wisHab.psr.parse(ims=bytearray(msgs))
+
+        wisHab.psr.parse(ims=bytearray(msgs), local=True)
 
         # Set up
         msgs.extend(
@@ -131,7 +137,7 @@ def setup_habs():
                 stamp=helping.nowIso8601(),
             )
         )
-        hab.psr.parse(ims=msgs)
+        hab.psr.parse(ims=msgs, local=True)
 
         msgs = bytearray()
         msgs.extend(
@@ -152,7 +158,9 @@ def setup_habs():
 
         msgs.extend(
             hab.makeEndRole(
-                eid=agentHab.pre, role=kering.Roles.registrar, stamp=helping.nowIso8601()
+                eid=agentHab.pre,
+                role=kering.Roles.registrar,
+                stamp=helping.nowIso8601(),
             )
         )
 
@@ -162,16 +170,22 @@ def setup_habs():
             )
         )
 
-        agentHab.psr.parse(ims=bytearray(msgs))
-        hab.psr.parse(ims=bytearray(msgs))
+        agentHab.psr.parse(ims=bytearray(msgs), local=True)
+        hab.psr.parse(ims=bytearray(msgs), local=True)
 
         rurls = hab.fetchRoleUrls(hab.pre)
         ctlr = rurls.get("controller")
         ctlr1 = ctlr.get(hab.pre)
         ctlrHttp = ctlr1.get("http")
         assert ctlrHttp == "http://127.0.0.1:7777"
-        assert rurls.get("registrar").get("EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ").get("http") == "http://127.0.0.1:6666"
-        assert rurls.get("mailbox").get("EBErgFZoM3PBQNTpTuK9bax_U8HLJq1Re2RM1cdifaTJ").get("http") == "http://127.0.0.1:6666"
+        reg = rurls.get("registrar")
+        reg1 = reg.get(agentHab.pre)
+        reg1Http = reg1.get("http")
+        assert reg1Http == "http://127.0.0.1:6666"
+        assert (
+            rurls.get("mailbox").get(agentHab.pre).get("http")
+            == "http://127.0.0.1:6666"
+        )
         wurls = hab.fetchWitnessUrls(hab.pre)
         wwits = wurls.getall("witness")
         wwit1 = wwits[0].get("BN8t3n1lxcV0SWGJIIF46fpSUqA7Mqre5KJNN3nbx3mr")
@@ -179,8 +193,9 @@ def setup_habs():
         wwit2 = wwits[1]
         wse2 = wwit2.get("BAjTuhnzPDB0oU0qHXACnvzachJpYjUAtH1N9Tsb_MdE")
         assert wse2.get("http") == "http://127.0.0.1:9999"
-        
-        yield hby, hab, wesHby, wesHab
+
+        yield hby, hab, wesHby, wesHab, agentHab
+
 
 def da_cred():
     """
@@ -322,8 +337,12 @@ def setup_cred(hab, registry, verifier: verifying.Verifier, seqner):
     missing = False
     try:
         # Specify an anchor directly in the KEL
-        verifier.processCredential(creder=creder, prefixer=prefixer, seqner=seqner,
-            saider=coring.Saider(qb64=hab.kever.serder.said))
+        verifier.processCredential(
+            creder=creder,
+            prefixer=prefixer,
+            seqner=seqner,
+            saider=coring.Saider(qb64=hab.kever.serder.said),
+        )
     except kering.MissingRegistryError:
         missing = True
 
@@ -343,13 +362,13 @@ def issue_cred(hab, regery, registry, creder):
     hab.interact(data=[rseal])
     seqner = coring.Seqner(sn=hab.kever.sn)
     saider = coring.Saider(qb64=hab.kever.serder.said)
-    registry.anchorMsg(
-        pre=iss.pre, regd=iss.said, seqner=seqner, saider=saider
-    )
+    registry.anchorMsg(pre=iss.pre, regd=iss.said, seqner=seqner, saider=saider)
     regery.processEscrows()
     state = registry.tever.vcState(vci=creder.said)
     if state is None or state.et not in (coring.Ilks.iss):
-        raise kering.ValidationError(f"credential {creder.said} not is correct state for issuance")
+        raise kering.ValidationError(
+            f"credential {creder.said} not is correct state for issuance"
+        )
 
 
 def revoke_cred(hab, regery, registry: credentialing.Registry, creder):
@@ -358,18 +377,17 @@ def revoke_cred(hab, regery, registry: credentialing.Registry, creder):
     hab.interact(data=[rseal])
     seqner = coring.Seqner(sn=hab.kever.sn)
     saider = coring.Saider(qb64=hab.kever.serder.said)
-    registry.anchorMsg(
-        pre=rev.pre, regd=rev.said, seqner=seqner, saider=saider
-    )
+    registry.anchorMsg(pre=rev.pre, regd=rev.said, seqner=seqner, saider=saider)
     regery.processEscrows()
     state = registry.tever.vcState(vci=creder["sad"]["d"])
     if state is None or state.et not in (coring.Ilks.rev):
-        raise kering.ValidationError(f"credential {creder.said} not is correct state for revocation")
+        raise kering.ValidationError(
+            f"credential {creder.said} not is correct state for revocation"
+        )
 
 
 def issue_desig_aliases(seeder, hby, hab, whby, whab, registryName="cam"):
     seeder.seedSchema(db=hby.db)
-    assert hab.pre == "ECCoHcHP1jTAW8Dr44rI2kWzfF71_U0sZwvV-J_q4YE7"
 
     # kli vc registry incept --name "$alias" --alias "$alias" --registry-name "$reg_name"
     regery, registry, reg_anc = setup_rgy(hby, hab, registryName)
