@@ -14,31 +14,51 @@ from keri.app.cli.common import existing
 
 from dkr.core import webbing
 
-parser = argparse.ArgumentParser(description='Launch web server capable of serving KERI AIDs as did:webs and did:web DIDs')
-parser.set_defaults(handler=lambda args: launch(args),
-                    transferable=True)
-parser.add_argument('-p', '--http',
-                    action='store',
-                    default=7676,
-                    help="Port on which to listen for did:webs requests")
-parser.add_argument('-n', '--name',
-                    action='store',
-                    default="dkr",
-                    help="Name of controller. Default is dkr.")
-parser.add_argument('--base', '-b', help='additional optional prefix to file location of KERI keystore',
-                    required=False, default="")
-parser.add_argument('--passcode', help='22 character encryption passcode for keystore (is not saved)',
-                    dest="bran", default=None)  # passcode => bran
-parser.add_argument("--config-dir",
-                    "-c",
-                    dest="configDir",
-                    help="directory override for configuration data",
-                    default=None)
-parser.add_argument('--config-file',
-                    dest="configFile",
-                    action='store',
-                    default="dkr",
-                    help="configuration filename override")
+parser = argparse.ArgumentParser(
+    description="Launch web server capable of serving KERI AIDs as did:webs and did:web DIDs"
+)
+parser.set_defaults(handler=lambda args: launch(args), transferable=True)
+parser.add_argument(
+    "-p",
+    "--http",
+    action="store",
+    default=7676,
+    help="Port on which to listen for did:webs requests",
+)
+parser.add_argument(
+    "-n",
+    "--name",
+    action="store",
+    default="dkr",
+    help="Name of controller. Default is dkr.",
+)
+parser.add_argument(
+    "--base",
+    "-b",
+    help="additional optional prefix to file location of KERI keystore",
+    required=False,
+    default="",
+)
+parser.add_argument(
+    "--passcode",
+    help="22 character encryption passcode for keystore (is not saved)",
+    dest="bran",
+    default=None,
+)  # passcode => bran
+parser.add_argument(
+    "--config-dir",
+    "-c",
+    dest="configDir",
+    help="directory override for configuration data",
+    default=None,
+)
+parser.add_argument(
+    "--config-file",
+    dest="configFile",
+    action="store",
+    default="dkr",
+    help="configuration filename override",
+)
 parser.add_argument("--keypath", action="store", required=False, default=None)
 parser.add_argument("--certpath", action="store", required=False, default=None)
 parser.add_argument("--cafilepath", action="store", required=False, default=None)
@@ -56,19 +76,18 @@ def launch(args):
     configFile = args.configFile
     configDir = args.configDir
 
-    ks = keeping.Keeper(name=name,
-                        base=base,
-                        temp=False,
-                        reopen=True)
+    ks = keeping.Keeper(name=name, base=base, temp=False, reopen=True)
 
-    aeid = ks.gbls.get('aeid')
+    aeid = ks.gbls.get("aeid")
 
-    cf = configing.Configer(name=configFile,
-                            base=base,
-                            headDirPath=configDir,
-                            temp=False,
-                            reopen=True,
-                            clear=False)
+    cf = configing.Configer(
+        name=configFile,
+        base=base,
+        headDirPath=configDir,
+        temp=False,
+        reopen=True,
+        clear=False,
+    )
 
     if aeid is None:
         print(f"Creating new habery {name} {base} {bran} {cf}")
@@ -82,16 +101,20 @@ def launch(args):
 
     app = falcon.App(
         middleware=falcon.CORSMiddleware(
-            allow_origins='*',
-            allow_credentials='*',
-            expose_headers=['cesr-attachment', 'cesr-date', 'content-type']))
+            allow_origins="*",
+            allow_credentials="*",
+            expose_headers=["cesr-attachment", "cesr-date", "content-type"],
+        )
+    )
 
     if keypath is not None:
-        servant = hio.core.tcp.ServerTls(certify=False,
-                                         keypath=keypath,
-                                         certpath=certpath,
-                                         cafilepath=cafilepath,
-                                         port=httpPort)
+        servant = hio.core.tcp.ServerTls(
+            certify=False,
+            keypath=keypath,
+            certpath=certpath,
+            cafilepath=cafilepath,
+            port=httpPort,
+        )
     else:
         servant = None
 
@@ -102,5 +125,7 @@ def launch(args):
 
     webbing.setup(app, hby=hby, cf=cf)
 
-    print(f"Launched web server capable of serving KERI AIDs as did:webs DIDs on: {httpPort}")
+    print(
+        f"Launched web server capable of serving KERI AIDs as did:webs DIDs on: {httpPort}"
+    )
     return doers
