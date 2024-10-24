@@ -130,3 +130,7 @@ dmypy.json
 
 # IntelliJ Files:
 .idea/
+
+# Ignore runtime files
+/volume/dkr/examples/E*
+/volume/dkr/pages/
