@@ -4,7 +4,9 @@ dws.core.resolving module
 
 """
 
+import io
 import json
+import logging
 import os
 from typing import Callable, List
 
@@ -345,14 +347,22 @@ class RequestLoggerMiddleware:
 
     def process_request(self, req: falcon.Request, resp: falcon.Response):
         """Log incoming requests."""
-        logger.info(f'Request received : {req.method} {req.url}')
-        logger.debug(f'Request headers : {req.headers}')
-        logger.debug(f'Request body    : {req.stream.read().decode("utf-8") if req.content_length else "No body"}')
+        logger.info('Request received : %s %s', req.method, req.url)
+        logger.debug('Request headers : %s', req.headers)
+        if req.content_length and logger.isEnabledFor(logging.DEBUG):
+            # Read and re-set the stream to allow further processing
+            body = req.stream.read()
+            decoded_body = body.decode('utf-8') if body else '<empty>'
+            logger.debug('Request body    : %s', decoded_body)
+            req.env['wsgi.input'] = io.BytesIO(body)  # Reset the stream for further processing
+            req.env['CONTENT_LENGTH'] = str(len(body))  # match WSGI env content length to body length
+        else:
+            logger.debug('Request body    : No body')
 
     def process_response(self, req: falcon.Request, resp: falcon.Response, resource, req_succeeded):
         """Log outgoing responses."""
-        logger.info(f'Response status  : {resp.status} on {req.method} {req.url}')
-        logger.debug(f'Response headers: {resp.headers}')
+        logger.info(f'Response status  : %s on %s %s', resp.status, req.method, req.url)
+        logger.debug(f'Response headers: %s', resp.headers)
 
 
 def falcon_app() -> falcon.App:

@@ -1,3 +1,5 @@
+__version__ = '0.3.1'  # also change in pyproject.toml and Makefile
+
 # Logging config
 import logging
 
@@ -38,7 +40,3 @@ class UnknownAID(DidWebsError):
     def __init__(self, aid: str, did: str):
         super().__init__(f'Unknown AID {aid} found in {did}')
         self.aid = aid
-
-
-# Versioning
-__version__ = '0.3.0'  # also change in pyproject.toml
